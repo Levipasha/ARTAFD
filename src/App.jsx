@@ -4,7 +4,6 @@ import { CartProvider } from './contexts/CartContext';
 import AuthProvider from './contexts/AuthContext';
 import Home from './components/Home';
 import ArtStore from './components/ArtStore';
-import Login from './components/Login';
 import ArtistHub from './components/ArtistHub';
 import NFTPage from './components/NFTPage';
 import EventsPage from './components/EventsPage';

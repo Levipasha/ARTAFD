@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 
 const VirtualGallery3D = () => {
+  const museumUrl = 'https://extranl-musem.vercel.app/';
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -19,7 +21,7 @@ const VirtualGallery3D = () => {
             <h1 className="text-3xl font-bold text-black">VIRTUAL 3D GALLERY</h1>
           </div>
           <a
-            href="http://localhost:5173"
+            href={museumUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 w-fit"
@@ -32,7 +34,7 @@ const VirtualGallery3D = () => {
         <div className="rounded-2xl border overflow-hidden bg-black">
           <iframe
             title="3D Virtual Gallery"
-            src="http://localhost:5173"
+            src={museumUrl}
             className="w-full h-[78vh]"
           />
         </div>

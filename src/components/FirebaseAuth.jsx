@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { signInWithGoogle, signInWithEmail, logoutFirebase, getCurrentUser, getIdToken } from '../firebase';
+import { signInWithGoogle, signInWithEmail, getCurrentUser, getIdToken } from '../firebase';
 
 const FirebaseAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -175,7 +175,7 @@ const FirebaseAuth = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-red-600 hover:text-red-500">
+                <a href="/login" className="font-medium text-red-600 hover:text-red-500">
                   Forgot your password?
                 </a>
               </div>

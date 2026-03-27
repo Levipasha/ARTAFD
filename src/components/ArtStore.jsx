@@ -4,6 +4,17 @@ import { Filter, Search, ArrowLeft, MapPin } from 'lucide-react';
 import Navbar from './Navbar';
 import { productsAPI } from '../services/api';
 
+const normalizeCategory = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+const pillToCategory = {
+  'Painting': ['painting'],
+  'Digital Art': ['digitalart', 'digital'],
+  'Sculpture': ['sculpture'],
+  'Photography': ['photography', 'photo'],
+  'Print': ['print', 'prints'],
+  'Supplies': ['supplies', 'supply'],
+  'Other': ['other'],
+};
+
 const ArtStore = () => {
   const navigate = useNavigate();
 
@@ -35,17 +46,6 @@ const ArtStore = () => {
   }, [search]);
 
   const pills = ['All', 'Painting', 'Digital Art', 'Sculpture', 'Photography', 'Print', 'Supplies', 'Other'];
-  const normalizeCategory = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const pillToCategory = {
-    'Painting': ['painting'],
-    'Digital Art': ['digitalart', 'digital'],
-    'Sculpture': ['sculpture'],
-    'Photography': ['photography', 'photo'],
-    'Print': ['print', 'prints'],
-    'Supplies': ['supplies', 'supply'],
-    'Other': ['other'],
-  };
 
   const filteredProducts = useMemo(() => {
     if (selectedPill === 'All') return products;

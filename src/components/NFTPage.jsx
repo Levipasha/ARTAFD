@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Clock, TrendingUp, Shield, Zap, Globe, Users, Star, ChevronRight, ExternalLink, Check, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Eye, TrendingUp, Shield, Zap, Globe, Users, ChevronRight, Check, ShoppingCart } from 'lucide-react';
 
 const NFTPage = () => {
   const navigate = useNavigate();

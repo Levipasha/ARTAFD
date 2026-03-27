@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Palette, Globe, Award, Heart, Target, Zap, ChevronRight, Calendar } from 'lucide-react';
+import { ArrowLeft, Users, Globe, Award, Heart, Zap, ChevronRight, Calendar } from 'lucide-react';
 import dscf9962 from './dscf9962-dJobNl5GE4tzKV9B.jpg';
 import logoCircle from './cropped_circle_image.png';
 import { artistsAPI, galleryAPI } from '../services/api';
