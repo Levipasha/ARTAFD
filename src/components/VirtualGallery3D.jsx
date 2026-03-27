@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 
 const VirtualGallery3D = () => {
-  const museumUrl = 'https://extranl-musem.vercel.app/';
+  const museumUrl = 'https://extranl-musem-jl982nrjj-levipashas-projects.vercel.app/';
 
   return (
     <div className="min-h-screen bg-white">
