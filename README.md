@@ -93,5 +93,3 @@ npm run build
 ```
 
 This creates an optimized production build in the `build/` directory.
-
-# ARTAFD
