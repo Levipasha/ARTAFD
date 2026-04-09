@@ -1,6 +1,6 @@
 "use client"; 
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 
@@ -12,14 +12,14 @@ function NavHeader() {
   });
   const location = useLocation();
 
-  const navItems = [
+  const navItems = useMemo(() => [
     { to: '/', label: 'Home' },
     { to: '/art-store', label: 'Art Store' },
     { to: '/artist-hub', label: 'Artist Hub' },
     { to: '/nft', label: 'NFT' },
     { to: '/events', label: 'Events' },
     { to: '/virtual-gallery', label: 'Virtual Gallery' }
-  ];
+  ], []);
 
   // Set initial position for active link
   React.useEffect(() => {

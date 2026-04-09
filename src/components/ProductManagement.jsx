@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Package, DollarSign, Image as ImageIcon, Save, X } from 'lucide-react';
 import Navbar from './Navbar';
 
 const ProductManagement = () => {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({

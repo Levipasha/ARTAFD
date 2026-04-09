@@ -305,9 +305,6 @@ const ArtStore = () => {
                       artistName: previewItem?.artistProfile?.name || 'Unknown Artist'
                     };
                     
-                    // Get admin payment link (this would be fetched from admin settings)
-                    const adminPaymentLink = 'https://your-admin-payment-gateway.com/pay'; // This should be fetched from admin
-                    
                     // Redirect to payment with artwork data using React Router
                     const paymentUrl = `/payment?artwork=${encodeURIComponent(JSON.stringify(artworkData))}`;
                     navigate(paymentUrl);

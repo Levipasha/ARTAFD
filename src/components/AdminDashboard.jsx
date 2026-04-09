@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Users, Package, Calendar, Settings, LogOut, Plus, Edit, Trash2, Eye, Search, Filter, Download } from 'lucide-react';
+import { BarChart3, Users, Package, Calendar, Settings, LogOut, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminAPI } from '../services/api';
 import AddProductButton from './AddProductButton';
@@ -67,17 +67,7 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await adminAPI.deleteUser(userId);
-        fetchUsers();
-      } catch (error) {
-        console.error('Delete user error:', error);
-      }
-    }
-  };
-
+  
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
