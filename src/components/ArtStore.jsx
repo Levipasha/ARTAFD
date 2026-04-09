@@ -102,6 +102,25 @@ const ArtStore = () => {
           
           <h1 className="text-4xl font-bold text-black mb-2">ART SHOWCASE</h1>
           <p className="text-gray-600">Explore posted artworks from the community</p>
+          
+          {/* Artist Payment Setup Section */}
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-red-800">Artist Payment Setup</h3>
+                <p className="text-sm text-red-600 mt-1">Set up your payment method to receive commissions</p>
+              </div>
+              <button 
+                onClick={() => {
+                  // Navigate to payment setup page
+                  navigate('/payment-setup');
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium whitespace-nowrap"
+              >
+                Set Up Payment
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -258,6 +277,60 @@ const ArtStore = () => {
             </div>
             <div className="p-4 text-sm text-gray-700">
               {previewItem.description}
+            </div>
+            
+            {/* Commission/Purchase Section */}
+            <div className="p-4 border-t bg-gray-50">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900">Commission This Artwork</h4>
+                  <p className="text-sm text-gray-600">Click to purchase or commission this artist</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-red-600">
+                    {previewItem.price ? `$${previewItem.price}` : 'Contact Artist'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    // Fetch price and redirect to admin payment link
+                    const artworkData = {
+                      id: previewItem._id,
+                      name: previewItem.name,
+                      price: previewItem.price,
+                      artistId: previewItem.artistId,
+                      artistName: previewItem?.artistProfile?.name || 'Unknown Artist'
+                    };
+                    
+                    // Get admin payment link (this would be fetched from admin settings)
+                    const adminPaymentLink = 'https://your-admin-payment-gateway.com/pay'; // This should be fetched from admin
+                    
+                    // Redirect to payment with artwork data using React Router
+                    const paymentUrl = `/payment?artwork=${encodeURIComponent(JSON.stringify(artworkData))}`;
+                    navigate(paymentUrl);
+                  }}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Buy Now
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    // Direct artist contact
+                    if (previewItem?.artistProfile?.email) {
+                      window.location.href = `mailto:${previewItem.artistProfile.email}?subject=Commission Request for ${previewItem.name}`;
+                    } else {
+                      alert('Artist contact information not available');
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Contact Artist
+                </button>
+              </div>
             </div>
           </div>
         </div>

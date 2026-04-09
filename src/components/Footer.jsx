@@ -20,14 +20,14 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Column 2 - Products */}
+          {/* Column 2 - Learn */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">PRODUCTS</h4>
+            <h4 className="text-lg font-semibold mb-4">LEARN</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Art Supplies</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Digital Tools</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Workshops</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Studio Finder</a></li>
+              <li><a href="/art-supplies" className="text-gray-400 hover:text-white transition-colors">Art Supplies</a></li>
+              <li><a href="/digital-tools" className="text-gray-400 hover:text-white transition-colors">Digital Tools</a></li>
+              <li><a href="/workshops" className="text-gray-400 hover:text-white transition-colors">Workshops</a></li>
+              <li><a href="/studio-finder" className="text-gray-400 hover:text-white transition-colors">Studio Finder</a></li>
             </ul>
           </div>
 
@@ -35,10 +35,10 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">COMPANY</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Press Kit</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+              <li><a href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+              <li><a href="/careers" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+              <li><a href="/press-kit" className="text-gray-400 hover:text-white transition-colors">Press Kit</a></li>
+              <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
             </ul>
           </div>
 
@@ -46,10 +46,10 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">LEGAL</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a></li>
-              <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Disclaimer</a></li>
+              <li><a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+              <li><a href="/cookie-policy" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a></li>
+              <li><a href="/disclaimer" className="text-gray-400 hover:text-white transition-colors">Disclaimer</a></li>
             </ul>
           </div>
         </div>

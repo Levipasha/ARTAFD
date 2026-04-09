@@ -136,10 +136,10 @@ const Cards = () => {
           </div>
         </div>
 
-        {/* Bottom Section - Find Studio and Become Verified Artist */}
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Bottom Section - Find Studio, Become Verified Artist, and Virtual Gallery */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 lg:gap-8">
           {/* Left Card - Find Studio */}
-          <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 text-center md:text-left">
+          <div className="bg-white p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 text-center md:text-left min-w-0">
             <div className="mb-6 flex justify-center md:justify-start">
               <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,8 +160,8 @@ const Cards = () => {
             </p>
           </div>
 
-          {/* Right Card - Become Verified Artist */}
-          <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 text-center md:text-left">
+          {/* Middle Card - Become Verified Artist */}
+          <div className="bg-white p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border border-gray-200 text-center md:text-left min-w-0">
             <h2 className="text-2xl font-bold text-black mb-4">
               BECOME A VERIFIED ARTIST
             </h2>
@@ -170,21 +170,71 @@ const Cards = () => {
               Join 265+ verified professionals and get high-quality client leads with zero commission.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
-              <button className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
+            <div className="space-y-4">
+              <button className="w-full bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
                 REGISTER PROFILE
               </button>
               
-              <div className="flex gap-3 sm:gap-4">
-                <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center">
-                  <div className="text-xs font-bold text-black">₹1000</div>
+              <div className="flex justify-center gap-4">
+                <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center min-w-[80px]">
+                  <div className="text-xs font-bold text-black">?1000</div>
                   <div className="text-xs text-gray-600">LIFETIME</div>
                 </div>
-                <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center">
+                <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center min-w-[80px]">
                   <div className="text-xs font-bold text-black">0%</div>
                   <div className="text-xs text-gray-600">COMMS</div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Right Card - Virtual Gallery */}
+          <div className="relative bg-[#0A0A0A] p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden min-w-0">
+            {/* Background Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-transparent to-purple-900/20 pointer-events-none" />
+            
+            {/* Subtle Pattern */}
+            <div 
+              className="absolute inset-0 opacity-[0.05] pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M0 0h40v40H0z'/%3E%3Cpath d='M20 20h20v20H20z'/%3E%3C/g%3E%3C/svg%3E")`
+              }}
+            />
+
+            <div className="relative z-10">
+              <div className="mb-6">
+                <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full tracking-wider uppercase">
+                  EXPLORE NOW
+                </span>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-white mb-4">
+                VIRTUAL GALLERY
+              </h2>
+              
+              <p className="text-gray-400 leading-relaxed mb-6">
+                Experience art like never before in our immersive 3D virtual exhibition space.
+              </p>
+              <p className="text-sm text-gray-500 mb-6">
+                Walk through curated collections, interact with artworks, and attend live virtual exhibitions from anywhere in the world.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-white/10 border border-white/20 rounded-lg py-2 text-center">
+                  <div className="text-sm font-bold text-white">3D</div>
+                  <div className="text-[10px] text-gray-400">Experience</div>
+                </div>
+                <div className="bg-white/10 border border-white/20 rounded-lg py-2 text-center">
+                  <div className="text-sm font-bold text-white">24/7</div>
+                  <div className="text-[10px] text-gray-400">Access</div>
+                </div>
+              </div>
+              
+              <a href="/virtual-gallery" className="block w-full">
+                <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-200">
+                  ENTER GALLERY
+                </button>
+              </a>
             </div>
           </div>
         </div>

@@ -10,7 +10,18 @@ import EventsPage from './components/EventsPage';
 import AboutPage from './components/AboutPage';
 import FirebaseAuth from './components/FirebaseAuth';
 import VirtualGallery3D from './components/VirtualGallery3D';
-// import AdminDashboard from './components/AdminDashboard';
+import Terms from './components/Terms';
+import ArtSupplies from './components/ArtSupplies';
+import DigitalTools from './components/DigitalTools';
+import Workshops from './components/Workshops';
+import StudioFinder from './components/StudioFinder';
+import Careers from './components/Careers';
+import PressKit from './components/PressKit';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import CookiePolicy from './components/CookiePolicy';
+import Disclaimer from './components/Disclaimer';
+import ProductManagement from './components/ProductManagement';
+import AdminDashboard from './components/AdminDashboard';
 // import Cart from './components/Cart';
 
 function App() {
@@ -26,8 +37,19 @@ function App() {
             <Route path="/nft" element={<NFTPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/virtual-gallery" element={<VirtualGallery3D />} />
-            {/* <Route path="/admin" element={<AdminDashboard />} /> */}
+            <Route path="/art-supplies" element={<ArtSupplies />} />
+            <Route path="/digital-tools" element={<DigitalTools />} />
+            <Route path="/workshops" element={<Workshops />} />
+            <Route path="/studio-finder" element={<StudioFinder />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/press-kit" element={<PressKit />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/disclaimer" element={<Disclaimer />} />
+            <Route path="/product-management" element={<ProductManagement />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
           {/* <Cart /> */}
         </Router>

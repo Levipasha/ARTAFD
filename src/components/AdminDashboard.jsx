@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BarChart3, Users, Package, Calendar, Settings, LogOut, Plus, Edit, Trash2, Eye, Search, Filter, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminAPI } from '../services/api';
+import AddProductButton from './AddProductButton';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -283,11 +284,8 @@ const AdminDashboard = () => {
           {activeTab === 'users' && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-                <button className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                  <Plus size={20} />
-                  Add User
-                </button>
+                <h2 className="text-2xl font-bold text-gray-900">Product Management</h2>
+                <AddProductButton />
               </div>
 
               {/* Search and Filter */}
@@ -368,10 +366,7 @@ const AdminDashboard = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Product Management</h2>
-                <button className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                  <Plus size={20} />
-                  Add Product
-                </button>
+                <AddProductButton />
               </div>
 
               {/* Search and Filter */}

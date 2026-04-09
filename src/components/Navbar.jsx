@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
 import logo from './cropped_circle_image.png';
+import NavHeader from './ui/nav-header';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,11 +13,12 @@ const Navbar = () => {
   const location = useLocation();
 
   const navLinks = [
-    { to: '/about', label: 'About' },
+    { to: '/', label: 'Home' },
     { to: '/art-store', label: 'Art Store' },
+    { to: '/artist-hub', label: 'Artist Hub' },
+    { to: '/nft', label: 'NFT' },
     { to: '/events', label: 'Events' },
-    { to: '/virtual-gallery', label: '3D Gallery' },
-    { to: '/nft', label: 'NFTs' }
+    { to: '/virtual-gallery', label: 'Virtual Gallery' }
   ];
 
   const toggleMenu = () => {
@@ -58,26 +60,32 @@ const Navbar = () => {
 
           {/* Center Navigation - Desktop */}
           <div className="hidden lg:flex items-center gap-2 xl:gap-3">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.to;
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`px-3 py-2 rounded-full text-sm font-semibold transition-colors ${
-                    isActive ? 'text-red-600 bg-red-50 border border-red-100' : 'text-gray-700 hover:text-black hover:bg-gray-100'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            <NavHeader />
           </div>
 
           {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
+                {/* Admin Dashboard Link */}
+                {user?.role === 'admin' && (
+                  <>
+                    <Link 
+                      to="/product-management" 
+                      className="flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                    >
+                      <Plus size={16} />
+                      <span>Add Product</span>
+                    </Link>
+                    <Link 
+                      to="/admin" 
+                      className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                    >
+                      <User size={16} />
+                      <span>Admin</span>
+                    </Link>
+                  </>
+                )}
                 <div className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5">
                   {user?.photoURL ? (
                     <img 
@@ -153,6 +161,27 @@ const Navbar = () => {
           {/* Mobile Account Actions */}
           {isAuthenticated ? (
             <>
+              {/* Admin Dashboard Link */}
+              {user?.role === 'admin' && (
+                <>
+                  <Link 
+                    to="/product-management"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors w-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Plus size={16} />
+                    Add Product
+                  </Link>
+                  <Link 
+                    to="/admin"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors w-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User size={16} />
+                    Admin Dashboard
+                  </Link>
+                </>
+              )}
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl border border-gray-200">
                 {user?.photoURL ? (
                   <img src={user.photoURL} alt={user.displayName} className="w-8 h-8 rounded-full object-cover" />
