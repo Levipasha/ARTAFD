@@ -16,7 +16,6 @@ const Navbar = () => {
     { to: '/', label: 'Home' },
     { to: '/art-store', label: 'Art' },
     { to: '/artists', label: 'Artists' },
-    { to: '/artist-hub', label: 'Artist Hub' },
     { to: '/nft', label: 'NFT' },
     { to: '/events', label: 'Events' },
     { to: '/virtual-gallery', label: 'Virtual Gallery' }
