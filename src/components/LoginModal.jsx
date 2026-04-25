@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { signInWithGoogle, signInWithEmail, getCurrentUser, getIdToken } from '../firebase';
+import { signInWithGoogle, signInWithEmail } from '../firebase';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -200,9 +200,9 @@ const LoginModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="text-sm">
-                  <a href="#" className="font-medium text-red-600 hover:text-red-500">
+                  <button type="button" className="font-medium text-red-600 hover:text-red-500">
                     Forgot password?
-                  </a>
+                  </button>
                 </div>
               </div>
 

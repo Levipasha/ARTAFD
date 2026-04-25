@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Megaphone } from "lucide-react";
+import { X } from "lucide-react";
 import { API_URL } from "../config";
 
 const AnnouncementBar = () => {
