@@ -43,6 +43,7 @@ const uploadRoutes = require('./routes/upload');
 const adminRoutes = require('./routes/admin');
 const galleryRoutes = require('./routes/gallery');
 const artistRoutes = require('./routes/artists');
+const announcementRoutes = require('./routes/announcements');
 
 const app = express();
 
@@ -94,6 +95,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/artists', artistRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

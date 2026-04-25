@@ -25,6 +25,7 @@ import Disclaimer from './components/Disclaimer';
 import ProductManagement from './components/ProductManagement';
 import EventManagement from './components/EventManagement';
 import AdminDashboard from './components/AdminDashboard';
+import UserProfile from './components/UserProfile';
 // import Cart from './components/Cart';
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
             <Route path="/product-management" element={<ProductManagement />} />
             <Route path="/event-management" element={<EventManagement />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile" element={<UserProfile />} />
           </Routes>
           {/* <Cart /> */}
         </Router>

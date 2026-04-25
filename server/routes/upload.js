@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const auth = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 const { uploadImage } = require('../services/mediaStorage');
 
 const router = express.Router();
@@ -21,7 +21,7 @@ const upload = multer({
 });
 
 // Upload single image
-router.post('/image', auth, upload.single('image'), async (req, res) => {
+router.post('/image', authenticate, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -51,7 +51,7 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
 });
 
 // Upload multiple images
-router.post('/images', auth, upload.array('images', 5), async (req, res) => {
+router.post('/images', authenticate, upload.array('images', 5), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -85,7 +85,7 @@ router.post('/images', auth, upload.array('images', 5), async (req, res) => {
 });
 
 // Delete image
-router.delete('/image/:publicId', auth, async (req, res) => {
+router.delete('/image/:publicId', authenticate, async (req, res) => {
   try {
     const { publicId } = req.params;
     

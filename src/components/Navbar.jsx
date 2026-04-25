@@ -3,11 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
-import logo from './cropped_circle_image.png';
+import logo from './aa logos_20250926_144624_0000.png';
 import NavHeader from './ui/nav-header';
+import AnnouncementBar from './AnnouncementBar';
+import LoginModal from './LoginModal';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +43,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
+    <>
+      <AnnouncementBar />
+      <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 lg:h-[72px] gap-3">
           {/* Logo */}
@@ -86,7 +91,10 @@ const Navbar = () => {
                     </Link>
                   </>
                 )}
-                <div className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5">
+                <Link 
+                  to="/profile"
+                  className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
                   {user?.photoURL ? (
                     <img 
                       src={user.photoURL} 
@@ -97,7 +105,7 @@ const Navbar = () => {
                     <User size={24} className="text-gray-600" />
                   )}
                   <span className="text-gray-700 text-sm font-medium max-w-[160px] truncate">{user?.displayName}</span>
-                </div>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
@@ -108,9 +116,12 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1">
+                <button 
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
+                >
                   ACCOUNT
-                </Link>
+                </button>
                 <Link to="/artist-hub" className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
                   JOIN ARTIST HUB
                 </Link>
@@ -182,7 +193,11 @@ const Navbar = () => {
                   </Link>
                 </>
               )}
-              <div className="flex items-center gap-3 px-3 py-2 rounded-xl border border-gray-200">
+              <Link 
+                to="/profile"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 {user?.photoURL ? (
                   <img src={user.photoURL} alt={user.displayName} className="w-8 h-8 rounded-full object-cover" />
                 ) : (
@@ -191,7 +206,7 @@ const Navbar = () => {
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-gray-800 truncate">{user?.displayName || 'Account'}</div>
                 </div>
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-300 text-gray-700 hover:text-black hover:bg-gray-50 transition-colors w-full"
@@ -202,14 +217,16 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link 
-                to="/login"
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:text-black hover:bg-gray-50 border border-gray-200 transition-colors w-full"
-                onClick={() => setIsMenuOpen(false)}
+              <button 
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsLoginModalOpen(true);
+                }}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:text-black hover:bg-gray-50 border border-gray-200 transition-colors w-full text-left"
               >
                 <User size={16} />
                 Account
-              </Link>
+              </button>
               <Link 
                 to="/artist-hub"
                 className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors w-full"
@@ -222,6 +239,13 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
+    
+    {/* Login Modal */}
+    <LoginModal 
+      isOpen={isLoginModalOpen} 
+      onClose={() => setIsLoginModalOpen(false)} 
+    />
+    </>
   );
 };
 

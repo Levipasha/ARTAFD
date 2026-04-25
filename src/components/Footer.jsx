@@ -8,13 +8,13 @@ const Footer = () => {
           {/* Column 1 - Logo */}
           <div>
             <div className="mb-4">
-              <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                </svg>
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="ArtArtist" 
+                className="w-12 h-12 rounded-lg object-cover"
+              />
             </div>
-            <h3 className="text-xl font-bold mb-2">ARTISTRY</h3>
+            <h3 className="text-xl font-bold mb-2">ARTARTIST</h3>
             <p className="text-gray-400 text-sm">
               Empowering artists across India with tools, community, and opportunities.
             </p>
@@ -27,7 +27,6 @@ const Footer = () => {
               <li><a href="/art-supplies" className="text-gray-400 hover:text-white transition-colors">Art Supplies</a></li>
               <li><a href="/digital-tools" className="text-gray-400 hover:text-white transition-colors">Digital Tools</a></li>
               <li><a href="/workshops" className="text-gray-400 hover:text-white transition-colors">Workshops</a></li>
-              <li><a href="/studio-finder" className="text-gray-400 hover:text-white transition-colors">Studio Finder</a></li>
             </ul>
           </div>
 
@@ -58,7 +57,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2026 ARTISTRY. All rights reserved.
+              © 2026 ARTIST. All rights reserved.
             </p>
             
             <div className="flex space-x-6">

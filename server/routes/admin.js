@@ -5,7 +5,7 @@ const Product = require('../models/Product');
 const Event = require('../models/Event');
 const GalleryItem = require('../models/GalleryItem');
 const ArtistProfile = require('../models/ArtistProfile');
-const auth = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 const multer = require('multer');
 const { uploadImage } = require('../services/mediaStorage');
 
@@ -26,7 +26,7 @@ const adminAuth = async (req, res, next) => {
     return next();
   }
   try {
-    await auth(req, res, () => {
+    await authenticate(req, res, () => {
       if (req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Admin access required' });
       }

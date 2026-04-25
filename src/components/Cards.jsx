@@ -177,12 +177,12 @@ const Cards = () => {
               
               <div className="flex justify-center gap-4">
                 <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center min-w-[80px]">
-                  <div className="text-xs font-bold text-black">?1000</div>
+                  <div className="text-xs font-bold text-black">₹1000</div>
                   <div className="text-xs text-gray-600">LIFETIME</div>
                 </div>
                 <div className="bg-white border border-gray-300 px-4 py-2 rounded-lg text-center min-w-[80px]">
                   <div className="text-xs font-bold text-black">0%</div>
-                  <div className="text-xs text-gray-600">COMMS</div>
+                  <div className="text-xs text-gray-600">COMMISSION</div>
                 </div>
               </div>
             </div>
@@ -191,7 +191,7 @@ const Cards = () => {
           {/* Right Card - Virtual Gallery */}
           <div className="relative bg-[#0A0A0A] p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden min-w-0">
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-transparent to-purple-900/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600/30 via-transparent to-red-900/20 pointer-events-none" />
             
             {/* Subtle Pattern */}
             <div 
@@ -203,7 +203,7 @@ const Cards = () => {
 
             <div className="relative z-10">
               <div className="mb-6">
-                <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full tracking-wider uppercase">
+                <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full tracking-wider uppercase">
                   EXPLORE NOW
                 </span>
               </div>
@@ -231,7 +231,7 @@ const Cards = () => {
               </div>
               
               <a href="/virtual-gallery" className="block w-full">
-                <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-200">
+                <button className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/25">
                   ENTER GALLERY
                 </button>
               </a>
