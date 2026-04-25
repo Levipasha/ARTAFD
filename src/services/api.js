@@ -10,24 +10,20 @@ const normalizeApiBaseUrl = (url) => {
 };
 
 const resolveApiBaseUrl = () => {
-  const envBaseUrl = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
   const isBrowser = typeof window !== 'undefined';
   const host = isBrowser ? window.location.hostname : '';
   const isLocalHost = host === 'localhost' || host === '127.0.0.1';
-  const envPointsToLocal =
-    typeof envBaseUrl === 'string' &&
-    (envBaseUrl.includes('localhost') || envBaseUrl.includes('127.0.0.1'));
 
-  // In production builds, ignore localhost env URL to avoid 10s timeout failures.
-  if (envBaseUrl && !(envPointsToLocal && !isLocalHost)) {
+  if (isBrowser && isLocalHost) {
+    return 'http://localhost:5000/api';
+  }
+
+  const envBaseUrl = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
+  if (envBaseUrl) {
     return envBaseUrl;
   }
 
-  if (isBrowser && !isLocalHost) {
-    return normalizeApiBaseUrl(DEFAULT_PROD_API_URL);
-  }
-
-  return 'http://localhost:5000/api';
+  return normalizeApiBaseUrl(DEFAULT_PROD_API_URL);
 };
 
 const API_BASE_URL = resolveApiBaseUrl();

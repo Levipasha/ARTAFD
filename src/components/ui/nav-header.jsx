@@ -14,7 +14,8 @@ function NavHeader() {
 
   const navItems = useMemo(() => [
     { to: '/', label: 'Home' },
-    { to: '/art-store', label: 'Art Store' },
+    { to: '/art-store', label: 'Art' },
+    { to: '/artists', label: 'Artists' },
     { to: '/artist-hub', label: 'Artist Hub' },
     { to: '/nft', label: 'NFT' },
     { to: '/events', label: 'Events' },
@@ -45,9 +46,17 @@ function NavHeader() {
     <ul
       className="relative mx-auto flex flex-nowrap rounded-full border border-gray-200 bg-white/90 backdrop-blur-md p-1.5 shadow-lg"
       onMouseLeave={() => {
-        // Only hide cursor if there's no active link
-        const hasActiveLink = navItems.some(item => location.pathname === item.to);
-        if (!hasActiveLink) {
+        const activeItem = navItems.find(item => location.pathname === item.to);
+        if (activeItem) {
+          const activeTab = document.querySelector(`[href="${activeItem.to}"]`);
+          if (activeTab) {
+            const tabLi = activeTab.closest('li');
+            if (tabLi) {
+              const { width } = tabLi.getBoundingClientRect();
+              setPosition({ width, opacity: 1, left: tabLi.offsetLeft });
+            }
+          }
+        } else {
           setPosition((pv) => ({ ...pv, opacity: 0 }));
         }
       }}

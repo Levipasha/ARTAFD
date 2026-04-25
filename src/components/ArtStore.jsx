@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Filter, Search, ArrowLeft, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import { productsAPI } from '../services/api';
 
@@ -16,8 +17,6 @@ const pillToCategory = {
 };
 
 const ArtStore = () => {
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
@@ -92,35 +91,18 @@ const ArtStore = () => {
       <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 border-b">
         <div className="w-full max-w-6xl mx-auto">
           {/* Back Button */}
-          <button 
-            onClick={() => navigate('/')}
+          <Link 
+            to="/"
             className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
           >
             <ArrowLeft size={20} />
             <span className="font-medium">Back to Home</span>
-          </button>
+          </Link>
           
           <h1 className="text-4xl font-bold text-black mb-2">ART SHOWCASE</h1>
           <p className="text-gray-600">Explore posted artworks from the community</p>
           
-          {/* Artist Payment Setup Section */}
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-red-800">Artist Payment Setup</h3>
-                <p className="text-sm text-red-600 mt-1">Set up your payment method to receive commissions</p>
-              </div>
-              <button 
-                onClick={() => {
-                  // Navigate to payment setup page
-                  navigate('/payment-setup');
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium whitespace-nowrap"
-              >
-                Set Up Payment
-              </button>
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -288,35 +270,29 @@ const ArtStore = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-red-600">
-                    {previewItem.price ? `$${previewItem.price}` : 'Contact Artist'}
+                    {previewItem.price ? `₹${previewItem.price}` : 'Contact Artist'}
                   </p>
                 </div>
               </div>
               
               <div className="flex gap-3">
+                {previewItem?.paymentLink ? (
+                  <a
+                    href={previewItem.paymentLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-center"
+                  >
+                    Buy Now
+                  </a>
+                ) : (
+                  <span className="flex-1 flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-400 rounded-lg font-medium text-sm text-center cursor-not-allowed">
+                    Payment link not set
+                  </span>
+                )}
+
                 <button 
                   onClick={() => {
-                    // Fetch price and redirect to admin payment link
-                    const artworkData = {
-                      id: previewItem._id,
-                      name: previewItem.name,
-                      price: previewItem.price,
-                      artistId: previewItem.artistId,
-                      artistName: previewItem?.artistProfile?.name || 'Unknown Artist'
-                    };
-                    
-                    // Redirect to payment with artwork data using React Router
-                    const paymentUrl = `/payment?artwork=${encodeURIComponent(JSON.stringify(artworkData))}`;
-                    navigate(paymentUrl);
-                  }}
-                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                >
-                  Buy Now
-                </button>
-                
-                <button 
-                  onClick={() => {
-                    // Direct artist contact
                     if (previewItem?.artistProfile?.email) {
                       window.location.href = `mailto:${previewItem.artistProfile.email}?subject=Commission Request for ${previewItem.name}`;
                     } else {

@@ -190,10 +190,10 @@ const Hero = () => {
                           alt={artist?.image?.alt || artist?.name}
                           className="w-20 h-20 rounded-xl object-cover bg-gray-100 shadow-sm border border-gray-200 flex-shrink-0"
                         />
-                        <div className="min-w-0">
-                          <div className="font-semibold text-gray-900 text-lg leading-tight truncate">{artist.name}</div>
-                          <div className="text-sm text-red-600 font-medium mt-1 truncate">{artist.artForm}</div>
-                          <div className="text-sm text-gray-600 mt-1 truncate">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-gray-900 text-lg leading-tight">{artist.name}</div>
+                          <div className="text-xs font-semibold text-red-600 uppercase tracking-wider mt-0.5">{artist.artForm}</div>
+                          <div className="text-sm text-gray-600 mt-1">
                             {[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ')}
                           </div>
                         </div>

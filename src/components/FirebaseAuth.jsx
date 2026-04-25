@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { signInWithGoogle, signInWithEmail, getCurrentUser, getIdToken } from '../firebase';
 
 const FirebaseAuth = () => {
@@ -203,12 +203,12 @@ const FirebaseAuth = () => {
             </div>
 
             <div className="mt-6">
-              <button
-                onClick={() => {/* Navigate to sign up */}}
+              <Link
+                to="/signup"
                 className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Create an account
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -422,12 +422,14 @@ const AdminDashboard = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Event Management</h2>
-                <button className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <button 
+                  onClick={() => navigate('/event-management')}
+                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                >
                   <Plus size={20} />
                   Add Event
                 </button>
               </div>
-
               {/* Search and Filter */}
               <div className="flex gap-4 mb-6">
                 <div className="flex-1 relative">

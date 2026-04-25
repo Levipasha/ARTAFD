@@ -89,29 +89,30 @@ const EventsPage = () => {
 
       {/* Filter Section */}
       <div className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Filter size={20} className="text-gray-600" />
-              <span className="font-medium text-gray-900">Filter:</span>
-              <div className="flex gap-2 ml-4">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      selectedCategory === category.id
-                        ? 'bg-red-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
+              <span className="font-medium text-gray-900 text-sm md:text-base">Filter:</span>
             </div>
             
-            <div className="text-gray-600">
+            <div className="flex gap-2 flex-shrink-0">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`whitespace-nowrap px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-lg font-medium transition-colors ${
+                    selectedCategory === category.id
+                      ? 'bg-red-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+            
+            <div className="text-gray-600 font-medium whitespace-nowrap flex-shrink-0 ml-2 text-sm md:text-base">
               {filteredEvents.length} events found
             </div>
           </div>
@@ -134,7 +135,7 @@ const EventsPage = () => {
                   : `₹${Number(event?.pricing?.amount || 0).toLocaleString()}`;
 
               return (
-                <div key={event._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group">
+                <div key={event._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group flex flex-col h-full">
               {/* Event Image */}
               <div className="relative">
                 {imageUrl ? (
@@ -159,7 +160,7 @@ const EventsPage = () => {
               </div>
               
               {/* Event Content */}
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-1">
                 <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
                   {event.title}
                 </h3>
@@ -171,16 +172,16 @@ const EventsPage = () => {
                 {/* Event Details */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <Calendar size={16} />
-                    <span>{formatDate(event.date?.start)}</span>
+                    <Calendar size={16} className="flex-shrink-0" />
+                    <span className="truncate">{formatDate(event.date?.start)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <Clock size={16} />
-                    <span>{formatTime(event.date?.start)}</span>
+                    <Clock size={16} className="flex-shrink-0" />
+                    <span className="truncate">{formatTime(event.date?.start)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <MapPin size={16} />
-                    <span>
+                    <MapPin size={16} className="flex-shrink-0" />
+                    <span className="truncate">
                       {event.location?.type === 'virtual'
                         ? (event.location?.platform || 'Virtual')
                         : (event.location?.city || event.location?.address || 'Location')}
@@ -189,21 +190,24 @@ const EventsPage = () => {
                 </div>
                 
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Users size={16} className="text-gray-500" />
-                      <span className="text-sm text-gray-600">{event.capacity?.current || 0}</span>
+                <div className="mt-auto pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
+                    <div className="flex gap-4">
+                      <div className="flex items-center gap-1">
+                        <Users size={16} className="text-gray-500" />
+                        <span className="text-sm text-gray-600">{event.capacity?.current || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star size={16} className="text-yellow-500 fill-current" />
+                        <span className="text-sm text-gray-600">—</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Star size={16} className="text-yellow-500 fill-current" />
-                      <span className="text-sm text-gray-600">—</span>
-                    </div>
+                    <div className="text-lg font-bold text-red-600 sm:hidden">{priceLabel}</div>
                   </div>
                   
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-red-600">{priceLabel}</div>
-                    <button className="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors flex items-center gap-2">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="hidden sm:block text-lg font-bold text-red-600">{priceLabel}</div>
+                    <button className="w-full sm:w-auto bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
                       <Ticket size={16} />
                       Register
                     </button>
