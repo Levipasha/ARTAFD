@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Package, DollarSign, Image as ImageIcon, Save, X, Link, Search, RefreshCw, ShieldAlert } from 'lucide-react';
 import Navbar from './Navbar';
-import { productsAPI, uploadAPI } from '../services/api';
+import { productsAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const EMPTY_FORM = {
