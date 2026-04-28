@@ -100,7 +100,7 @@ const AnnouncementBar = () => {
 
   const fetchActiveAnnouncement = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/announcements/active`);
+      const response = await fetch(`${API_URL}/announcements/active`);
       const data = await response.json();
       if (data.success && data.data) {
         setAnnouncement(data.data);

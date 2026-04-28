@@ -24,6 +24,29 @@ router.post('/chat', async (req, res) => {
       });
     }
 
+    // Default system prompt if not configured
+    const defaultPrompt = `You are an intelligent AI assistant for an artist platform called ArtArtist.
+Response Style:
+- Friendly but professional
+- Short paragraphs or bullet points
+- No unnecessary explanations
+
+Context Handling:
+You will receive dynamic data from backend in this format:
+{
+  "artists": [...],
+  "events": [...],
+  "artworks": [...]
+}
+
+Use this data strictly to answer.
+
+If user asks something outside artist platform:
+→ Politely redirect to artist-related topics.
+
+Goal:
+Provide accurate, helpful, and database-driven responses like a smart art assistant.`;
+
     // Fetch relevant data from database based on message content
     const lowerMessage = message.toLowerCase();
     let contextData = {
@@ -147,8 +170,8 @@ router.post('/chat', async (req, res) => {
 
     // Prepare messages for OpenRouter
     const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'system', content: JSON.stringify(contextData) },
+      { role: 'system', content: systemPrompt || defaultPrompt },
+      { role: 'system', content: `Available data: ${JSON.stringify(contextData)}` },
       { role: 'user', content: message }
     ];
 
@@ -158,7 +181,7 @@ router.post('/chat', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${openrouterApiKey}`,
-        'HTTP-Referer': 'http://localhost:3000',
+        'HTTP-Referer': (process.env.FRONTEND_URL && process.env.FRONTEND_URL.split(',')[0]) || 'https://artafd.vercel.app',
         'X-OpenRouter-Title': 'ArtArtist'
       },
       body: JSON.stringify({
