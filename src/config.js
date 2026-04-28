@@ -1,7 +1,7 @@
 // API Configuration
 // IMPORTANT: For Vercel deployment, set REACT_APP_API_URL in your Vercel dashboard
 // Example: REACT_APP_API_URL=https://your-backend.vercel.app
-const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || '';
+const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://server-one-psi-87.vercel.app';
 
 const normalizeApiBaseUrl = (url) => {
   if (!url) return url;

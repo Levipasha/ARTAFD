@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API Configuration
 // For Vercel deployment - set this in your environment variables
-const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://your-backend.vercel.app/api';
+const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://server-one-psi-87.vercel.app';
 
 const normalizeApiBaseUrl = (url) => {
   if (!url) return url;
