@@ -216,11 +216,31 @@ Provide accurate, helpful, and database-driven responses like a smart art assist
       console.error('OpenRouter API error:', errorData);
       return res.status(500).json({
         error: 'Failed to get response from AI',
-        details: errorData.error?.message || errorData.message || 'Unknown error'
+        details: (errorData.error && errorData.error.message) || errorData.message || 'Unknown error'
       });
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse OpenRouter response:', parseError);
+      const rawText = await response.text();
+      console.error('Raw response:', rawText.substring(0, 500));
+      return res.status(500).json({
+        error: 'Invalid response from AI service',
+        details: 'Failed to parse JSON response'
+      });
+    }
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Unexpected OpenRouter response structure:', data);
+      return res.status(500).json({
+        error: 'Invalid response from AI service',
+        details: 'Missing choices in response'
+      });
+    }
+    
     const aiResponse = data.choices[0].message.content;
 
     res.json({ 
@@ -234,9 +254,11 @@ Provide accurate, helpful, and database-driven responses like a smart art assist
 
   } catch (error) {
     console.error('Chatbot error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Internal server error',
-      message: error.message
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -244,14 +266,36 @@ Provide accurate, helpful, and database-driven responses like a smart art assist
 // GET /api/chatbot/health - Check if chatbot is configured
 router.get('/health', (req, res) => {
   const hasPrompt = !!process.env.ARTIST_CHATBOT_PROMPT;
-  const hasApiKey = process.env.OPENROUTER_API_KEY && process.env.OPENROUTER_API_KEY !== 'your-openrouter-api-key-here';
+  const rawKey = process.env.OPENROUTER_API_KEY || '';
+  const hasApiKey = rawKey && rawKey !== 'your-openrouter-api-key-here' && rawKey.startsWith('sk-or-v1-');
+  const keyPrefix = hasApiKey ? rawKey.substring(0, 15) + '...' : 'none';
 
   res.json({
     configured: hasPrompt && hasApiKey,
     hasPrompt,
     hasApiKey,
+    keyPrefix,
+    nodeEnv: process.env.NODE_ENV,
     message: !hasApiKey ? 'Please configure OPENROUTER_API_KEY in server/.env' : 'Chatbot is ready'
   });
+});
+
+// POST /api/chatbot/test - Simple test without OpenRouter
+router.post('/test', async (req, res) => {
+  try {
+    const { message } = req.body;
+    console.log('Test endpoint called with message:', message);
+    
+    // Simple echo response for testing
+    res.json({
+      response: `Test echo: ${message}`,
+      test: true,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Test error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;
