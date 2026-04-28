@@ -19,7 +19,7 @@ const FirebaseAuth = () => {
         if (currentUser) {
           const token = await getIdToken();
           await login(token);
-          navigate('/');
+          navigate('/dashboard');
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -40,7 +40,7 @@ const FirebaseAuth = () => {
       // Login with our backend
       await login(token);
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       setError('Failed to sign in with Google. Please try again.');
       console.error('Google sign in error:', error);
@@ -63,7 +63,7 @@ const FirebaseAuth = () => {
       // Login with our backend
       await login(token);
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         setError('No user found with this email address.');

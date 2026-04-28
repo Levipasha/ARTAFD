@@ -4,6 +4,7 @@ import { Filter, Search, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import { productsAPI } from '../services/api';
+import SEO from './SEO';
 
 const normalizeCategory = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 const pillToCategory = {
@@ -83,7 +84,14 @@ const ArtStore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <SEO 
+        title="Art Store"
+        description="Browse and buy original paintings, digital art, and artwork from emerging and established artists. Secure transactions, worldwide shipping."
+        keywords="art store, buy paintings, buy digital art, online art gallery, artwork for sale"
+        canonical="https://artartist.com/art-store"
+      />
+      <div className="min-h-screen bg-white">
       {/* Navbar */}
       <Navbar />
 
@@ -366,6 +374,7 @@ const ArtStore = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

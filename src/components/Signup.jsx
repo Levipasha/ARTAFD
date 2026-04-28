@@ -26,7 +26,7 @@ const Signup = () => {
         if (currentUser) {
           const token = await getIdToken();
           await login(token);
-          navigate('/');
+          navigate('/dashboard');
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -52,7 +52,7 @@ const Signup = () => {
       
       await login(token);
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       setError('Failed to sign in with Google. Please try again.');
       console.error('Google sign in error:', error);
@@ -83,7 +83,7 @@ const Signup = () => {
       
       await login(token);
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         setError('An account with this email already exists.');

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { CartProvider } from './contexts/CartContext';
 import AuthProvider from './contexts/AuthContext';
 import Home from './components/Home';
@@ -26,43 +27,57 @@ import ProductManagement from './components/ProductManagement';
 import EventManagement from './components/EventManagement';
 import AdminDashboard from './components/AdminDashboard';
 import UserProfile from './components/UserProfile';
+import UserDashboard from './components/UserDashboard';
+import PageLoader from './components/PageLoader';
 // import Cart from './components/Cart';
+
+// Wrapper component to add loader to each route
+const RouteWithLoader = ({ element }) => {
+  return (
+    <PageLoader>
+      {element}
+    </PageLoader>
+  );
+};
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/art-store" element={<ArtStore />} />
-            <Route path="/artists" element={<ArtistsPage />} />
-            <Route path="/login" element={<FirebaseAuth />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/artist-hub" element={<ArtistHub />} />
-            <Route path="/nft" element={<NFTPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/virtual-gallery" element={<VirtualGallery3D />} />
-            <Route path="/art-supplies" element={<ArtSupplies />} />
-            <Route path="/digital-tools" element={<DigitalTools />} />
-            <Route path="/workshops" element={<Workshops />} />
-            <Route path="/studio-finder" element={<StudioFinder />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/press-kit" element={<PressKit />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/cookie-policy" element={<CookiePolicy />} />
-            <Route path="/disclaimer" element={<Disclaimer />} />
-            <Route path="/product-management" element={<ProductManagement />} />
-            <Route path="/event-management" element={<EventManagement />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/profile" element={<UserProfile />} />
-          </Routes>
-          {/* <Cart /> */}
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<RouteWithLoader element={<Home />} />} />
+              <Route path="/art-store" element={<RouteWithLoader element={<ArtStore />} />} />
+              <Route path="/artists" element={<RouteWithLoader element={<ArtistsPage />} />} />
+              <Route path="/login" element={<RouteWithLoader element={<FirebaseAuth />} />} />
+              <Route path="/signup" element={<RouteWithLoader element={<Signup />} />} />
+              <Route path="/artist-hub" element={<RouteWithLoader element={<ArtistHub />} />} />
+              <Route path="/nft" element={<RouteWithLoader element={<NFTPage />} />} />
+              <Route path="/events" element={<RouteWithLoader element={<EventsPage />} />} />
+              <Route path="/about" element={<RouteWithLoader element={<AboutPage />} />} />
+              <Route path="/terms" element={<RouteWithLoader element={<Terms />} />} />
+              <Route path="/virtual-gallery" element={<RouteWithLoader element={<VirtualGallery3D />} />} />
+              <Route path="/art-supplies" element={<RouteWithLoader element={<ArtSupplies />} />} />
+              <Route path="/digital-tools" element={<RouteWithLoader element={<DigitalTools />} />} />
+              <Route path="/workshops" element={<RouteWithLoader element={<Workshops />} />} />
+              <Route path="/studio-finder" element={<RouteWithLoader element={<StudioFinder />} />} />
+              <Route path="/careers" element={<RouteWithLoader element={<Careers />} />} />
+              <Route path="/press-kit" element={<RouteWithLoader element={<PressKit />} />} />
+              <Route path="/privacy-policy" element={<RouteWithLoader element={<PrivacyPolicy />} />} />
+              <Route path="/cookie-policy" element={<RouteWithLoader element={<CookiePolicy />} />} />
+              <Route path="/disclaimer" element={<RouteWithLoader element={<Disclaimer />} />} />
+              <Route path="/product-management" element={<RouteWithLoader element={<ProductManagement />} />} />
+              <Route path="/event-management" element={<RouteWithLoader element={<EventManagement />} />} />
+              <Route path="/admin" element={<RouteWithLoader element={<AdminDashboard />} />} />
+              <Route path="/profile" element={<RouteWithLoader element={<UserProfile />} />} />
+              <Route path="/dashboard" element={<RouteWithLoader element={<UserDashboard />} />} />
+            </Routes>
+            {/* <Cart /> */}
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { artistsAPI } from '../services/api';
+import API_URL from '../config';
 import profileBg from './cropped_circle_image.png';
 
 const Hero = () => {
@@ -11,7 +12,41 @@ const Hero = () => {
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const [speechMessage, setSpeechMessage] = useState('');
+  const [heroImage, setHeroImage] = useState('');
   const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    // Use centralized API_URL from config
+    const fetchHeroImage = () => {
+      fetch(`${API_URL}/announcements/active`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          if (data.data && data.data.heroLogo) {
+            // Add cache-busting parameter to Cloudinary images
+            const imageUrl = data.data.heroLogo.includes('cloudinary')
+              ? `${data.data.heroLogo}?t=${Date.now()}`
+              : data.data.heroLogo;
+            setHeroImage(imageUrl);
+          }
+        })
+        .catch((err) => {
+          console.error('Hero image fetch error:', err);
+          // Don't set hero image on error, fallback to text will show
+        });
+    };
+
+    if (API_URL) {
+      fetchHeroImage();
+    }
+  }, []);
 
   useEffect(() => {
     const hasSpeech =
@@ -129,10 +164,24 @@ const Hero = () => {
       <div className="w-full max-w-4xl mx-auto text-center">
         {/* Hero Heading */}
         <div className="mb-12">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">
-            <span className="text-black">DISCOVER </span>
-            <span className="text-red-600">ART</span>
-          </h1>
+          {heroImage ? (
+            <div className="flex items-center justify-center">
+              <img
+                src={heroImage}
+                alt="ArtArtist"
+                className="max-h-48 md:max-h-64 w-auto object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = '<h1 class="text-5xl md:text-7xl font-bold mb-4"><span class="text-black">DISCOVER </span><span class="text-red-600">ART</span></h1>';
+                }}
+              />
+            </div>
+          ) : (
+            <h1 className="text-5xl md:text-7xl font-bold mb-4">
+              <span className="text-black">DISCOVER </span>
+              <span className="text-red-600">ART</span>
+            </h1>
+          )}
         </div>
 
         {/* Search Bar */}

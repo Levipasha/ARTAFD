@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Users, Package, Calendar, Settings, LogOut, Plus, Edit, Trash2, Search } from 'lucide-react';
+import { BarChart3, Users, Package, Calendar, Settings, LogOut, Plus, Edit, Trash2, Search, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { adminAPI } from '../services/api';
 import AddProductButton from './AddProductButton';
@@ -121,7 +121,16 @@ const AdminDashboard = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
+                title="Back to Website"
+              >
+                <ArrowLeft size={20} />
+                <span className="font-medium">Site</span>
+              </button>
+              <div className="h-6 w-px bg-gray-200"></div>
               <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">

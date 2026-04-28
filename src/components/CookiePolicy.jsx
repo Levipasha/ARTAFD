@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 const CookiePolicy = () => {
   useEffect(() => {
-    document.title = 'Cookie Policy - ARTISTRY';
+    document.title = 'Cookie Policy - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
-    meta.content = 'ARTISTRY Cookie Policy - How we use cookies and similar technologies to enhance your experience.';
+    meta.content = 'art artist Cookie Policy - How we use cookies and similar technologies to enhance your experience.';
     document.head.appendChild(meta);
     return () => {
       document.head.removeChild(meta);
@@ -34,7 +34,7 @@ const CookiePolicy = () => {
               Cookies are small text files that are stored on your device (computer, tablet, or mobile) when you visit a website. They help the website remember information about your visit and make your experience more efficient and enjoyable.
             </p>
             <p className="text-gray-300">
-              At ARTISTRY, we use cookies and similar technologies to enhance your experience, analyze site usage, and provide personalized content.
+              At art artist, we use cookies and similar technologies to enhance your experience, analyze site usage, and provide personalized content.
             </p>
           </section>
 

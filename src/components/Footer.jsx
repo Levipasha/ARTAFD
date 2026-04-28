@@ -4,13 +4,13 @@ const Footer = () => {
   return (
     <footer className="bg-black text-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
           {/* Column 1 - Logo */}
           <div>
             <div className="mb-4">
-              <img 
-                src="/logo.png" 
-                alt="ArtArtist" 
+              <img
+                src="/logo.png"
+                alt="ArtArtist"
                 className="w-12 h-12 rounded-lg object-cover"
               />
             </div>
@@ -20,17 +20,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Column 2 - Learn */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">LEARN</h4>
-            <ul className="space-y-2">
-              <li><a href="/art-supplies" className="text-gray-400 hover:text-white transition-colors">Art Supplies</a></li>
-              <li><a href="/digital-tools" className="text-gray-400 hover:text-white transition-colors">Digital Tools</a></li>
-              <li><a href="/workshops" className="text-gray-400 hover:text-white transition-colors">Workshops</a></li>
-            </ul>
-          </div>
-
-          {/* Column 3 - Company */}
+          {/* Column 2 - Company */}
           <div>
             <h4 className="text-lg font-semibold mb-4">COMPANY</h4>
             <ul className="space-y-2">
@@ -41,7 +31,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 4 - Legal */}
+          {/* Column 3 - Legal */}
           <div>
             <h4 className="text-lg font-semibold mb-4">LEGAL</h4>
             <ul className="space-y-2">

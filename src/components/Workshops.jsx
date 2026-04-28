@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 const Workshops = () => {
   useEffect(() => {
-    document.title = 'Workshops - ARTISTRY';
+    document.title = 'Workshops - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
     meta.content = 'Join art workshops and training programs for artists of all skill levels. Learn from experienced artists and professionals.';

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Clock, Users, Ticket, Star, Filter } from 'lucide-react';
 import { eventsAPI } from '../services/api';
+import SEO from './SEO';
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -63,7 +64,14 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <SEO 
+        title="Art Events & Exhibitions"
+        description="Stay updated with art exhibitions, workshops, and cultural events. Register for upcoming art events and exhibitions near you."
+        keywords="art events, art exhibitions, art workshops, cultural events, art shows"
+        canonical="https://artartist.com/events"
+      />
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-black text-white py-16 px-4">
         <div className="max-w-6xl mx-auto">
@@ -258,6 +266,7 @@ const EventsPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

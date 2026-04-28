@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const StudioFinder = () => {
   useEffect(() => {
-    document.title = 'Studio Finder - ARTISTRY';
+    document.title = 'Studio Finder - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
     meta.content = 'Find art studios and creative spaces across India. Browse studios by location, amenities, and availability.';

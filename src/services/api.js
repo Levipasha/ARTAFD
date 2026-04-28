@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // API Configuration
-const DEFAULT_PROD_API_URL = 'https://server-one-psi-87.vercel.app/api';
+// For Vercel deployment - set this in your environment variables
+const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://your-backend.vercel.app/api';
 
 const normalizeApiBaseUrl = (url) => {
   if (!url) return url;
@@ -14,15 +15,18 @@ const resolveApiBaseUrl = () => {
   const host = isBrowser ? window.location.hostname : '';
   const isLocalHost = host === 'localhost' || host === '127.0.0.1';
 
-  if (isBrowser && isLocalHost) {
-    return 'http://localhost:5000/api';
-  }
-
+  // Priority 1: Check environment variable
   const envBaseUrl = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
   if (envBaseUrl) {
     return envBaseUrl;
   }
 
+  // Priority 2: Local development
+  if (isBrowser && isLocalHost) {
+    return 'http://localhost:5000/api';
+  }
+
+  // Priority 3: Default production URL
   return normalizeApiBaseUrl(DEFAULT_PROD_API_URL);
 };
 
@@ -31,9 +35,11 @@ const API_BASE_URL = resolveApiBaseUrl();
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 15000, // Increased timeout for slower connections
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache', // Prevent caching issues
+    'Pragma': 'no-cache',
   },
 });
 

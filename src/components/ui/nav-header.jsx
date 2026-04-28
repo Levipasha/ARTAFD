@@ -13,12 +13,13 @@ function NavHeader() {
   const location = useLocation();
 
   const navItems = useMemo(() => [
-    { to: '/', label: 'Home' },
     { to: '/art-store', label: 'Art' },
-    { to: '/artists', label: 'Artists' },
-    { to: '/nft', label: 'NFT' },
+    { to: '/artists', label: 'Artist' },
     { to: '/events', label: 'Events' },
-    { to: '/virtual-gallery', label: 'Virtual Gallery' }
+    { to: '/', label: 'Marketplace' },
+    { to: '/nft', label: 'NFT' },
+    { to: '/virtual-gallery', label: 'virtual gallery' },
+    { to: '/art-supplies', label: 'art value calculator' }
   ], []);
 
   // Set initial position for active link

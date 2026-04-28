@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 const DigitalTools = () => {
   useEffect(() => {
-    document.title = 'Digital Tools - ARTISTRY';
+    document.title = 'Digital Tools - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
     meta.content = 'Explore cutting-edge digital art tools, software, and resources for modern digital artists and creators.';

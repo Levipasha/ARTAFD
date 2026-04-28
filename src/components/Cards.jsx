@@ -1,7 +1,9 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Cards = () => {
+  const navigate = useNavigate();
   return (
     <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-6xl mx-auto">
@@ -36,7 +38,7 @@ const Cards = () => {
               <div className="mb-6 inline-block">
                 <span className="inline-flex items-center px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-full tracking-wider uppercase">
                   <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
-                  LIVE NOW
+                  in progress
                 </span>
               </div>
 
@@ -57,7 +59,7 @@ const Cards = () => {
 
               {/* CTA Button */}
               <button className="group inline-flex items-center text-red-500 font-bold text-base sm:text-lg hover:text-red-400 transition-all duration-200 hover:translate-x-1">
-                <span className="mr-2">GO SHOPPING</span>
+                <span className="mr-2">coming soon</span>
                 <svg 
                   className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" 
                   fill="none" 
@@ -171,7 +173,10 @@ const Cards = () => {
             </p>
             
             <div className="space-y-4">
-              <button className="w-full bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
+              <button 
+                onClick={() => navigate('/artist-hub')}
+                className="w-full bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors"
+              >
                 REGISTER PROFILE
               </button>
               

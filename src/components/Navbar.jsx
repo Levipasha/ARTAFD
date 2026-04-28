@@ -16,12 +16,13 @@ const Navbar = () => {
   const location = useLocation();
 
   const navLinks = [
-    { to: '/', label: 'Home' },
     { to: '/art-store', label: 'Art' },
-    { to: '/artists', label: 'Artists' },
-    { to: '/nft', label: 'NFT' },
+    { to: '/artists', label: 'Artist' },
     { to: '/events', label: 'Events' },
-    { to: '/virtual-gallery', label: 'Virtual Gallery' }
+    { to: '/', label: 'Marketplace' },
+    { to: '/nft', label: 'NFT' },
+    { to: '/virtual-gallery', label: 'virtual gallery' },
+    { to: '/art-supplies', label: 'art value calculator' }
   ];
 
   const toggleMenu = () => {
@@ -46,7 +47,7 @@ const Navbar = () => {
     <>
       <AnnouncementBar />
       <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto pl-0 pr-4 sm:pr-6 lg:pr-8">
         <div className="flex justify-between items-center h-16 lg:h-[72px] gap-3">
           {/* Logo */}
           <div className="flex-shrink-0 min-w-0">
@@ -92,6 +93,13 @@ const Navbar = () => {
                   </>
                 )}
                 <Link 
+                  to="/dashboard"
+                  className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  <User size={16} />
+                  <span>Dashboard</span>
+                </Link>
+                <Link 
                   to="/profile"
                   className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
@@ -123,7 +131,7 @@ const Navbar = () => {
                   ACCOUNT
                 </button>
                 <Link to="/artist-hub" className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
-                  JOIN ARTIST HUB
+                  JOINNN...
                 </Link>
               </>
             )}
@@ -227,12 +235,12 @@ const Navbar = () => {
                 <User size={16} />
                 Account
               </button>
-              <Link 
+              <Link
                 to="/artist-hub"
                 className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-black text-white hover:bg-gray-800 transition-colors w-full"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Join Artist Hub
+                JOINNN...
               </Link>
             </>
           )}

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 const PrivacyPolicy = () => {
   useEffect(() => {
-    document.title = 'Privacy Policy - ARTISTRY';
+    document.title = 'Privacy Policy - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
-    meta.content = 'ARTISTRY Privacy Policy - How we collect, use, and protect your personal information.';
+    meta.content = 'art artist Privacy Policy - How we collect, use, and protect your personal information.';
     document.head.appendChild(meta);
     return () => {
       document.head.removeChild(meta);
@@ -31,10 +31,10 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-red-400 mb-4">Introduction</h2>
             <p className="text-gray-300 mb-4">
-              At ARTISTRY, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and protect your information when you use our website, services, and participate in our art community.
+              At art artist, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and protect your information when you use our website, services, and participate in our art community.
             </p>
             <p className="text-gray-300">
-              By using ARTISTRY, you agree to the collection and use of information in accordance with this policy.
+              By using art artist, you agree to the collection and use of information in accordance with this policy.
             </p>
           </section>
 

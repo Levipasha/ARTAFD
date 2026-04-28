@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 const PressKit = () => {
   useEffect(() => {
-    document.title = 'Press Kit - ARTISTRY';
+    document.title = 'Press Kit - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
-    meta.content = 'ARTISTRY press kit with brand assets, company information, and media resources for journalists and partners.';
+    meta.content = 'art artist press kit with brand assets, company information, and media resources for journalists and partners.';
     document.head.appendChild(meta);
     return () => {
       document.head.removeChild(meta);
@@ -15,7 +15,7 @@ const PressKit = () => {
   const brandAssets = [
     {
       name: 'Logo - Primary',
-      description: 'Official ARTISTRY logo in color format',
+      description: 'Official art artist logo in color format',
       format: 'SVG, PNG',
       download: '#'
     },
@@ -42,14 +42,14 @@ const PressKit = () => {
   const mediaCoverage = [
     {
       publication: 'The Hindu',
-      title: 'ARTISTRY Revolutionizes Art Community in India',
+      title: 'art artist Revolutionizes Art Community in India',
       date: 'March 15, 2025',
       link: '#',
       category: 'Print Media'
     },
     {
       publication: 'TechCrunch India',
-      title: 'How ARTISTRY is Building the Future of Art Marketplaces',
+      title: 'How art artist is Building the Future of Art Marketplaces',
       date: 'February 28, 2025',
       link: '#',
       category: 'Online Media'
@@ -86,7 +86,7 @@ const PressKit = () => {
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">Press Kit</h1>
           <p className="text-xl md:text-2xl mb-8">Media Resources & Brand Information</p>
-          <p className="text-lg max-w-3xl mx-auto">Welcome to the ARTISTRY press kit. Find all the resources you need for media coverage, brand partnerships, and story opportunities.</p>
+          <p className="text-lg max-w-3xl mx-auto">Welcome to the art artist press kit. Find all the resources you need for media coverage, brand partnerships, and story opportunities.</p>
         </div>
       </div>
 
@@ -131,13 +131,13 @@ const PressKit = () => {
           <div className="bg-gray-900 bg-opacity-80 backdrop-blur-lg rounded-xl p-8">
             <div className="prose prose-invert max-w-none">
               <p className="text-lg text-gray-300 mb-4">
-                Founded in 2023 by Uday Kumar Sangisetti, ARTISTRY emerged from a simple vision: to create a comprehensive ecosystem that empowers artists across India. What started as a small community initiative has grown into a nationwide platform serving over 10,000 artists.
+                Founded in 2023 by Uday Kumar Sangisetti, art artist emerged from a simple vision: to create a comprehensive ecosystem that empowers artists across India. What started as a small community initiative has grown into a nationwide platform serving over 10,000 artists.
               </p>
               <p className="text-lg text-gray-300 mb-4">
                 Our mission is to bridge the gap between traditional art and modern technology, providing artists with the tools, resources, and opportunities they need to thrive in today's digital world. From art supplies and digital tools to workshops and studio spaces, we've built a complete ecosystem that supports artists at every stage of their journey.
               </p>
               <p className="text-lg text-gray-300">
-                Today, ARTISTRY operates across 15+ states, conducts regular art events, and continues to innovate new ways to support the creative community. We believe that art has the power to transform lives, and we're committed to making art accessible to everyone.
+                Today, art artist operates across 15+ states, conducts regular art events, and continues to innovate new ways to support the creative community. We believe that art has the power to transform lives, and we're committed to making art accessible to everyone.
               </p>
             </div>
           </div>
@@ -197,7 +197,7 @@ const PressKit = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">Uday Kumar Sangisetti</h3>
                 <p className="text-red-400 mb-3">Founder & CEO</p>
-                <p className="text-gray-400">Visionary leader with a passion for art and technology. Uday founded ARTISTRY with the mission to democratize art access across India.</p>
+                <p className="text-gray-400">Visionary leader with a passion for art and technology. Uday founded art artist with the mission to democratize art access across India.</p>
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-red-400 mb-4">Key Achievements</h4>

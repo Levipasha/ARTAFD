@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 const Careers = () => {
   useEffect(() => {
-    document.title = 'Careers - ARTISTRY';
+    document.title = 'Careers - art artist';
     const meta = document.createElement('meta');
     meta.name = 'description';
-    meta.content = 'Join the ARTISTRY team. Explore career opportunities in art, technology, and creative industries.';
+    meta.content = 'Join the art artist team. Explore career opportunities in art, technology, and creative industries.';
     document.head.appendChild(meta);
     return () => {
       document.head.removeChild(meta);
@@ -124,7 +124,7 @@ const Careers = () => {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Careers at ARTISTRY</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">Careers at art artist</h1>
           <p className="text-xl md:text-2xl mb-8">Join Our Creative Community</p>
           <p className="text-lg max-w-3xl mx-auto">Be part of a team that's passionate about empowering artists across India. We're looking for creative minds who share our vision of making art accessible to everyone.</p>
         </div>
@@ -134,7 +134,7 @@ const Careers = () => {
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Why Join Us */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-red-400 mb-8 text-center">Why Join ARTISTRY?</h2>
+          <h2 className="text-3xl font-bold text-red-400 mb-8 text-center">Why Join art artist?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -303,7 +303,7 @@ const Careers = () => {
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
-                  placeholder="Tell us why you'd like to join ARTISTRY"
+                  placeholder="Tell us why you'd like to join art artist"
                   rows="4"
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-500 text-white resize-none"
                   required

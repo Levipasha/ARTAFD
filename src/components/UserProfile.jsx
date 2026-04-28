@@ -37,10 +37,12 @@ const UserProfile = () => {
     );
   }
 
-  const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long' 
-  }) : 'Member';
+  const joinDate = (user.createdAt || user.metadata?.creationTime) 
+    ? new Date(user.createdAt || user.metadata.creationTime).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
+      }) 
+    : 'Recently';
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User },
@@ -59,11 +61,22 @@ const UserProfile = () => {
             <div className="relative flex flex-col sm:flex-row items-center sm:items-end -mt-12 mb-4">
               <div className="relative">
                 {user.photoURL ? (
-                  <img 
-                    src={user.photoURL} 
-                    alt={user.displayName}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
+                  <>
+                    <img 
+                      src={user.photoURL} 
+                      alt={user.displayName}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                        const placeholder = e.target.parentElement.querySelector('.profile-placeholder');
+                        if (placeholder) placeholder.style.display = 'flex';
+                      }}
+                    />
+                    <div className="profile-placeholder hidden w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow-lg items-center justify-center">
+                      <User size={40} className="text-gray-500" />
+                    </div>
+                  </>
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow-lg flex items-center justify-center">
                     <User size={40} className="text-gray-500" />

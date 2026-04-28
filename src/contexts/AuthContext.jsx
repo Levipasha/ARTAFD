@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
 
 // Auth Context
@@ -102,7 +102,7 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   // Login with Firebase token
-  const login = async (firebaseToken) => {
+  const login = useCallback(async (firebaseToken) => {
     try {
       dispatch({ type: 'LOGIN_START' });
 
@@ -126,10 +126,10 @@ const AuthProvider = ({ children }) => {
       });
       throw error;
     }
-  };
+  }, []);
 
   // Logout
-  const logout = async (firebaseToken) => {
+  const logout = useCallback(async (firebaseToken) => {
     try {
       if (firebaseToken) {
         await authAPI.logout(firebaseToken);
@@ -143,10 +143,10 @@ const AuthProvider = ({ children }) => {
 
       dispatch({ type: 'LOGOUT' });
     }
-  };
+  }, []);
 
   // Update user profile
-  const updateUser = async (profileData) => {
+  const updateUser = useCallback(async (profileData) => {
     try {
       const updatedUser = await authAPI.updateProfile(profileData);
       
@@ -167,12 +167,12 @@ const AuthProvider = ({ children }) => {
       });
       throw error;
     }
-  };
+  }, []);
 
   // Clear error
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'SET_ERROR', payload: null });
-  };
+  }, []);
 
   const value = {
     ...state,
