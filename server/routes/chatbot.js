@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const fetch = require('node-fetch');
 const ArtistProfile = require('../models/ArtistProfile');
 const Event = require('../models/Event');
 const Product = require('../models/Product');
@@ -176,28 +177,46 @@ Provide accurate, helpful, and database-driven responses like a smart art assist
     ];
 
     // Call OpenRouter API
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openrouterApiKey}`,
-        'HTTP-Referer': (process.env.FRONTEND_URL && process.env.FRONTEND_URL.split(',')[0]) || 'https://artafd.vercel.app',
-        'X-OpenRouter-Title': 'ArtArtist'
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-3.5-turbo',
-        messages: messages,
-        max_tokens: 500,
-        temperature: 0.7
-      })
-    });
+    console.log('Calling OpenRouter API with key:', openrouterApiKey.substring(0, 10) + '...');
+    
+    let response;
+    try {
+      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openrouterApiKey}`,
+          'HTTP-Referer': (process.env.FRONTEND_URL && process.env.FRONTEND_URL.split(',')[0]) || 'https://artafd.vercel.app',
+          'X-Title': 'ArtArtist'
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-4o-mini',
+          messages: messages,
+          max_tokens: 500,
+          temperature: 0.7
+        })
+      });
+    } catch (fetchError) {
+      console.error('Fetch error:', fetchError);
+      return res.status(500).json({
+        error: 'Failed to connect to AI service',
+        details: fetchError.message
+      });
+    }
 
+    console.log('OpenRouter response status:', response.status);
+    
     if (!response.ok) {
-      const errorData = await response.json();
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: { message: await response.text() } };
+      }
       console.error('OpenRouter API error:', errorData);
       return res.status(500).json({
         error: 'Failed to get response from AI',
-        details: errorData.error?.message || 'Unknown error'
+        details: errorData.error?.message || errorData.message || 'Unknown error'
       });
     }
 
