@@ -34,6 +34,16 @@ const announcementSchema = new mongoose.Schema({
     type: String,
     default: 'gray-800'
   },
+  heroImage: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  heroLogo: {
+    type: String,
+    default: '',
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
