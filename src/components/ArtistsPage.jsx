@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Mic, MapPin, Palette } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI } from '../services/api';
 import SEO from './SEO';
+import Loader from './Loader';
 
 const ArtistsPage = () => {
   const navigate = useNavigate();
@@ -173,12 +174,14 @@ const ArtistsPage = () => {
               </div>
             </div>
           ) : loading ? (
+
             /* Loading State */
             <div className="flex flex-col items-center justify-center py-24">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-100 border-t-red-600 mb-4"></div>
-              <p className="text-gray-500 font-medium">Searching for artists...</p>
+              <Loader size={120} />
+              <p className="text-gray-500 font-medium mt-4">Searching for artists...</p>
             </div>
           ) : artists.length === 0 ? (
+
             /* No Results State */
             <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-3xl mx-auto mt-8">
               <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">

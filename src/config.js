@@ -1,7 +1,7 @@
 // API Configuration
 // IMPORTANT: For Vercel deployment, set REACT_APP_API_URL in your Vercel dashboard
 // Example: REACT_APP_API_URL=https://your-backend.vercel.app
-const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://server-one-psi-87.vercel.app';
+const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_DEFAULT_PROD_API_URL || '';
 
 const normalizeApiBaseUrl = (url) => {
   if (!url) return url;
@@ -20,7 +20,7 @@ const resolveApiBaseUrl = () => {
 
   // Priority 2: Local development
   if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:5000';
+    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}`;
   }
 
   // Priority 3: Default production URL (fallback)

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API Configuration
 // For Vercel deployment - set this in your environment variables
-const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || 'https://server-one-psi-87.vercel.app';
+const DEFAULT_PROD_API_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_DEFAULT_PROD_API_URL || '';
 
 const normalizeApiBaseUrl = (url) => {
   if (!url) return url;
@@ -23,7 +23,7 @@ const resolveApiBaseUrl = () => {
 
   // Priority 2: Local development
   if (isBrowser && isLocalHost) {
-    return 'http://localhost:5000/api';
+    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}/api`;
   }
 
   // Priority 3: Default production URL

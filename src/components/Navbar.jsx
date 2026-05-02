@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
-import logo from './aa logos_20250926_144624_0000.png';
+import logo from './Untitled design (3).png';
 import NavHeader from './ui/nav-header';
 import AnnouncementBar from './AnnouncementBar';
 import LoginModal from './LoginModal';
@@ -47,15 +47,15 @@ const Navbar = () => {
     <>
       <AnnouncementBar />
       <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
-      <div className="max-w-7xl mx-auto pl-0 pr-4 sm:pr-6 lg:pr-8">
-        <div className="flex justify-between items-center h-16 lg:h-[72px] gap-3">
-          {/* Logo */}
-          <div className="flex-shrink-0 min-w-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16 lg:h-[72px] relative">
+          {/* Logo - Absolutely centered on mobile, left on desktop */}
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src={logo}
                 alt="ArtArtist"
-                className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border border-gray-200"
+                className="w-9 h-9 md:w-10 md:h-10 object-cover"
               />
               <div className="text-lg md:text-2xl font-bold leading-none whitespace-nowrap">
                 <span className="text-black">ART</span>
@@ -137,8 +137,8 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
+          {/* Mobile menu button - Absolutely positioned on right */}
+          <div className="lg:hidden absolute right-0 top-1/2 -translate-y-1/2">
             <button 
               onClick={toggleMenu}
               className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-600 transition-colors"

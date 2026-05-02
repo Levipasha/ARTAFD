@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, Package, DollarSign, Image as ImageIcon, Save, X, L
 import Navbar from './Navbar';
 import { productsAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Loader from './Loader';
 
 const EMPTY_FORM = {
   name: '',
@@ -294,10 +295,11 @@ const ProductManagement = () => {
 
         {/* Loading */}
         {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600" />
+          <div className="flex items-center justify-center h-64">
+            <Loader size={120} />
           </div>
         ) : products.length === 0 ? (
+
           <div className="text-center py-16 bg-white rounded-lg border">
             <Package size={56} className="mx-auto text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-1">No Products Found</h3>
