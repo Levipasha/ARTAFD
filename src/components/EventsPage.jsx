@@ -194,15 +194,9 @@ const EventsPage = () => {
         {/* No Events Found */}
         {!loading && filteredEvents.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-gray-400 text-lg mb-4">
-              No events found in this category.
+            <div className="text-gray-400 text-lg">
+              No events found.
             </div>
-            <button 
-              onClick={() => setSelectedCategory('all')}
-              className="text-red-600 font-medium hover:text-red-700 transition-colors"
-            >
-              View All Events
-            </button>
           </div>
         )}
       </div>
