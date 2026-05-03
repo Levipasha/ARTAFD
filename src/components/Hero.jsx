@@ -310,33 +310,6 @@ const Hero = () => {
                   ) : null}
                 </div>
 
-                <div className="mt-4 rounded-2xl border p-3 bg-gray-50/60">
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <div className="text-lg font-bold text-gray-900">
-                        {
-                          [
-                            selectedArtist.social?.instagram,
-                            selectedArtist.social?.facebook,
-                            selectedArtist.social?.twitter,
-                            selectedArtist.social?.linkedin,
-                            selectedArtist.social?.website
-                          ].filter(Boolean).length
-                        }
-                      </div>
-                      <div className="text-xs text-gray-600">Handles</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-gray-900">{selectedArtist.artForm ? 1 : 0}</div>
-                      <div className="text-xs text-gray-600">Art Form</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-gray-900">{selectedArtist.location?.city ? 1 : 0}</div>
-                      <div className="text-xs text-gray-600">Location</div>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="mt-4 flex flex-wrap gap-2 text-xs">
                   {selectedArtist.social?.instagram ? <a href={selectedArtist.social.instagram} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Instagram</a> : null}
                   {selectedArtist.social?.facebook ? <a href={selectedArtist.social.facebook} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Facebook</a> : null}
