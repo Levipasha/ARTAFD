@@ -95,34 +95,11 @@ const EventsPage = () => {
         </div>
       </div>
 
-      {/* Filter Section */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
-          <div className="flex items-center gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0">
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Filter size={20} className="text-gray-600" />
-              <span className="font-medium text-gray-900 text-sm md:text-base">Filter:</span>
-            </div>
-            
-            <div className="flex gap-2 flex-shrink-0">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`whitespace-nowrap px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-lg font-medium transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
-            
-            <div className="text-gray-600 font-medium whitespace-nowrap flex-shrink-0 ml-2 text-sm md:text-base">
-              {filteredEvents.length} events found
-            </div>
+      {/* Events Count */}
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="text-gray-600 font-medium text-sm md:text-base">
+            {filteredEvents.length} events found
           </div>
         </div>
       </div>

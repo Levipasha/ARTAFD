@@ -18,7 +18,7 @@ const VirtualGallery3D = () => {
 
         <div className="mt-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-black">VIRTUAL 3D GALLERY</h1>
+            <h1 className="text-3xl font-bold"><span className="text-black">VIRTUAL </span><span className="text-red-600">3D GALLERY</span></h1>
           </div>
           <a
             href={museumUrl}

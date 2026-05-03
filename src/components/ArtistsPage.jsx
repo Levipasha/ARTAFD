@@ -16,7 +16,7 @@ const ArtistsPage = () => {
   const suggestions = [
     "Abstract Painting", "Digital Portraits", "Pencil Sketch", 
     "Resin Art", "Mural", "Watercolor", "Calligraphy", "Oil Painting",
-    "Mumbai", "Delhi", "Bangalore"
+    "Hyderabad"
   ];
 
   const startListening = () => {

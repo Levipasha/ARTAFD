@@ -19,7 +19,7 @@ const Navbar = () => {
     { to: '/art-store', label: 'Art' },
     { to: '/artists', label: 'Artist' },
     { to: '/events', label: 'Events' },
-    { to: '/', label: 'Marketplace' },
+    { to: '/', label: 'Home' },
     { to: '/nft', label: 'NFT' },
     { to: '/virtual-gallery', label: 'virtual gallery' },
     { to: '/art-supplies', label: 'art value calculator' }
@@ -50,7 +50,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16 lg:h-[72px] relative">
           {/* Logo - Absolutely centered on mobile, left on desktop */}
-          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0">
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0 lg:mr-8">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src={logo}

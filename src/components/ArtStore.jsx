@@ -107,7 +107,7 @@ const ArtStore = () => {
             <span className="font-medium">Back to Home</span>
           </Link>
           
-          <h1 className="text-4xl font-bold text-black mb-2">ART SHOWCASE</h1>
+          <h1 className="text-4xl font-bold mb-2"><span className="text-black">ART </span><span className="text-red-600">SHOWCASE</span></h1>
           <p className="text-gray-600">Explore posted artworks from the community</p>
           
 
@@ -269,49 +269,22 @@ const ArtStore = () => {
               {previewItem.description}
             </div>
             
-            {/* Commission/Purchase Section */}
+            {/* Contact Section */}
             <div className="p-4 border-t bg-gray-50">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900">Commission This Artwork</h4>
-                  <p className="text-sm text-gray-600">Click to purchase or commission this artist</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">
-                    {previewItem.price ? `₹${previewItem.price}` : 'Contact Artist'}
-                  </p>
-                </div>
-              </div>
+              <p className="text-sm text-gray-600 mb-4">Get in touch with the artist for inquiries</p>
               
-              <div className="flex gap-3">
-                {previewItem?.paymentLink ? (
-                  <a
-                    href={previewItem.paymentLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-center"
-                  >
-                    Buy Now
-                  </a>
-                ) : (
-                  <span className="flex-1 flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-400 rounded-lg font-medium text-sm text-center cursor-not-allowed">
-                    Payment link not set
-                  </span>
-                )}
-
-                <button 
-                  onClick={() => {
-                    if (previewItem?.artistProfile?.email) {
-                      window.location.href = `mailto:${previewItem.artistProfile.email}?subject=Commission Request for ${previewItem.name}`;
-                    } else {
-                      alert('Artist contact information not available');
-                    }
-                  }}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  Contact Artist
-                </button>
-              </div>
+              <button 
+                onClick={() => {
+                  if (previewItem?.artistProfile?.email) {
+                    window.location.href = `mailto:${previewItem.artistProfile.email}?subject=Commission Request for ${previewItem.name}`;
+                  } else {
+                    alert('Artist contact information not available');
+                  }
+                }}
+                className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Contact Artist
+              </button>
             </div>
           </div>
         </div>

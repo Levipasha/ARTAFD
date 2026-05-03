@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 // ── Inline style helpers ──────────────────────────────────────────────────────
 const G = {
@@ -151,6 +152,7 @@ const BreakdownBar = ({ label, value, maxValue, color = G.red, delay = 0 }) => {
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function ArtValueCalculator() {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState("landing"); // landing | calculator | result | history
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -226,6 +228,16 @@ export default function ArtValueCalculator() {
       {/* Red glow sphere */}
       <div style={{ position: "absolute", top: "15%", right: "10%", width: 400, height: 400, background: `radial-gradient(circle, ${G.redGlow} 0%, transparent 70%)`, pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "absolute", bottom: "10%", left: "5%", width: 300, height: 300, background: `radial-gradient(circle, rgba(229,9,20,0.08) 0%, transparent 70%)`, pointerEvents: "none", zIndex: 0 }} />
+
+      {/* Back Button */}
+      <button 
+        onClick={() => navigate(-1)} 
+        style={{ position: "absolute", top: 20, left: 20, background: "transparent", border: "none", color: G.greyText, cursor: "pointer", fontSize: 14, fontFamily: "'Syne', sans-serif", display: "flex", alignItems: "center", gap: 6, transition: "color 0.2s", zIndex: 10 }}
+        onMouseEnter={e => e.currentTarget.style.color = G.white}
+        onMouseLeave={e => e.currentTarget.style.color = G.greyText}
+      >
+        ← Back
+      </button>
 
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 700 }}>
         {/* Brand badge */}
