@@ -1,25 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Clock, Users, Ticket, Star, Filter } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, Users, Ticket, Star } from 'lucide-react';
 import { eventsAPI } from '../services/api';
 import SEO from './SEO';
 
 const EventsPage = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
 
-  const categories = [
-    { id: 'all', name: 'All Events' },
-    { id: 'exhibition', name: 'Exhibitions' },
-    { id: 'workshop', name: 'Workshops' },
-    { id: 'networking', name: 'Networking' },
-    { id: 'auction', name: 'Auctions' },
-    { id: 'festival', name: 'Festivals' },
-    { id: 'webinar', name: 'Webinars' },
-    { id: 'meetup', name: 'Meetups' },
-  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -41,10 +30,7 @@ const EventsPage = () => {
     };
   }, []);
 
-  const filteredEvents = useMemo(() => {
-    if (selectedCategory === 'all') return events;
-    return events.filter(event => event.category === selectedCategory);
-  }, [events, selectedCategory]);
+  const filteredEvents = events;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
