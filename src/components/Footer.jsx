@@ -11,7 +11,7 @@ const Footer = () => {
               <img
                 src="/logo.png"
                 alt="ArtArtist"
-                className="w-12 h-12 object-cover"
+                className="w-12 h-12 object-cover grayscale"
               />
             </div>
             <h3 className="text-xl font-bold mb-2"><span className="text-red-600">ART</span>ARTIST</h3>
@@ -61,7 +61,15 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2026 ARTIST. All rights reserved.
+              © 2026 ARTIST. All rights reserved. Made with ❤️ by{' '}
+              <a
+                href="https://www.skywebdev.xyz/#home"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-red-500 hover:text-red-400 transition-colors"
+              >
+                Sky Web Dev
+              </a>
             </p>
             
             <div className="flex space-x-6">

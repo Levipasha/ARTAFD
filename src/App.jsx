@@ -28,6 +28,7 @@ import EventManagement from './components/EventManagement';
 import AdminDashboard from './components/AdminDashboard';
 import UserProfile from './components/UserProfile';
 import UserDashboard from './components/UserDashboard';
+import ArtistProfile from './components/ArtistProfile';
 import PageLoader from './components/PageLoader';
 // import Cart from './components/Cart';
 
@@ -72,6 +73,7 @@ function App() {
               <Route path="/admin" element={<RouteWithLoader element={<AdminDashboard />} />} />
               <Route path="/profile" element={<RouteWithLoader element={<UserProfile />} />} />
               <Route path="/dashboard" element={<RouteWithLoader element={<UserDashboard />} />} />
+              <Route path="/artist/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
             </Routes>
             {/* <Cart /> */}
           </Router>

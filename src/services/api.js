@@ -231,6 +231,27 @@ export const eventsAPI = {
   },
 };
 
+// Forms API (event registration forms)
+export const formsAPI = {
+  // Get form for an event (public)
+  getEventForm: async (eventId) => {
+    const response = await api.get(`/forms/event/${eventId}`);
+    return response.data;
+  },
+  
+  // Submit form for an event (public)
+  submitForm: async (eventId, formData) => {
+    const response = await api.post(`/forms/event/${eventId}/submit`, formData);
+    return response.data;
+  },
+
+  // Subscribe to event notifications (public)
+  subscribeToEvents: async (data) => {
+    const response = await api.post('/forms/subscribers', data);
+    return response.data;
+  },
+};
+
 // Gallery API
 export const galleryAPI = {
   getGallery: async (params = {}) => {

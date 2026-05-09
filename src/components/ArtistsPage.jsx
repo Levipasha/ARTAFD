@@ -232,14 +232,20 @@ const ArtistsPage = () => {
                     
                     <button 
                       onClick={() => {
-                        if (artist.social?.instagram) window.open(artist.social.instagram, '_blank');
-                        else alert('Contacting ' + artist.name);
+                        console.log('Artist data:', artist);
+                        const artistId = artist._id || artist.id || artist.name?.replace(/\s+/g, '-').toLowerCase();
+                        console.log('Artist ID:', artistId);
+                        if (artistId) {
+                          navigate(`/artist/${artistId}`);
+                        } else {
+                          alert('Artist ID not found');
+                        }
                       }}
                       className="w-full bg-gray-900 text-white rounded-xl px-4 py-3 text-sm font-semibold
                                transition-all duration-300 hover:bg-red-600 shadow-md hover:shadow-red-600/30
                                active:scale-95 flex justify-center items-center gap-2"
                     >
-                      Connect with Artist
+                      View Artist
                     </button>
                   </div>
                 </div>

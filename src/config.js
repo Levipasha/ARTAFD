@@ -7,8 +7,9 @@ const normalizeApiBaseUrl = (url) => {
   if (!url) return url;
   let normalized = url.trim();
   // Remove trailing slash
-  normalized = normalized.replace(/\/$/, '');
-  return normalized;
+  normalized = normalized.replace(/\/+$/, '');
+  // Add /api suffix if not present
+  return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
 };
 
 const resolveApiBaseUrl = () => {
@@ -20,7 +21,7 @@ const resolveApiBaseUrl = () => {
 
   // Priority 2: Local development
   if (process.env.NODE_ENV === 'development') {
-    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}`;
+    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}/api`;
   }
 
   // Priority 3: Default production URL (fallback)

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Filter, Search, ArrowLeft } from 'lucide-react';
+import { Filter, Search, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import { productsAPI } from '../services/api';
@@ -318,13 +318,30 @@ const ArtStore = () => {
                 )}
                 <div className="min-w-0">
                   <div className="text-xl font-bold text-gray-900 truncate">{previewArtist.name}</div>
+                  {previewArtist.artForm ? <div className="text-sm text-red-600 mt-1">{previewArtist.artForm}</div> : null}
                 </div>
               </div>
+
+              {previewArtist.location ? (
+                <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                  <MapPin size={16} />
+                  <span>{previewArtist.location}</span>
+                </div>
+              ) : null}
 
               <p className="mt-4 text-sm text-gray-700">
                 {previewArtist.bio || 'No artist bio added yet.'}
               </p>
 
+              {(previewArtist.social?.instagram || previewArtist.social?.facebook || previewArtist.social?.twitter || previewArtist.social?.linkedin || previewArtist.social?.website) ? (
+                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                  {previewArtist.social?.instagram ? <a href={previewArtist.social.instagram} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Instagram</a> : null}
+                  {previewArtist.social?.facebook ? <a href={previewArtist.social.facebook} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Facebook</a> : null}
+                  {previewArtist.social?.twitter ? <a href={previewArtist.social.twitter} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Twitter</a> : null}
+                  {previewArtist.social?.linkedin ? <a href={previewArtist.social.linkedin} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">LinkedIn</a> : null}
+                  {previewArtist.social?.website ? <a href={previewArtist.social.website} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Website</a> : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

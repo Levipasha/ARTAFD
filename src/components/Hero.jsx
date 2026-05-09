@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { artistsAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { artistsAPI, productsAPI, eventsAPI } from '../services/api';
 import API_URL from '../config';
 import profileBg from './cropped_circle_image.png';
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
+  const [results, setResults] = useState({ artists: [], products: [], events: [] });
   const [loading, setLoading] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -73,17 +75,27 @@ const Hero = () => {
     let cancelled = false;
     const run = async () => {
       if (!searchQuery.trim()) {
-        setSuggestions([]);
+        setResults({ artists: [], products: [], events: [] });
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        const res = await artistsAPI.searchArtists({ q: searchQuery.trim(), limit: 8 });
-        if (!cancelled) setSuggestions(res.artists || []);
+        const q = searchQuery.trim();
+        const [artistsRes, productsRes, eventsRes] = await Promise.allSettled([
+          artistsAPI.searchArtists({ q, limit: 5 }),
+          productsAPI.getProducts({ search: q, limit: 5 }),
+          eventsAPI.getEvents({ search: q, limit: 5 }),
+        ]);
+        if (cancelled) return;
+        setResults({
+          artists: artistsRes.status === 'fulfilled' ? (artistsRes.value.artists || []) : [],
+          products: productsRes.status === 'fulfilled' ? (productsRes.value.products || []) : [],
+          events: eventsRes.status === 'fulfilled' ? (eventsRes.value.events || []) : [],
+        });
       } catch (e) {
-        if (!cancelled) setSuggestions([]);
-        console.error('Artist suggestions error:', e);
+        if (!cancelled) setResults({ artists: [], products: [], events: [] });
+        console.error('Search error:', e);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -95,7 +107,10 @@ const Hero = () => {
     };
   }, [searchQuery]);
 
-  const hasSuggestions = useMemo(() => suggestions.length > 0, [suggestions.length]);
+  const hasAnyResults = useMemo(
+    () => results.artists.length > 0 || results.products.length > 0 || results.events.length > 0,
+    [results.artists.length, results.products.length, results.events.length]
+  );
 
   const handleMicClick = () => {
     if (isListening && recognitionRef.current) {
@@ -220,34 +235,102 @@ const Hero = () => {
             {showSuggestions && searchQuery.trim() && (
               <div className="absolute z-40 mt-2 w-full bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
                 {loading ? (
-                  <div className="px-4 py-4 text-sm text-gray-500">Searching artists...</div>
-                ) : !hasSuggestions ? (
-                  <div className="px-4 py-4 text-sm text-gray-500">No artist suggestions found.</div>
+                  <div className="px-4 py-4 text-sm text-gray-500">Searching...</div>
+                ) : !hasAnyResults ? (
+                  <div className="px-4 py-4 text-sm text-gray-500">No results found.</div>
                 ) : (
-                  <div className="max-h-80 overflow-y-auto">
-                    {suggestions.map((artist) => (
-                      <button
-                        key={artist._id}
-                        className="w-full px-4 py-4 hover:bg-gray-50 transition-colors flex items-center gap-4 text-left"
-                        onClick={() => {
-                          setSelectedArtist(artist);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <img
-                          src={artist?.image?.url}
-                          alt={artist?.image?.alt || artist?.name}
-                          className="w-20 h-20 rounded-xl object-cover bg-gray-100 shadow-sm border border-gray-200 flex-shrink-0"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="font-bold text-gray-900 text-lg leading-tight">{artist.name}</div>
-                          <div className="text-xs font-semibold text-red-600 uppercase tracking-wider mt-0.5">{artist.artForm}</div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ')}
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                  <div className="max-h-96 overflow-y-auto">
+                    {/* Artists */}
+                    {results.artists.length > 0 && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50">Artists</div>
+                        {results.artists.map((artist) => (
+                          <button
+                            key={artist._id}
+                            className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-4 text-left"
+                            onClick={() => {
+                              setSelectedArtist(artist);
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <img
+                              src={artist?.image?.url}
+                              alt={artist?.image?.alt || artist?.name}
+                              className="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-gray-200 flex-shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-gray-900 text-base leading-tight">{artist.name}</div>
+                              <div className="text-xs font-semibold text-red-600 uppercase tracking-wider mt-0.5">{artist.artForm}</div>
+                              <div className="text-sm text-gray-600 mt-0.5">
+                                {[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ')}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Products / Art */}
+                    {results.products.length > 0 && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-t">Art</div>
+                        {results.products.map((product) => (
+                          <button
+                            key={product._id}
+                            className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-4 text-left"
+                            onClick={() => {
+                              setShowSuggestions(false);
+                              navigate('/art-store');
+                            }}
+                          >
+                            <img
+                              src={product?.images?.[0]?.url}
+                              alt={product?.name}
+                              className="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-gray-200 flex-shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-gray-900 text-base leading-tight">{product.name}</div>
+                              <div className="text-xs font-semibold text-red-600 uppercase tracking-wider mt-0.5">{product.category}</div>
+                              <div className="text-sm text-gray-600 mt-0.5">
+                                {product?.artistProfile?.name || product?.artist?.displayName || 'ArtArtist'}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Events */}
+                    {results.events.length > 0 && (
+                      <div>
+                        <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-t">Events</div>
+                        {results.events.map((event) => (
+                          <button
+                            key={event._id}
+                            className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-4 text-left"
+                            onClick={() => {
+                              setShowSuggestions(false);
+                              navigate('/events');
+                            }}
+                          >
+                            <img
+                              src={event?.images?.[0]?.url}
+                              alt={event?.title}
+                              className="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-gray-200 flex-shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-gray-900 text-base leading-tight">{event.title}</div>
+                              <div className="text-xs font-semibold text-red-600 uppercase tracking-wider mt-0.5">
+                                {event?.pricing?.type === 'free' ? 'Free' : `₹${Number(event?.pricing?.amount || 0).toLocaleString()}`}
+                              </div>
+                              <div className="text-sm text-gray-600 mt-0.5">
+                                {[event.location?.city, event.location?.state].filter(Boolean).join(', ')}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -317,13 +400,6 @@ const Hero = () => {
                   {selectedArtist.social?.linkedin ? <a href={selectedArtist.social.linkedin} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">LinkedIn</a> : null}
                   {selectedArtist.social?.website ? <a href={selectedArtist.social.website} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Website</a> : null}
                 </div>
-
-                <button
-                  className="mt-5 w-full py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-900 transition-colors"
-                  onClick={() => setSelectedArtist(null)}
-                >
-                  View Artist
-                </button>
               </div>
             </div>
           </div>
