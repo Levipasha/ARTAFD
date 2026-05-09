@@ -11,6 +11,18 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Validate mandatory environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`❌ CRITICAL ERROR: Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  console.error('Please ensure these are set in your AWS environment or .env file.');
+  // Don't exit yet, but functionality will be severely limited
+} else {
+  console.log('✅ Basic environment variables validated');
+}
+
 // Firebase Admin
 const admin = require('firebase-admin');
 
@@ -89,18 +101,79 @@ const app = express();
 // (required by express-rate-limit to identify clients correctly)
 app.set('trust proxy', process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) : 1);
 
+// Custom logging middleware to debug CORS and requests on AWS
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'production' || req.path.startsWith('/api')) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Origin: ${req.headers.origin || 'No Origin'}`);
+  }
+  next();
+});
+
 const corsOptions = {
-  origin: true,                // reflect the request origin → allows ANY origin
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'https://artiest-dashbaord.vercel.app',
+      'https://art-love-website.vercel.app',
+      'https://admin-eosin-nine-51.vercel.app',
+      'https://www.artartist.in',
+      'https://artartist.in',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174'
+    ];
+    
+    // Check if the origin matches any allowed origin or is a subdomain of a trusted domain
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      allowedOrigins.includes(origin.replace(/\/$/, ''));
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      // In production, log the blocked origin for debugging
+      console.warn(`[CORS] Blocking origin: ${origin}`);
+      
+      // For development, allow any origin
+      if (process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        // If it's a known issue on AWS, we might want to be more lenient temporarily
+        // or provide a better error message.
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Cache-Control', 
+    'Pragma', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar']
 };
 
 // Middleware (CORS first so preflights always get headers)
 app.use(cors(corsOptions));
+// Explicitly handle OPTIONS for all routes
 app.options('*', cors(corsOptions));
 
-app.use(helmet());
+// Configure helmet to allow CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // Rate limiting (skip OPTIONS preflight)
 const limiter = rateLimit({
@@ -113,12 +186,33 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database connection
+console.log('Attempting to connect to MongoDB...');
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
 })
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => {
+  console.log('✅ Connected to MongoDB');
+  // Log database name (safely)
+  const dbName = mongoose.connection.name;
+  console.log(`Using database: ${dbName}`);
+})
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err.message);
+  if (err.message.includes('IP not whitelisted')) {
+    console.error('PRO TIP: Check if your AWS server IP is whitelisted in MongoDB Atlas.');
+  }
+});
+
+// Handle connection events
+mongoose.connection.on('error', err => {
+  console.error('MongoDB runtime error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected. Reconnecting...');
+});
 
 // Make admin available globally (only expose if properly initialized)
 app.locals.firebase = firebaseInitialized ? admin : null;
