@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Filter, Search, ArrowLeft, MapPin } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import Navbar from './Navbar';
+import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Mail, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { productsAPI } from '../services/api';
 import SEO from './SEO';
+import ComingSoonBanner from './ComingSoonBanner';
 
 const normalizeCategory = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 const pillToCategory = {
@@ -18,6 +19,8 @@ const pillToCategory = {
 };
 
 const ArtStore = () => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
@@ -83,32 +86,54 @@ const ArtStore = () => {
     };
   };
 
+  const handleShare = async (product) => {
+    if (!product) return;
+    const shareData = {
+      title: product.name,
+      text: `Check out "${product.name}" by ${getArtistData(product).name} on Art Showcase!`,
+      url: window.location.origin + '/art', // Sharing the art page
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Share failed:', err);
+      }
+    }
+  };
+
   return (
     <>
       <SEO 
         title="Art Store"
         description="Browse and buy original paintings, digital art, and artwork from emerging and established artists. Secure transactions, worldwide shipping."
         keywords="art store, buy paintings, buy digital art, online art gallery, artwork for sale"
-        canonical="https://artartist.com/art-store"
+        canonical="https://artartist.com/art"
       />
       <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <Navbar />
 
       {/* Header */}
-      <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 border-b">
-        <div className="w-full max-w-6xl mx-auto">
+      <div className="bg-black py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-800">
+        <div className="w-full max-w-6xl mx-auto text-center">
           {/* Back Button */}
-          <Link 
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-medium">Back to Home</span>
-          </Link>
+          <div className="flex justify-start mb-4">
+            <Link 
+              to="/"
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium">Back to Home</span>
+            </Link>
+          </div>
           
-          <h1 className="text-4xl font-bold mb-2"><span className="text-black">ART </span><span className="text-red-600">SHOWCASE</span></h1>
-          <p className="text-gray-600">Explore posted artworks from the community</p>
+          <h1 className="text-4xl font-bold mb-2"><span className="text-white">ART </span><span className="text-red-600">SHOWCASE</span></h1>
+          <p className="text-gray-300">Explore posted artworks from community</p>
           
 
         </div>
@@ -116,95 +141,135 @@ const ArtStore = () => {
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filter Bar */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-600"
-            />
-          </div>
-          
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <Filter size={20} />
-              <span className="font-medium">Filter</span>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search for art, artists, or styles..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:border-red-500 focus:bg-white transition-all"
+              />
+            </div>
+            
+            <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
+              <Filter size={20} className="text-gray-600" />
             </button>
+          </div>
+
+          {/* Category Pills */}
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {pills.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedPill(category)}
+                className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  category === selectedPill
+                    ? 'bg-red-600 text-white shadow-md' 
+                    : 'bg-white border border-gray-300 text-gray-700 hover:border-gray-400 hover:shadow-sm'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {pills.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedPill(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                category === selectedPill
-                  ? 'bg-black text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        {/* Products Grid */}
+        {/* Products Grid - Pinterest Style Masonry */}
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="columns-2 sm:columns-2 lg:columns-3 xl:columns-4 gap-3 space-y-3">
             {filteredProducts.map((product) => {
               const imageUrl = product?.images?.[0]?.url;
+              // Generate random height for Pinterest-like masonry effect
+              const randomHeight = Math.floor(Math.random() * 150) + 200; // 200-350px height
+              
               return (
-                <div key={product._id} className="group cursor-pointer">
-              {/* Product Image */}
-              <div
-                className="relative overflow-hidden rounded-lg mb-4 bg-gray-100"
-                onClick={() => setPreviewItem(product)}
-              >
-                {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
-                    alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-48 flex items-center justify-center text-gray-400">
-                    No image
+                <div key={product._id} className="break-inside-avoid mb-4 group cursor-pointer">
+                  {/* Product Card */}
+                  <div
+                    className="relative overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-xl transition-all duration-300"
+                    onClick={() => setPreviewItem(product)}
+                  >
+                    {/* Image Container */}
+                    <div className="relative">
+                      {imageUrl ? (
+                        <img 
+                          src={imageUrl} 
+                          alt={product.name}
+                          className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          style={{ height: `${randomHeight}px` }}
+                        />
+                      ) : (
+                        <div className="w-full flex items-center justify-center text-gray-400 bg-gray-100" style={{ height: `${randomHeight}px` }}>
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🎨</div>
+                            <div className="text-sm">No image</div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Overlay Actions */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                              <span className="text-xs">❤️</span>
+                            </div>
+                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                              <span className="text-xs">💬</span>
+                            </div>
+                          </div>
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                            <span className="text-xs">🔗</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Category Badge */}
+                      <div className="absolute top-3 left-3">
+                        <span className="px-3 py-1 bg-white/95 backdrop-blur-sm text-xs font-medium rounded-full shadow-sm">
+                          {String(product.category || '').toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mb-2">
+                        {product.name}
+                      </h3>
+                      
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {product?.artistProfile?.image?.url || product?.artist?.photoURL ? (
+                            <img 
+                              src={product?.artistProfile?.image?.url || product?.artist?.photoURL} 
+                              alt="Artist"
+                              className="w-6 h-6 rounded-full object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">👤</div>
+                          )}
+                          <span className="text-xs text-gray-600">
+                            {product?.artistProfile?.name || product?.artist?.displayName || 'Unknown Artist'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {product.description && (
+                        <p className="text-xs text-gray-500 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
-                
-                {/* Category Badge */}
-                <div className="absolute top-3 left-3">
-                  <span className="px-2 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium rounded-full">
-                    {String(product.category || '').toUpperCase()}
-                  </span>
                 </div>
-
-              </div>
-
-              {/* Product Info */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-black group-hover:text-red-600 transition-colors line-clamp-1">
-                  {product.name}
-                </h3>
-                <p className="text-xs text-gray-500">
-                  Art by {product?.artistProfile?.name || product?.artist?.displayName || 'Unknown Artist'}
-                </p>
-                
-                <p className="text-xs text-gray-600 line-clamp-2">
-                  {product.description}
-                </p>
-                
-              </div>
-            </div>
               );
             })}
           </div>
@@ -212,136 +277,271 @@ const ArtStore = () => {
 
         {/* Pagination */}
         <div className="flex justify-center mt-12">
-          <div className="flex gap-2">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Previous</button>
-            <button className="px-4 py-2 bg-black text-white rounded-lg">1</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>
+          <div className="flex items-center gap-2">
+            <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <span className="text-sm">Previous</span>
+            </button>
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md">
+              <span className="text-sm">1</span>
+            </button>
+            <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <span className="text-sm">Next</span>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Showcase Preview Modal */}
       {previewItem && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setPreviewItem(null)} />
-          <div className="relative bg-white w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl">
-            <div className="p-4 border-b flex items-center justify-between">
-              <div className="font-semibold text-gray-900 truncate pr-4">{previewItem.name}</div>
-              <button
-                onClick={() => setPreviewItem(null)}
-                className="px-3 py-1 rounded-lg border hover:bg-gray-50"
-              >
-                Close
-              </button>
-            </div>
-            <div className="px-4 py-3 border-b bg-gray-50">
-              <button
-                onClick={() => setPreviewArtist(getArtistData(previewItem))}
-                className="flex items-center gap-3 text-left group"
-              >
-                {getArtistData(previewItem).imageUrl ? (
-                  <img
-                    src={getArtistData(previewItem).imageUrl}
-                    alt={getArtistData(previewItem).imageAlt}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-white shadow-sm flex items-center justify-center text-xs text-gray-600">
-                    Art
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <div className="text-sm text-gray-600">Artist</div>
-                  <div className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors truncate">
-                    {getArtistData(previewItem).name}
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div className="bg-black">
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-10 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setPreviewItem(null)} />
+          
+          <div className="relative bg-white w-full max-w-6xl h-[95vh] md:h-[85vh] mx-auto rounded-t-[32px] md:rounded-[40px] overflow-hidden shadow-2xl flex flex-col md:flex-row transition-all duration-500 scale-in-center">
+            {/* Left: Image Side */}
+            <div className="md:w-3/5 lg:w-2/3 h-[55vh] md:h-full bg-neutral-950 flex items-center justify-center relative group">
               <img
                 src={previewItem?.images?.[0]?.url}
                 alt={previewItem?.name}
-                className="w-full max-h-[75vh] object-contain"
+                className="w-full h-full object-contain md:object-cover group-hover:scale-105 transition-transform duration-700"
               />
-            </div>
-            <div className="p-4 text-sm text-gray-700">
-              {previewItem.description}
-            </div>
-            
-            {/* Contact Section */}
-            <div className="p-4 border-t bg-gray-50">
-              <p className="text-sm text-gray-600 mb-4">Get in touch with the artist for inquiries</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
               
-              <button 
-                onClick={() => {
-                  if (previewItem?.artistProfile?.email) {
-                    window.location.href = `mailto:${previewItem.artistProfile.email}?subject=Commission Request for ${previewItem.name}`;
-                  } else {
-                    alert('Artist contact information not available');
-                  }
-                }}
-                className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              <div className="absolute top-6 right-6 flex gap-3 z-10">
+                <button
+                  onClick={() => handleShare(previewItem)}
+                  className="w-12 h-12 bg-black/40 backdrop-blur-xl hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all border border-white/20"
+                  title="Share Artwork"
+                >
+                  <Share2 size={24} />
+                </button>
+              </div>
+              
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="absolute top-6 left-6 w-12 h-12 bg-black/40 backdrop-blur-xl hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all md:hidden z-10 border border-white/20"
               >
-                Contact Artist
+                <X size={24} />
               </button>
+            </div>
+
+            {/* Right: Details Side */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
+              {/* Header */}
+              <div className="p-6 md:p-8 border-b border-gray-50 flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+                      {previewItem.category}
+                    </span>
+                    {previewItem.status === 'available' && (
+                      <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100">
+                        Available
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight mb-1">{previewItem.name}</h2>
+                </div>
+                <div className="hidden md:flex gap-2 ml-4">
+                  <button
+                    onClick={() => handleShare(previewItem)}
+                    className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                    title="Share Artwork"
+                  >
+                    <Share2 size={20} />
+                  </button>
+                  <button
+                    onClick={() => setPreviewItem(null)}
+                    className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
+                {/* Artist Info */}
+                <div className="bg-neutral-50 rounded-[24px] p-5 md:p-6 border border-neutral-100">
+                  <button
+                    onClick={() => setPreviewArtist(getArtistData(previewItem))}
+                    className="flex items-center gap-4 w-full group text-left"
+                  >
+                    <div className="relative">
+                      {getArtistData(previewItem).imageUrl ? (
+                        <img
+                          src={getArtistData(previewItem).imageUrl}
+                          alt={getArtistData(previewItem).imageAlt}
+                          className="w-14 h-14 md:w-16 md:h-16 rounded-2xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gray-200 flex items-center justify-center text-gray-500 shadow-inner">
+                          <User size={24} />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-0.5">Created By</div>
+                      <div className="font-bold text-lg text-gray-900 truncate group-hover:text-red-600 transition-colors">
+                        {getArtistData(previewItem).name}
+                      </div>
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <MapPin size={10} />
+                        {getArtistData(previewItem).location || 'Global Artist'}
+                      </div>
+                    </div>
+                    <ChevronRight size={20} className="text-gray-300 group-hover:text-red-600 group-hover:translate-x-1 transition-all" />
+                  </button>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h3 className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3">The Story Behind</h3>
+                  <p className="text-gray-600 leading-relaxed text-sm md:text-base font-medium">
+                    {previewItem.description || "No description provided for this artwork."}
+                  </p>
+                </div>
+
+                {/* Tags/Details */}
+                {previewItem.tags && previewItem.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-4">
+                    {previewItem.tags.map(tag => (
+                      <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-full">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer: Contact */}
+              <div className="p-6 md:p-8 bg-white border-t border-gray-100 mt-auto shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                <button 
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate('/login', { state: { from: '/art' } });
+                      return;
+                    }
+
+                    const artistInfo = previewItem?.artistProfile || previewItem?.artist;
+                    if (artistInfo) {
+                      navigate('/dashboard', { 
+                        state: { 
+                          startChatWith: {
+                            _id: artistInfo._id,
+                            name: artistInfo.name || artistInfo.displayName,
+                            image: artistInfo.image?.url || artistInfo.photoURL,
+                            email: artistInfo.email
+                          } 
+                        } 
+                      });
+                    } else {
+                      alert('Artist contact information not available');
+                    }
+                  }}
+                  className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white px-8 py-5 rounded-2xl font-black transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/30 active:scale-95 group"
+                >
+                  <MessageSquare className="w-5 h-5 group-hover:animate-bounce" />
+                  <span>DM Artist for Inquiries</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {previewArtist && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/75" onClick={() => setPreviewArtist(null)} />
-          <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <div className="font-semibold text-gray-900">Artist Profile</div>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/85 backdrop-blur-xl" onClick={() => setPreviewArtist(null)} />
+          <div className="relative bg-white w-full max-w-md max-h-[90vh] mx-auto rounded-[40px] shadow-2xl overflow-hidden flex flex-col scale-in-center">
+            {/* Profile Cover */}
+            <div className="h-32 bg-gradient-to-br from-red-600 to-red-800 relative">
               <button
                 onClick={() => setPreviewArtist(null)}
-                className="px-3 py-1 rounded-lg border hover:bg-gray-50"
+                className="absolute top-4 right-4 w-8 h-8 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all"
               >
-                Close
+                <X size={16} />
               </button>
             </div>
-            <div className="p-5">
-              <div className="flex items-center gap-4">
+            
+            <div className="px-8 pb-8 flex flex-col items-center">
+              {/* Profile Image */}
+              <div className="relative -mt-16 mb-4">
                 {previewArtist.imageUrl ? (
                   <img
                     src={previewArtist.imageUrl}
                     alt={previewArtist.imageAlt}
-                    className="w-20 h-20 rounded-full object-cover border"
+                    className="w-32 h-32 rounded-[32px] object-cover border-8 border-white shadow-xl"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-                    Artist
+                  <div className="w-32 h-32 rounded-[32px] bg-gray-100 flex items-center justify-center text-gray-400 border-8 border-white shadow-xl">
+                    <User size={48} />
                   </div>
                 )}
-                <div className="min-w-0">
-                  <div className="text-xl font-bold text-gray-900 truncate">{previewArtist.name}</div>
-                  {previewArtist.artForm ? <div className="text-sm text-red-600 mt-1">{previewArtist.artForm}</div> : null}
+                <div className="absolute -bottom-1 right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
                 </div>
               </div>
 
-              {previewArtist.location ? (
-                <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin size={16} />
-                  <span>{previewArtist.location}</span>
-                </div>
-              ) : null}
+              {/* Name & Title */}
+              <h2 className="text-2xl font-black text-gray-900 mb-1">{previewArtist.name}</h2>
+              <p className="text-red-600 font-bold text-sm mb-4 uppercase tracking-widest">{previewArtist.artForm || 'Artist'}</p>
+              
+              <div className="flex items-center gap-2 text-gray-500 text-xs mb-6">
+                <MapPin size={14} className="text-red-500" />
+                <span>{previewArtist.location || 'Based in India'}</span>
+              </div>
 
-              <p className="mt-4 text-sm text-gray-700">
-                {previewArtist.bio || 'No artist bio added yet.'}
-              </p>
-
-              {(previewArtist.social?.instagram || previewArtist.social?.facebook || previewArtist.social?.twitter || previewArtist.social?.linkedin || previewArtist.social?.website) ? (
-                <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                  {previewArtist.social?.instagram ? <a href={previewArtist.social.instagram} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Instagram</a> : null}
-                  {previewArtist.social?.facebook ? <a href={previewArtist.social.facebook} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Facebook</a> : null}
-                  {previewArtist.social?.twitter ? <a href={previewArtist.social.twitter} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Twitter</a> : null}
-                  {previewArtist.social?.linkedin ? <a href={previewArtist.social.linkedin} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">LinkedIn</a> : null}
-                  {previewArtist.social?.website ? <a href={previewArtist.social.website} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Website</a> : null}
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 gap-4 w-full mb-8">
+                <div className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
+                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Experience</div>
+                  <div className="font-black text-gray-900">5+ Years</div>
                 </div>
-              ) : null}
+                <div className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
+                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Artworks</div>
+                  <div className="font-black text-gray-900">24+ Pieces</div>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="w-full mb-8">
+                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Biography</h3>
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
+                  {previewArtist.bio || 'This artist has not added a bio yet.'}
+                </p>
+              </div>
+
+              {/* Socials & Action */}
+              <div className="w-full space-y-4">
+                <div className="flex justify-center gap-3">
+                  {previewArtist.social?.instagram && (
+                    <a href={previewArtist.social.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                      <Instagram size={18} />
+                    </a>
+                  )}
+                  {previewArtist.social?.facebook && (
+                    <a href={previewArtist.social.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                      <Facebook size={18} />
+                    </a>
+                  )}
+                  {previewArtist.social?.twitter && (
+                    <a href={previewArtist.social.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                      <Twitter size={18} />
+                    </a>
+                  )}
+                  {previewArtist.social?.website && (
+                    <a href={previewArtist.social.website} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                      <Globe size={18} />
+                    </a>
+                  )}
+                </div>
+
+                <button 
+                  onClick={() => window.location.href = `/artist/${previewItem?.artistProfile?._id || previewItem?.artist?._id}`}
+                  className="w-full bg-black text-white py-4 rounded-2xl font-black transition-all hover:bg-neutral-800 shadow-xl active:scale-[0.98]"
+                >
+                  View Full Portfolio
+                </button>
+              </div>
             </div>
           </div>
         </div>

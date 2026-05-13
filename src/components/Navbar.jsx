@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Plus } from 'lucide-react';
+import { Menu, X, User, LogOut, Plus, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
 import logo from './Untitled design (3).png';
@@ -16,13 +16,12 @@ const Navbar = () => {
   const location = useLocation();
 
   const navLinks = [
-    { to: '/art-store', label: 'Art' },
-    { to: '/artists', label: 'Artist' },
+    { to: '/art', label: 'Art' },
+    { to: '/', label: 'Artists' },
     { to: '/events', label: 'Events' },
-    { to: '/', label: 'Home' },
     { to: '/nft', label: 'NFT' },
-    { to: '/virtual-gallery', label: 'virtual gallery' },
-    { to: '/art-supplies', label: 'art value calculator' }
+    { to: '/virtual-gallery', label: 'Virtual Gallery' },
+    { to: '/art-supplies', label: 'Art Value Calculator' }
   ];
 
   const toggleMenu = () => {
@@ -47,10 +46,10 @@ const Navbar = () => {
     <>
       <AnnouncementBar />
       <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16 lg:h-[72px] relative">
+      <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between h-16 lg:h-[72px] relative">
           {/* Logo - Absolutely centered on mobile, left on desktop */}
-          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0 lg:mr-8">
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src={logo}
@@ -72,56 +71,71 @@ const Navbar = () => {
           {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center space-x-3">
             {isAuthenticated ? (
-              <>
-                {/* Admin Dashboard Link */}
-                {user?.role === 'admin' && (
-                  <>
-                    <Link 
-                      to="/product-management" 
-                      className="flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-                    >
-                      <Plus size={16} />
-                      <span>Add Product</span>
-                    </Link>
-                    <Link 
-                      to="/admin" 
-                      className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                    >
-                      <User size={16} />
-                      <span>Admin</span>
-                    </Link>
-                  </>
-                )}
-                <Link 
-                  to="/dashboard"
-                  className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+              <div className="relative group">
+                <button 
+                  className="flex items-center gap-2 rounded-full border border-gray-200 p-1 hover:bg-gray-50 transition-all cursor-pointer shadow-sm active:scale-95"
                 >
-                  <User size={16} />
-                  <span>Dashboard</span>
-                </Link>
-                <Link 
-                  to="/profile"
-                  className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  {user?.photoURL ? (
-                    <img 
-                      src={user.photoURL} 
-                      alt={user.displayName}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <User size={24} className="text-gray-600" />
-                  )}
-                  <span className="text-gray-700 text-sm font-medium max-w-[160px] truncate">{user?.displayName}</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
-                >
-                  <LogOut size={20} />
-                  <span>Logout</span>
+                  <div className="w-9 h-9 rounded-full overflow-hidden border border-gray-100">
+                    {user?.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt={user.displayName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <User size={20} className="text-gray-400" />
+                      </div>
+                    )}
+                  </div>
                 </button>
-              </>
+
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-[100] overflow-hidden">
+                  <div className="p-3 border-b border-gray-50 bg-gray-50/50">
+                    <p className="text-xs font-bold text-gray-900 truncate">{user?.displayName || 'User'}</p>
+                    <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
+                  </div>
+                  
+                  <div className="p-2 space-y-1">
+                    {user?.role === 'admin' && (
+                      <Link 
+                        to="/admin" 
+                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      >
+                        <Plus size={18} />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+                    
+                    <Link 
+                      to="/dashboard"
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    >
+                      <MessageSquare size={18} />
+                      <span>Messages</span>
+                    </Link>
+
+                    <Link 
+                      to="/profile"
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    >
+                      <User size={18} />
+                      <span>Profile</span>
+                    </Link>
+
+                    <div className="border-t border-gray-50 my-1"></div>
+
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={18} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 <button 

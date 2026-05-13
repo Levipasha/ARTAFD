@@ -18,7 +18,7 @@ const globalStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body { background: ${G.bg}; color: ${G.white}; font-family: 'Syne', sans-serif; overflow-x: hidden; }
+  body { background: ${G.bg}; color: ${G.white}; font-family: 'League Spartan', sans-serif; overflow-x: hidden; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: ${G.bg}; }
   ::-webkit-scrollbar-thumb { background: ${G.red}; border-radius: 2px; }

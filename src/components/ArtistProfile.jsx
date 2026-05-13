@@ -5,15 +5,19 @@ import Navbar from './Navbar';
 import { artistsAPI, productsAPI } from '../services/api';
 import SEO from './SEO';
 import Loader from './Loader';
+import MessageModal from './MessageModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const ArtistProfile = () => {
   const { artistId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [artist, setArtist] = useState(null);
   const [activeTab, setActiveTab] = useState('artworks');
   const [likedArtworks, setLikedArtworks] = useState(new Set());
   const [previewImage, setPreviewImage] = useState(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchArtistAndArtworks = async () => {
@@ -194,8 +198,12 @@ const ArtistProfile = () => {
   };
 
   const handleContact = () => {
-    // Implement contact functionality
-    alert(`Contact ${artist?.name} through their social media or email`);
+    if (!isAuthenticated) {
+      alert('Please log in to message the artist');
+      navigate('/login');
+      return;
+    }
+    setIsMessageModalOpen(true);
   };
 
   if (loading) {
@@ -597,6 +605,14 @@ const ArtistProfile = () => {
           </div>
         </div>
       )}
+
+      {/* Message Modal */}
+      <MessageModal 
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        recipientId={artist._id}
+        recipientName={artist.name}
+      />
     </>
   );
 };

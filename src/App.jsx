@@ -13,6 +13,7 @@ import AboutPage from './components/AboutPage';
 import FirebaseAuth from './components/FirebaseAuth';
 import Signup from './components/Signup';
 import VirtualGallery3D from './components/VirtualGallery3D';
+import ArtEvents from './components/ArtEvents';
 import Terms from './components/Terms';
 import ArtSupplies from './components/ArtSupplies';
 import DigitalTools from './components/DigitalTools';
@@ -46,16 +47,17 @@ function App() {
     <HelmetProvider>
       <AuthProvider>
         <CartProvider>
-          <Router>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Routes>
-              <Route path="/" element={<RouteWithLoader element={<Home />} />} />
-              <Route path="/art-store" element={<RouteWithLoader element={<ArtStore />} />} />
+              <Route path="/" element={<RouteWithLoader element={<ArtistsPage />} />} />
+              <Route path="/art" element={<RouteWithLoader element={<ArtStore />} />} />
               <Route path="/artists" element={<RouteWithLoader element={<ArtistsPage />} />} />
               <Route path="/login" element={<RouteWithLoader element={<FirebaseAuth />} />} />
               <Route path="/signup" element={<RouteWithLoader element={<Signup />} />} />
               <Route path="/artist-hub" element={<RouteWithLoader element={<ArtistHub />} />} />
               <Route path="/nft" element={<RouteWithLoader element={<NFTPage />} />} />
               <Route path="/events" element={<RouteWithLoader element={<EventsPage />} />} />
+              <Route path="/art-events" element={<RouteWithLoader element={<ArtEvents />} />} />
               <Route path="/about" element={<RouteWithLoader element={<AboutPage />} />} />
               <Route path="/terms" element={<RouteWithLoader element={<Terms />} />} />
               <Route path="/virtual-gallery" element={<RouteWithLoader element={<VirtualGallery3D />} />} />

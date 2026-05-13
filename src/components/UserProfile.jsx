@@ -188,7 +188,7 @@ const UserProfile = () => {
                     <h3 className="font-semibold text-gray-900 mb-3">Recent Activity</h3>
                     <div className="bg-gray-50 rounded-lg p-8 text-center">
                       <p className="text-gray-500">No recent activity to show.</p>
-                      <Link to="/art-store" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
+                      <Link to="/art" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
                         Browse Art Store
                       </Link>
                     </div>
@@ -202,7 +202,7 @@ const UserProfile = () => {
                   <div className="bg-gray-50 rounded-lg p-8 text-center">
                     <ShoppingBag size={48} className="text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500">No orders yet.</p>
-                    <Link to="/art-store" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
+                    <Link to="/art" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
                       Start Shopping
                     </Link>
                   </div>
@@ -215,7 +215,7 @@ const UserProfile = () => {
                   <div className="bg-gray-50 rounded-lg p-8 text-center">
                     <Heart size={48} className="text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500">No favorites yet.</p>
-                    <Link to="/art-store" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
+                    <Link to="/art" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
                       Discover Artworks
                     </Link>
                   </div>

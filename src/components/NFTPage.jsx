@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, TrendingUp, Shield, Zap, Globe, Users, ChevronRight, Check, ShoppingCart } from 'lucide-react';
+import Footer from './Footer';
+import Chatbot from './Chatbot';
+import ComingSoonBanner from './ComingSoonBanner';
 
 const NFTPage = () => {
   const navigate = useNavigate();
@@ -456,6 +459,8 @@ const NFTPage = () => {
           </div>
         )}
       </div>
+      <Footer />
+      <Chatbot />
     </div>
   );
 };

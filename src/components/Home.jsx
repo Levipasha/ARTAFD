@@ -1,7 +1,6 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Hero from './Hero';
-import Cards from './Cards';
 import Footer from './Footer';
 import SEO from './SEO';
 import Chatbot from './Chatbot';
@@ -51,7 +50,6 @@ const Home = () => {
       <div className="min-h-screen bg-white">
         <Navbar />
         <Hero />
-        <Cards />
         <Footer />
         <Chatbot />
       </div>

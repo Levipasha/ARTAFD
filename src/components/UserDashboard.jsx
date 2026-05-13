@@ -1,69 +1,131 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, Send, MessageSquare, User, Clock, Trash2, ArrowLeft } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  LogOut, MessageSquare, User, Clock,
+  Trash2, ArrowLeft, RefreshCw, CheckCircle2
+} from 'lucide-react';
 import { logoutFirebase } from '../firebase';
+import { messagesAPI } from '../services/api';
 import SEO from './SEO';
+import ChatWindow from './ChatWindow';
+import { io } from 'socket.io-client';
+
+// Helper to resolve socket URL
+const resolveSocketUrl = () => {
+  if (process.env.REACT_APP_API_URL) return process.env.REACT_APP_API_URL.replace(/\/api$/, '');
+  return 'https://sverx.nanoprofiles.com'; 
+};
+
+const SOCKET_URL = resolveSocketUrl();
 
 const UserDashboard = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('userMessages');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [newMessage, setNewMessage] = useState('');
-  const [sending, setSending] = useState(false);
+  const location = useLocation();
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
-  // Redirect if not authenticated
+  const isArtist = user?.role === 'artist' || user?.isArtist;
+
+  // ── Handle Initial Chat Trigger ───────────────────────────────────────────
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
+    if (isAuthenticated && !loadingMessages && location.state?.startChatWith) {
+      const target = location.state.startChatWith;
+      const targetId = target._id || target.id;
+      
+      // Check if conversation already exists
+      const existing = conversations.find(c => (c.partner?._id || c.partner?.id) === targetId);
+      
+      if (existing) {
+        setSelectedConversation(existing);
+      } else {
+        // Create a temporary conversation entry
+        const tempConv = {
+          partner: {
+            _id: targetId,
+            name: target.name,
+            displayName: target.name,
+            image: { url: target.image },
+            photoURL: target.image,
+            email: target.email
+          },
+          partnerId: targetId,
+          lastMessage: { text: 'Start a new conversation...', createdAt: new Date() },
+          unreadCount: 0,
+          isTemp: true
+        };
+        setConversations(prev => [tempConv, ...prev]);
+        setSelectedConversation(tempConv);
+      }
+      
+      // Clear location state to prevent re-triggering on refresh
+      window.history.replaceState({}, document.title);
     }
+  }, [isAuthenticated, loadingMessages, location.state, conversations]);
+
+  // ── Auth guard ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) navigate('/login');
   }, [isAuthenticated, navigate]);
 
-  // Save messages to localStorage
+  // ── Fetch messages from real API ──────────────────────────────────────────
+  const fetchMessages = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoadingMessages(true);
+      const convData = await messagesAPI.getConversations();
+      const newConvs = Array.isArray(convData) ? convData : [];
+      setConversations(newConvs);
+      
+      const rawData = await messagesAPI.getMessages();
+      setMessages(Array.isArray(rawData) ? rawData : []);
+    } catch (err) {
+      console.warn('API error fetching messages:', err);
+    } finally {
+      if (!silent) setLoadingMessages(false);
+    }
+  }, []);
+
+  // ── Sync Selected Conversation when list updates ──────────────────────────
   useEffect(() => {
-    localStorage.setItem('userMessages', JSON.stringify(messages));
-  }, [messages]);
+    if (selectedConversation && conversations.length > 0) {
+      const fresh = conversations.find(c => 
+        (c.partner?._id || c.partner?.id) === (selectedConversation.partner?._id || selectedConversation.partner?.id)
+      );
+      // Only update if the object reference is actually different to avoid unnecessary re-renders
+      if (fresh && fresh !== selectedConversation) {
+        setSelectedConversation(fresh);
+      }
+    }
+  }, [conversations, selectedConversation]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
+  useEffect(() => {
+    if (isAuthenticated) fetchMessages();
+  }, [isAuthenticated, fetchMessages]);
 
-    setSending(true);
-    
-    // Simulate sending delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+  // ── Global Socket for Inbox Updates ──────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
 
-    const message = {
-      id: Date.now(),
-      text: newMessage.trim(),
-      timestamp: new Date().toISOString(),
-      sender: 'user',
-      status: 'sent'
-    };
+    const myId = user._id || user.id;
+    const socket = io(SOCKET_URL, {
+      transports: ['websocket', 'polling']
+    });
 
-    setMessages(prev => [message, ...prev]);
-    setNewMessage('');
-    setSending(false);
+    socket.on('connect', () => {
+      console.log('✅ Dashboard Socket Connected:', socket.id);
+      socket.emit('join_conversation', `user_${myId}`);
+    });
 
-    // Simulate admin reply after 2 seconds
-    setTimeout(() => {
-      const reply = {
-        id: Date.now() + 1,
-        text: "Thanks for your message! Our team will get back to you soon.",
-        timestamp: new Date().toISOString(),
-        sender: 'admin',
-        status: 'received'
-      };
-      setMessages(prev => [reply, ...prev]);
-    }, 2000);
-  };
+    socket.on('new_message_notification', (newMsg) => {
+      console.log('🔔 New message notification for inbox:', newMsg);
+      fetchMessages(true);
+    });
 
-  const handleDeleteMessage = (id) => {
-    setMessages(prev => prev.filter(msg => msg.id !== id));
-  };
+    return () => socket.disconnect();
+  }, [isAuthenticated, user, fetchMessages]);
 
   const handleLogout = async () => {
     try {
@@ -75,198 +137,202 @@ const UserDashboard = () => {
     }
   };
 
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  if (!isAuthenticated || !user) {
-    return null;
-  }
+  if (!isAuthenticated || !user) return null;
 
   return (
     <>
-      <SEO 
-        title="My Dashboard"
-        description="Your personal dashboard. Send messages and view your conversation history."
-        keywords="user dashboard, messages, artist dashboard"
-        canonical="https://artartist.com/dashboard"
+      <SEO
+        title="Messages | Art Marketplace"
+        description="Manage your conversations with artists."
       />
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-black text-white py-6 px-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-                <User size={24} />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">My Dashboard</h1>
-                <p className="text-gray-400 text-sm">{user.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                <ArrowLeft size={18} />
-                Back to Home
-              </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
+
+      <div className="flex h-screen bg-[#111b21] overflow-hidden font-sans antialiased text-gray-200">
+        
+        {/* ── Left Navigation Rail ── */}
+        <div className="w-16 flex flex-col items-center py-4 bg-[#202c33] border-r border-white/5">
+          <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center mb-6 cursor-pointer hover:rotate-12 transition-transform shadow-lg shadow-red-600/20" onClick={() => navigate('/')}>
+             <span className="font-bold text-white text-xl">A</span>
           </div>
-        </div>
-      </div>
+          
+          <div className="flex flex-col gap-6 mt-4 flex-1">
+             <div className="p-2 bg-white/10 rounded-lg text-white cursor-pointer"><MessageSquare size={24} /></div>
+             <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><User size={24} /></div>
+             <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><Clock size={24} /></div>
+          </div>
 
-      {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* User Info Card */}
-            <div className="md:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold mb-4">
-                    {user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
-                  </div>
-                  <h2 className="font-bold text-lg">{user.displayName || 'Artist'}</h2>
-                  <p className="text-gray-500 text-sm">{user.email}</p>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Messages</span>
-                    <span className="font-semibold">{messages.length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Member Since</span>
-                    <span className="font-semibold">{new Date(user.createdAt || user.metadata?.creationTime || Date.now()).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                  </div>
+          <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors mt-auto">
+             <LogOut size={24} />
+          </button>
+        </div>
+
+        {/* ── Main Content Area ── */}
+        <div className="flex-1 flex overflow-hidden">
+          
+          {/* Conversation List Sidebar */}
+          <div className="w-full md:w-80 lg:w-96 bg-[#111b21] flex flex-col border-r border-white/5">
+            <div className="p-5 flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-xl font-bold text-white tracking-tight">Messages</h1>
+                <div className="flex gap-2">
+                   <button onClick={fetchMessages} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
+                      <RefreshCw size={18} className={loadingMessages ? 'animate-spin' : ''} />
+                   </button>
                 </div>
               </div>
-
-              {/* Quick Links */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 mt-4">
-                <h3 className="font-bold mb-4">Quick Links</h3>
-                <div className="space-y-2">
-                  <button 
-                    onClick={() => navigate('/art-store')}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    🛍️ Browse Art Store
-                  </button>
-                  <button 
-                    onClick={() => navigate('/artists')}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    🎨 Find Artists
-                  </button>
-                  <button 
-                    onClick={() => navigate('/events')}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    📅 View Events
-                  </button>
-                  <button 
-                    onClick={() => navigate('/artist-hub')}
-                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    ⭐ Become Verified Artist
-                  </button>
+              
+              {/* Profile Card */}
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold shadow-lg">
+                   {(user.displayName || user.email)[0].toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                   <p className="text-sm font-bold text-white truncate">{user.displayName || 'User'}</p>
+                   <p className="text-[10px] text-gray-500 truncate uppercase tracking-widest">{isArtist ? 'Artist Profile' : 'Collector Account'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Messages Section */}
-            <div className="md:col-span-2">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                {/* Message Header */}
-                <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 flex items-center gap-3">
-                  <MessageSquare size={24} className="text-white" />
-                  <h2 className="text-white font-bold text-lg">Messages</h2>
-                </div>
-
-                {/* Send Message Form */}
-                <div className="p-4 border-b border-gray-200">
-                  <form onSubmit={handleSendMessage} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type your message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                      disabled={sending}
-                    />
-                    <button
-                      type="submit"
-                      disabled={sending || !newMessage.trim()}
-                      className="bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <Send size={18} />
-                      {sending ? 'Sending...' : 'Send'}
-                    </button>
-                  </form>
-                </div>
-
-                {/* Messages List */}
-                <div className="max-h-[500px] overflow-y-auto">
-                  {messages.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
-                      <p>No messages yet.</p>
-                      <p className="text-sm">Send a message to get started!</p>
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-2">
+              <div className="space-y-1">
+                {loadingMessages ? (
+                  <div className="p-20 flex flex-col items-center gap-4 opacity-30">
+                    <RefreshCw size={32} className="animate-spin text-red-500" />
+                    <p className="text-xs font-mono uppercase tracking-[0.2em]">Syncing...</p>
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <div className="p-20 text-center flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-gray-700">
+                       <MessageSquare size={32} />
                     </div>
-                  ) : (
-                    <div className="divide-y divide-gray-100">
-                      {messages.map((message) => (
-                        <div 
-                          key={message.id} 
-                          className={`p-4 ${message.sender === 'admin' ? 'bg-blue-50' : 'bg-white'}`}
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs font-bold px-2 py-1 rounded ${
-                                  message.sender === 'admin' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-red-500 text-white'
-                                }`}>
-                                  {message.sender === 'admin' ? 'ADMIN' : 'YOU'}
-                                </span>
-                                <span className="text-xs text-gray-400 flex items-center gap-1">
-                                  <Clock size={12} />
-                                  {formatTime(message.timestamp)}
-                                </span>
+                    <p className="text-gray-500 text-sm italic">No conversations yet</p>
+                  </div>
+                ) : (
+                  conversations.map((conv, idx) => {
+                    const { partner, lastMessage, unreadCount } = conv;
+                    const partnerId = partner._id || partner.id;
+                    const isSelected = selectedConversation?.partner?._id === partnerId;
+                    
+                    return (
+                      <div 
+                        key={partnerId || idx}
+                        onClick={() => {
+                          console.log('[DEBUG] Selected conversation:', { partner, partnerId, unreadCount });
+                          console.log('[DEBUG] Partner details:', { 
+                            partnerId: partner._id || partner.id,
+                            partnerName: partner?.name || partner?.displayName,
+                            partnerEmail: partner?.email,
+                            partnerFull: partner
+                          });
+                          setSelectedConversation({ 
+                            partner,
+                            partnerId: partner._id || partner.id,
+                            lastMessage,
+                            unreadCount
+                          });
+                        }}
+                        className={`group p-4 flex items-center gap-4 cursor-pointer rounded-2xl transition-all duration-300 mx-2 mb-1 ${
+                          isSelected ? 'bg-red-600/10 border border-red-600/20' : 'hover:bg-white/5 border border-transparent'
+                        }`}
+                      >
+                        <div className="relative">
+                          <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'border-red-600' : 'border-white/10'}`}>
+                            {partner?.image?.url || partner?.photoURL ? (
+                              <img src={partner.image.url || partner.photoURL} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400 font-bold text-lg">
+                                {(partner?.name || partner?.displayName || 'A')[0]}
                               </div>
-                              <p className="text-gray-800">{message.text}</p>
-                            </div>
-                            <button
-                              onClick={() => handleDeleteMessage(message.id)}
-                              className="text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            )}
                           </div>
+                          {unreadCount > 0 && (
+                            <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-[#111b21] animate-bounce">
+                              {unreadCount}
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-baseline mb-1">
+                            <h4 className={`text-sm font-bold truncate ${isSelected ? 'text-red-500' : 'text-white'}`}>
+                              {partner?.name || partner?.displayName || 'Artist'}
+                            </h4>
+                            {lastMessage && (
+                              <span className="text-[9px] text-gray-500 font-medium">
+                                {new Date(lastMessage.createdAt).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          <p className={`text-xs truncate ${unreadCount > 0 ? 'text-gray-200 font-bold' : 'text-gray-500'}`}>
+                            {lastMessage?.text || 'Start a conversation'}
+                          </p>
+                        </div>
+                        
+                        {isSelected && (
+                          <div className="w-1.5 h-6 bg-red-600 rounded-full" />
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
+
             </div>
+
+          </div>
+
+          {/* Chat Window Container */}
+          <div className="flex-1 bg-[#0b141a] relative flex flex-col">
+            {selectedConversation ? (
+              <>
+                {console.log('[DEBUG] Rendering ChatWindow with:', {
+                  selectedConversation,
+                  partnerId: selectedConversation.partner?._id,
+                  partnerName: selectedConversation.partner?.name || selectedConversation.partner?.displayName,
+                  partnerEmail: selectedConversation.partner?.email,
+                  currentUser: user
+                })}
+                <ChatWindow 
+                  currentUser={user}
+                  partnerId={selectedConversation.partnerId || selectedConversation.partner?._id}
+                  partnerName={selectedConversation.partner?.name || selectedConversation.partner?.displayName}
+                  partnerImage={selectedConversation.partner?.image?.url || selectedConversation.partner?.photoURL}
+                  partnerEmail={selectedConversation.partner?.email}
+                  onNewMessage={(msg) => {
+                    fetchMessages(true); // Silent refresh
+                  }}
+                />
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 relative">
+                   <MessageSquare size={64} className="text-white/10" />
+                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 rounded-lg rotate-12 flex items-center justify-center shadow-lg shadow-red-600/20">
+                      <CheckCircle2 size={18} className="text-white" />
+                   </div>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-3">Your Creative Space</h2>
+                <p className="text-gray-500 max-w-sm leading-relaxed">
+                  Select an artist from the sidebar to continue your creative journey. All your chats are encrypted and secure.
+                </p>
+                <button 
+                  onClick={() => navigate('/')}
+                  className="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-red-600/20"
+                >
+                  Discover More Artists
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
       </div>
+      
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+      `}} />
     </>
   );
 };

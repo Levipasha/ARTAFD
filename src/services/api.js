@@ -11,23 +11,14 @@ const normalizeApiBaseUrl = (url) => {
 };
 
 const resolveApiBaseUrl = () => {
-  const isBrowser = typeof window !== 'undefined';
-  const host = isBrowser ? window.location.hostname : '';
-  const isLocalHost = host === 'localhost' || host === '127.0.0.1';
-
   // Priority 1: Check environment variable
   const envBaseUrl = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
   if (envBaseUrl) {
     return envBaseUrl;
   }
 
-  // Priority 2: Local development
-  if (isBrowser && isLocalHost) {
-    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}/api`;
-  }
-
-  // Priority 3: Default production URL
-  return normalizeApiBaseUrl(DEFAULT_PROD_API_URL);
+  // Priority 2: New Production URL
+  return normalizeApiBaseUrl('https://sverx.nanoprofiles.com/api');
 };
 
 const API_BASE_URL = resolveApiBaseUrl();
@@ -252,6 +243,19 @@ export const formsAPI = {
   },
 };
 
+// Waitlist API
+export const waitlistAPI = {
+  join: async (data) => {
+    // We'll use the subscribers endpoint but tagged as 'marketplace_waitlist'
+    const response = await api.post('/forms/subscribers', {
+      ...data,
+      source: 'marketplace_waitlist',
+      timestamp: new Date().toISOString()
+    });
+    return response.data;
+  }
+};
+
 // Gallery API
 export const galleryAPI = {
   getGallery: async (params = {}) => {
@@ -316,6 +320,38 @@ export const usersAPI = {
     const response = await api.get('/users/stats');
     return response.data;
   },
+};
+
+// Messages API
+export const messagesAPI = {
+  getMessages: async (params = {}) => {
+    const response = await api.get('/messages', { params });
+    return response.data;
+  },
+  sendMessage: async (data) => {
+    const response = await api.post('/messages', data);
+    return response.data;
+  },
+  deleteMessage: async (id) => {
+    const response = await api.delete(`/messages/${id}`);
+    return response.data;
+  },
+  markAsRead: async (id) => {
+    const response = await api.patch(`/messages/${id}/read`);
+    return response.data;
+  },
+  getConversations: async () => {
+    const response = await api.get('/messages/conversations');
+    return response.data;
+  },
+  getConversationHistory: async (partnerId) => {
+    const response = await api.get(`/messages/conversation/${partnerId}`);
+    return response.data;
+  },
+  getMessagesForArtist: async (artistId) => {
+    const response = await api.get(`/messages/for-artist/${artistId}`);
+    return response.data;
+  }
 };
 
 // Upload API

@@ -103,7 +103,7 @@ const Shop = () => {
         {/* Load More Button */}
         <div className="text-center mt-12">
           <button 
-            onClick={() => navigate('/art-store')}
+            onClick={() => navigate('/art')}
             className="px-8 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
           >
             View More Art
