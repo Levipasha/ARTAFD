@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Instagram, Facebook, Twitter, Globe, MapPin, Palette, Heart, ExternalLink, Share2, Mail } from 'lucide-react';
+import { ArrowLeft, Instagram, Facebook, Twitter, Globe, MapPin, Palette, Heart, ExternalLink, Share2, Send } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI, productsAPI } from '../services/api';
 import SEO from './SEO';
@@ -256,14 +256,14 @@ const ArtistProfile = () => {
         canonical={`https://artartist.com/artist/${artist._id}`}
       />
       
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
 
         {/* Hero Section */}
         <div className="relative">
           {/* Cover Image */}
-          <div className="h-64 md:h-80 bg-gradient-to-br from-black via-red-900 to-red-600 relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+          <div className="h-64 md:h-80 bg-gradient-to-br from-red-600 via-red-700 to-red-900 relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
             
             {/* Back Button */}
             <button 
@@ -286,7 +286,7 @@ const ArtistProfile = () => {
 
           {/* Profile Info */}
           <div className="max-w-6xl mx-auto px-4 -mt-20 relative z-10">
-            <div className="bg-gray-900 border border-red-500/30 rounded-3xl shadow-2xl p-6 md:p-8 backdrop-blur-sm">
+            <div className="bg-white border border-gray-100 rounded-3xl shadow-xl p-6 md:p-8">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
@@ -294,30 +294,30 @@ const ArtistProfile = () => {
                     <img 
                       src={artist.image?.url || "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg"}
                       alt={artist.name}
-                      className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-red-500/50 shadow-2xl"
+                      className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-white shadow-2xl"
                     />
-                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-red-600 rounded-full border-4 border-gray-900"></div>
+                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
                   </div>
                 </div>
 
                 {/* Artist Details */}
                 <div className="flex-grow">
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">{artist.name || 'Artist'}</h1>
+                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-2 tracking-tight">{artist.name || 'Artist'}</h1>
                     <div className="flex flex-wrap gap-3 text-sm">
-                      <div className="flex items-center gap-2 text-red-400 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                      <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">
                         <Palette size={16} className="text-red-500" />
                         <span className="font-medium">{artist.artForm || artist.specialty || 'Artist'}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                        <MapPin size={16} className="text-gray-500" />
+                      <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
+                        <MapPin size={16} className="text-gray-400" />
                         <span>{[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ') || artist.city || 'India'}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Bio */}
-                  <p className="text-gray-300 mt-4 leading-relaxed">
+                  <p className="text-gray-600 mt-4 leading-relaxed">
                     {artist.bio || artist.description || artist.about || 'No bio available for this artist.'}
                   </p>
 
@@ -376,7 +376,7 @@ const ArtistProfile = () => {
                         href={artist.social.linkedin.startsWith('http') ? artist.social.linkedin : `https://linkedin.com/in/${artist.social.linkedin}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-full border border-gray-700 hover:border-gray-600 hover:shadow-lg transition-all duration-300"
+                        className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-200 hover:border-gray-400 hover:bg-gray-200 transition-all duration-300"
                       >
                         <Globe size={18} />
                         <span className="font-medium">LinkedIn</span>
@@ -385,10 +385,10 @@ const ArtistProfile = () => {
                     )}
                     <button 
                       onClick={handleContact}
-                      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full border border-red-500/30 hover:bg-red-700 hover:border-red-400 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
+                      className="flex items-center gap-2 bg-red-600 text-white px-6 py-2.5 rounded-full border border-red-500/30 hover:bg-red-700 hover:border-red-400 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-300 active:scale-95"
                     >
-                      <Mail size={18} />
-                      <span className="font-medium">Contact</span>
+                      <Send size={18} className="rotate-[15deg]" />
+                      <span className="font-black tracking-tight">DM ME</span>
                     </button>
                   </div>
                 </div>
@@ -398,14 +398,14 @@ const ArtistProfile = () => {
         </div>
 
         {/* Content Tabs */}
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex gap-1 bg-gray-900/50 backdrop-blur-sm p-1 rounded-xl w-fit border border-red-500/20">
+        <div className="max-w-6xl mx-auto px-4 mt-12 mb-4">
+          <div className="flex gap-1 bg-white p-1 rounded-xl w-fit border border-gray-200 shadow-sm">
             <button 
               onClick={() => setActiveTab('artworks')}
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                activeTab === 'artworks' 
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-500/30' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              activeTab === 'artworks' 
+                  ? 'bg-red-600 text-white shadow-md' 
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Artworks
@@ -413,9 +413,9 @@ const ArtistProfile = () => {
             <button 
               onClick={() => setActiveTab('about')}
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                activeTab === 'about' 
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-500/30' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              activeTab === 'about' 
+                  ? 'bg-red-600 text-white shadow-md' 
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               About
@@ -430,7 +430,7 @@ const ArtistProfile = () => {
               {artist.artworks && artist.artworks.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {artist.artworks.map((artwork) => (
-                    <div key={artwork._id || artwork.id} className="bg-gray-900 border border-red-500/20 rounded-2xl overflow-hidden hover:border-red-500/40 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 group">
+                    <div key={artwork._id || artwork.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
                       <div className="relative overflow-hidden">
                         <img 
                           src={
@@ -454,7 +454,7 @@ const ArtistProfile = () => {
                         )}
                       </div>
                       <div className="p-5">
-                        <h3 className="text-lg font-black text-white mb-4">{artwork.name || artwork.title || 'Untitled'}</h3>
+                        <h3 className="text-lg font-black text-gray-900 mb-4">{artwork.name || artwork.title || 'Untitled'}</h3>
                         <div className="flex items-center justify-between">
                           <button 
                             onClick={() => handleLike(artwork._id || artwork.id)}
@@ -483,7 +483,7 @@ const ArtistProfile = () => {
                                 // Navigate to product details or show modal
                                 console.log('View artwork details:', artwork._id);
                               }}
-                              className="text-red-400 hover:text-red-300 font-black text-sm transition-colors"
+                              className="text-red-600 hover:text-red-700 font-black text-sm transition-colors"
                             >
                               View Details
                             </button>
@@ -494,12 +494,12 @@ const ArtistProfile = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 bg-gray-900 border border-red-500/20 rounded-3xl max-w-3xl mx-auto">
-                  <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
+                <div className="text-center py-20 bg-white border border-gray-100 rounded-3xl max-w-3xl mx-auto shadow-sm">
+                  <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Palette size={32} className="text-red-500" />
                   </div>
-                  <h3 className="text-2xl font-black text-white mb-2">No artworks yet</h3>
-                  <p className="text-gray-400 mb-8">
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">No artworks yet</h3>
+                  <p className="text-gray-500 mb-8">
                     {artist.name} hasn't added any artworks to their profile yet.
                   </p>
                   <button 
@@ -514,11 +514,11 @@ const ArtistProfile = () => {
           )}
 
           {activeTab === 'about' && (
-            <div className="bg-gray-900 border border-red-500/20 rounded-2xl p-8">
-              <h2 className="text-2xl font-black text-white mb-6">About {artist.name}</h2>
-              <div className="space-y-6 text-gray-300">
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">About {artist.name}</h2>
+              <div className="space-y-6 text-gray-600">
                 <div>
-                  <h3 className="text-lg font-black text-red-400 mb-3">Artist Statement</h3>
+                  <h3 className="text-lg font-black text-red-600 mb-3">Artist Statement</h3>
                   <p className="leading-relaxed">
                     {artist.bio || artist.description || artist.about || 'No artist statement available.'}
                   </p>
@@ -526,7 +526,7 @@ const ArtistProfile = () => {
                 
                 {(artist.artForm || artist.specialty) && (
                   <div>
-                    <h3 className="text-lg font-black text-red-400 mb-3">Specialization</h3>
+                    <h3 className="text-lg font-black text-red-600 mb-3">Specialization</h3>
                     <p className="leading-relaxed">
                       {artist.name} specializes in {(artist.artForm || artist.specialty).toLowerCase()}, creating unique pieces that 
                       showcase their artistic vision and technical skill.
@@ -536,22 +536,22 @@ const ArtistProfile = () => {
 
                 {artist.isTeamMember && (
                   <div>
-                    <h3 className="text-lg font-black text-red-400 mb-3">Team Role</h3>
-                    <div className="bg-red-600/10 border border-red-500/30 rounded-lg p-4 backdrop-blur-sm">
-                      <p className="text-red-400 font-black">{artist.teamRole || 'Team Member'}</p>
+                    <h3 className="text-lg font-black text-red-600 mb-3">Team Role</h3>
+                    <div className="bg-red-50 border border-red-100 rounded-lg p-4">
+                      <p className="text-red-600 font-black">{artist.teamRole || 'Team Member'}</p>
                       <p className="text-red-500 text-sm mt-1">Part of the ArtArtist core team</p>
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <h3 className="text-lg font-black text-red-400 mb-3">Contact Information</h3>
+                  <h3 className="text-lg font-black text-red-600 mb-3">Contact Information</h3>
                   <div className="space-y-2">
                     {artist.email && (
-                      <p><span className="text-gray-500">Email:</span> <span className="text-white">{artist.email}</span></p>
+                      <p><span className="text-gray-400">Email:</span> <span className="text-gray-900 font-medium">{artist.email}</span></p>
                     )}
                     {artist.phone && (
-                      <p><span className="text-gray-500">Phone:</span> <span className="text-white">{artist.phone}</span></p>
+                      <p><span className="text-gray-400">Phone:</span> <span className="text-gray-900 font-medium">{artist.phone}</span></p>
                     )}
                     {!artist.email && !artist.phone && (
                       <p className="text-gray-500">Contact through social media channels</p>
@@ -560,8 +560,8 @@ const ArtistProfile = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-black text-red-400 mb-3">Location</h3>
-                  <p className="text-white">
+                  <h3 className="text-lg font-black text-red-600 mb-3">Location</h3>
+                  <p className="text-gray-900 font-medium">
                     {[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ') || 'Location not specified'}
                   </p>
                 </div>

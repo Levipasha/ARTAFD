@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LogOut, MessageSquare, User, Clock,
-  RefreshCw, CheckCircle2
+  RefreshCw, CheckCircle2, ChevronLeft
 } from 'lucide-react';
 import { logoutFirebase } from '../firebase';
 import { messagesAPI } from '../services/api';
@@ -26,6 +26,7 @@ const UserDashboard = () => {
   const [conversations, setConversations] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [showMobileChat, setShowMobileChat] = useState(false);
 
   const isArtist = user?.role === 'artist' || user?.isArtist;
 
@@ -148,7 +149,7 @@ const UserDashboard = () => {
       <div className="flex h-screen bg-[#111b21] overflow-hidden font-sans antialiased text-gray-200">
         
         {/* ── Left Navigation Rail ── */}
-        <div className="w-16 flex flex-col items-center py-4 bg-[#202c33] border-r border-white/5">
+        <div className="hidden md:flex w-16 flex-col items-center py-4 bg-[#202c33] border-r border-white/5">
           <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center mb-6 cursor-pointer hover:rotate-12 transition-transform shadow-lg shadow-red-600/20" onClick={() => navigate('/')}>
              <span className="font-bold text-white text-xl">A</span>
           </div>
@@ -168,13 +169,25 @@ const UserDashboard = () => {
         <div className="flex-1 flex overflow-hidden">
           
           {/* Conversation List Sidebar */}
-          <div className="w-full md:w-80 lg:w-96 bg-[#111b21] flex flex-col border-r border-white/5">
+          <div className={`${showMobileChat ? 'hidden' : 'flex'} w-full md:flex md:w-80 lg:w-96 bg-[#111b21] flex flex-col border-r border-white/5`}>
             <div className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-xl font-bold text-white tracking-tight">Messages</h1>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => navigate('/')} 
+                    className="p-1 hover:bg-white/5 rounded-full md:hidden text-gray-400"
+                    title="Back to Home"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <h1 className="text-xl font-bold text-white tracking-tight">Messages</h1>
+                </div>
                 <div className="flex gap-2">
                    <button onClick={fetchMessages} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
                       <RefreshCw size={18} className={loadingMessages ? 'animate-spin' : ''} />
+                   </button>
+                   <button onClick={handleLogout} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-red-500 md:hidden">
+                      <LogOut size={18} />
                    </button>
                 </div>
               </div>
@@ -228,6 +241,7 @@ const UserDashboard = () => {
                             lastMessage,
                             unreadCount
                           });
+                          setShowMobileChat(true);
                         }}
                         className={`group p-4 flex items-center gap-4 cursor-pointer rounded-2xl transition-all duration-300 mx-2 mb-1 ${
                           isSelected ? 'bg-red-600/10 border border-red-600/20' : 'hover:bg-white/5 border border-transparent'
@@ -280,7 +294,7 @@ const UserDashboard = () => {
           </div>
 
           {/* Chat Window Container */}
-          <div className="flex-1 bg-[#0b141a] relative flex flex-col">
+          <div className={`${showMobileChat ? 'flex' : 'hidden'} md:flex flex-1 bg-[#0b141a] relative flex flex-col`}>
             {selectedConversation ? (
               <>
                 {console.log('[DEBUG] Rendering ChatWindow with:', {
@@ -296,6 +310,7 @@ const UserDashboard = () => {
                   partnerName={selectedConversation.partner?.name || selectedConversation.partner?.displayName}
                   partnerImage={selectedConversation.partner?.image?.url || selectedConversation.partner?.photoURL}
                   partnerEmail={selectedConversation.partner?.email}
+                  onBack={() => setShowMobileChat(false)}
                   onNewMessage={(msg) => {
                     fetchMessages(true); // Silent refresh
                   }}

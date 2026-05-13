@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2 } from 'lucide-react';
+import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productsAPI } from '../services/api';
@@ -207,8 +207,10 @@ const ArtStore = () => {
                       ) : (
                         <div className="w-full flex items-center justify-center text-gray-400 bg-gray-100" style={{ height: `${randomHeight}px` }}>
                           <div className="text-center">
-                            <div className="text-4xl mb-2">🎨</div>
-                            <div className="text-sm">No image</div>
+                            <div className="mb-2">
+                              <Palette size={40} strokeWidth={1.5} />
+                            </div>
+                            <div className="text-sm font-medium">No image</div>
                           </div>
                         </div>
                       )}
@@ -217,15 +219,15 @@ const ArtStore = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                              <span className="text-xs">❤️</span>
+                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm">
+                              <Heart size={14} fill="currentColor" />
                             </div>
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                              <span className="text-xs">💬</span>
+                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
+                              <MessageSquare size={14} />
                             </div>
                           </div>
-                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                            <span className="text-xs">🔗</span>
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
+                            <LinkIcon size={14} />
                           </div>
                         </div>
                       </div>
@@ -253,7 +255,9 @@ const ArtStore = () => {
                               className="w-6 h-6 rounded-full object-cover border border-gray-200"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">👤</div>
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border border-gray-100">
+                              <User size={12} />
+                            </div>
                           )}
                           <span className="text-xs text-gray-600">
                             {product?.artistProfile?.name || product?.artist?.displayName || 'Unknown Artist'}
@@ -297,7 +301,7 @@ const ArtStore = () => {
           
           <div className="relative bg-white w-full max-w-6xl h-[95vh] md:h-[85vh] mx-auto rounded-t-[32px] md:rounded-[40px] overflow-hidden shadow-2xl flex flex-col md:flex-row transition-all duration-500 scale-in-center">
             {/* Left: Image Side */}
-            <div className="md:w-3/5 lg:w-2/3 h-[55vh] md:h-full bg-neutral-950 flex items-center justify-center relative group">
+            <div className="md:w-3/5 lg:w-2/3 h-[45vh] md:h-full bg-neutral-950 flex items-center justify-center relative group">
               <img
                 src={previewItem?.images?.[0]?.url}
                 alt={previewItem?.name}
@@ -326,39 +330,77 @@ const ArtStore = () => {
             {/* Right: Details Side */}
             <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
               {/* Header */}
-              <div className="p-6 md:p-8 border-b border-gray-50 flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
-                      {previewItem.category}
-                    </span>
-                    {previewItem.status === 'available' && (
-                      <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100">
-                        Available
+              <div className="p-5 md:p-8 border-b border-gray-50 flex flex-col">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+                        {previewItem.category}
                       </span>
-                    )}
+                      {previewItem.status === 'available' && (
+                        <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100">
+                          Available
+                        </span>
+                      )}
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight mb-4 md:mb-1">{previewItem.name}</h2>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight mb-1">{previewItem.name}</h2>
+                  <div className="hidden md:flex gap-2 ml-4">
+                    <button
+                      onClick={() => handleShare(previewItem)}
+                      className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                      title="Share Artwork"
+                    >
+                      <Share2 size={20} />
+                    </button>
+                    <button
+                      onClick={() => setPreviewItem(null)}
+                      className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
                 </div>
-                <div className="hidden md:flex gap-2 ml-4">
-                  <button
-                    onClick={() => handleShare(previewItem)}
-                    className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
-                    title="Share Artwork"
-                  >
-                    <Share2 size={20} />
-                  </button>
-                  <button
-                    onClick={() => setPreviewItem(null)}
-                    className="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full flex items-center justify-center transition-all flex-shrink-0"
-                  >
-                    <X size={20} />
-                  </button>
+
+                {/* Mobile Priority Info - Always visible without scroll */}
+                <div className="space-y-4 md:hidden">
+                  <div className="flex items-center gap-3 bg-neutral-50 p-3 rounded-2xl border border-neutral-100">
+                    <div className="relative">
+                      {getArtistData(previewItem).imageUrl ? (
+                        <img
+                          src={getArtistData(previewItem).imageUrl}
+                          alt=""
+                          className="w-10 h-10 rounded-xl object-cover border border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center text-gray-400">
+                          <User size={18} />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[8px] font-black text-red-600 uppercase tracking-widest mb-0.5">Created By</div>
+                      <div className="font-bold text-sm text-gray-900 truncate">
+                        {getArtistData(previewItem).name}
+                      </div>
+                      <div className="text-[9px] text-gray-500 flex items-center gap-1 truncate">
+                        <MapPin size={8} />
+                        {getArtistData(previewItem).location}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1">The Story Behind</h3>
+                    <p className="text-gray-600 text-xs font-medium line-clamp-2 leading-relaxed">
+                      {previewItem.description || "No description provided."}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
+              {/* Scrollable Content (Hidden on mobile as it's now in header) */}
+              <div className="hidden md:block flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
                 {/* Artist Info */}
                 <div className="bg-neutral-50 rounded-[24px] p-5 md:p-6 border border-neutral-100">
                   <button

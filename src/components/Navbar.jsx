@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Plus, MessageSquare } from 'lucide-react';
+import { Menu, X, User, LogOut, Plus, MessageSquare, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
 import logo from './Untitled design (3).png';
@@ -11,6 +11,7 @@ import LoginModal from './LoginModal';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -215,27 +216,71 @@ const Navbar = () => {
                   </Link>
                 </>
               )}
-              <Link 
-                to="/profile"
-                className="flex items-center gap-3 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {user?.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName} className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <User size={18} className="text-gray-600" />
-                )}
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold text-gray-800 truncate">{user?.displayName || 'Account'}</div>
+              <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100 transition-all duration-300">
+                <button 
+                  onClick={() => setIsProfileExpanded(!isProfileExpanded)}
+                  className="w-full flex items-center justify-between px-2 py-1 outline-none"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-white flex-shrink-0">
+                      {user?.photoURL ? (
+                        <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User size={20} className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="text-sm font-bold text-gray-900 truncate">{user?.displayName || 'User'}</p>
+                      <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                  <ChevronDown 
+                    size={18} 
+                    className={`text-gray-400 transition-transform duration-300 flex-shrink-0 ${isProfileExpanded ? 'rotate-180' : ''}`} 
+                  />
+                </button>
+
+                <div className={`grid grid-cols-1 gap-1 transition-all duration-300 overflow-hidden ${isProfileExpanded ? 'max-h-60 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <Link 
+                    to="/dashboard"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsProfileExpanded(false);
+                    }}
+                  >
+                    <MessageSquare size={18} />
+                    <span>Messages</span>
+                  </Link>
+
+                  <Link 
+                    to="/profile"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsProfileExpanded(false);
+                    }}
+                  >
+                    <User size={18} />
+                    <span>Profile</span>
+                  </Link>
+
+                  <div className="border-t border-gray-100 my-1"></div>
+
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsProfileExpanded(false);
+                    }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </button>
                 </div>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold border border-gray-300 text-gray-700 hover:text-black hover:bg-gray-50 transition-colors w-full"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
+              </div>
             </>
           ) : (
             <>
