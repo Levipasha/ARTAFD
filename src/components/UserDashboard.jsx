@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LogOut, MessageSquare, User, Clock,
-  Trash2, ArrowLeft, RefreshCw, CheckCircle2
+  RefreshCw, CheckCircle2
 } from 'lucide-react';
 import { logoutFirebase } from '../firebase';
 import { messagesAPI } from '../services/api';
@@ -24,7 +24,6 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState(null);
 
@@ -79,8 +78,8 @@ const UserDashboard = () => {
       const newConvs = Array.isArray(convData) ? convData : [];
       setConversations(newConvs);
       
-      const rawData = await messagesAPI.getMessages();
-      setMessages(Array.isArray(rawData) ? rawData : []);
+      await messagesAPI.getMessages();
+      // setMessages(Array.isArray(rawData) ? rawData : []);
     } catch (err) {
       console.warn('API error fetching messages:', err);
     } finally {

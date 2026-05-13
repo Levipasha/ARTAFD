@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Calendar, MapPin, Users, Clock } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const ArtEvents = () => {
   const navigate = useNavigate();

@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { CartProvider } from './contexts/CartContext';
 import AuthProvider from './contexts/AuthContext';
-import Home from './components/Home';
 import ArtStore from './components/ArtStore';
 import ArtistsPage from './components/ArtistsPage';
 import ArtistHub from './components/ArtistHub';

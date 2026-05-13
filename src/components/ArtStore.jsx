@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Mail, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2 } from 'lucide-react';
+import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productsAPI } from '../services/api';
 import SEO from './SEO';
-import ComingSoonBanner from './ComingSoonBanner';
 
 const normalizeCategory = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 const pillToCategory = {
@@ -20,7 +19,7 @@ const pillToCategory = {
 
 const ArtStore = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');

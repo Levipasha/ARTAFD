@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const VirtualGallery3D = () => {
   const navigate = useNavigate();

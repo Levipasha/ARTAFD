@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Mic, MapPin, Palette } from 'lucide-react';
+import { Search, Mic, MapPin, Palette } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI } from '../services/api';
 import SEO from './SEO';

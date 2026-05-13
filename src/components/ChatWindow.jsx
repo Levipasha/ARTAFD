@@ -2,13 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { 
   Send, 
-  Search, 
   MoreVertical, 
   Smile, 
-  Clock,
-  Check,
   CheckCheck,
-  MessageSquare,
   User as UserIcon,
   ChevronLeft
 } from 'lucide-react';
@@ -176,7 +172,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
     fetchHistory();
 
     return () => newSocket.disconnect();
-  }, [currentUser, partnerId]); // More comprehensive dependencies
+  }, [currentUser, partnerId, onNewMessage, partnerEmail]); // Added missing dependencies
 
   // Scroll to bottom
   useEffect(() => {
