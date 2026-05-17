@@ -11,7 +11,7 @@ const Footer = () => {
               <img
                 src="/logo.png"
                 alt="ArtArtist"
-                className="w-12 h-12 object-cover grayscale"
+                className="w-12 h-12 object-cover"
               />
             </div>
             <h3 className="text-xl font-bold mb-2"><span className="text-red-600">ART</span>ARTIST</h3>

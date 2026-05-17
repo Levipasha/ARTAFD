@@ -14,7 +14,7 @@ import Signup from './components/Signup';
 import VirtualGallery3D from './components/VirtualGallery3D';
 import ArtEvents from './components/ArtEvents';
 import Terms from './components/Terms';
-import ArtSupplies from './components/ArtSupplies';
+import ArtValueCalculator from './components/ArtValueCalculator';
 import DigitalTools from './components/DigitalTools';
 import Workshops from './components/Workshops';
 import StudioFinder from './components/StudioFinder';
@@ -60,7 +60,7 @@ function App() {
               <Route path="/about" element={<RouteWithLoader element={<AboutPage />} />} />
               <Route path="/terms" element={<RouteWithLoader element={<Terms />} />} />
               <Route path="/virtual-gallery" element={<RouteWithLoader element={<VirtualGallery3D />} />} />
-              <Route path="/art-supplies" element={<RouteWithLoader element={<ArtSupplies />} />} />
+              <Route path="/art-value-calculator" element={<RouteWithLoader element={<ArtValueCalculator />} />} />
               <Route path="/digital-tools" element={<RouteWithLoader element={<DigitalTools />} />} />
               <Route path="/workshops" element={<RouteWithLoader element={<Workshops />} />} />
               <Route path="/studio-finder" element={<RouteWithLoader element={<StudioFinder />} />} />
@@ -75,6 +75,8 @@ function App() {
               <Route path="/profile" element={<RouteWithLoader element={<UserProfile />} />} />
               <Route path="/dashboard" element={<RouteWithLoader element={<UserDashboard />} />} />
               <Route path="/artist/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
+              {/* Clean username-based artist profile URLs e.g. /udaymicroartist */}
+              <Route path="/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
             </Routes>
             {/* <Cart /> */}
           </Router>

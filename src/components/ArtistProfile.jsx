@@ -91,20 +91,6 @@ const ArtistProfile = () => {
         console.error('Error status:', error.response?.status);
         console.error('Error data:', error.response?.data);
         console.error('Error message:', error.message);
-        
-        // If API fails, try to create a basic artist from the ID for testing
-        if (artistId && typeof artistId === 'string') {
-          console.log('Creating fallback artist from ID for testing');
-          const fallbackArtist = {
-            _id: artistId,
-            name: artistId.includes('uday') ? 'Uday Kumar Sangisetti' : artistId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-            artForm: 'Artist',
-            bio: 'Artist profile loading...',
-            image: { url: "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg" },
-            artworks: []
-          };
-          setArtist(fallbackArtist);
-        }
       } finally {
         setLoading(false);
       }

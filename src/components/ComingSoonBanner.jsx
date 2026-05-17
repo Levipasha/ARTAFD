@@ -96,22 +96,6 @@ const ComingSoonBanner = () => {
                       </span>
                       {!isJoined && !loading && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>}
                     </button>
-                    
-                    <div className="flex -space-x-4">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-12 h-12 rounded-full border-2 border-black bg-gray-800 flex items-center justify-center overflow-hidden">
-                          <img 
-                            src={`https://i.pravatar.cc/150?u=${i + 20}`} 
-                            alt="User" 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                      <div className="w-12 h-12 rounded-full border-2 border-black bg-gray-900 flex items-center justify-center text-[10px] font-bold text-white">
-                        +12K
-                      </div>
-                    </div>
-                    <span className="text-gray-500 text-sm font-medium">Already on waitlist</span>
                   </div>
                 </form>
               </div>

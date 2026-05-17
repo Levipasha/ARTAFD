@@ -302,7 +302,7 @@ router.put('/me', authenticateArtist, async (req, res) => {
     
     // Fields that artists can update themselves (email cannot be changed)
     const allowedUpdates = [
-      'name', 'artForm', 'bio', 'phone', 'image', 'location', 'social'
+      'name', 'username', 'artForm', 'bio', 'phone', 'image', 'location', 'social'
     ];
     
     const updateData = {};
@@ -470,7 +470,19 @@ router.get('/team', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const artist = await ArtistProfile.findById(req.params.id);
+    const { id } = req.params;
+    let artist = null;
+
+    // Check if param looks like a MongoDB ObjectId (24 hex chars)
+    const isObjectId = /^[a-f\d]{24}$/i.test(id);
+
+    if (isObjectId) {
+      artist = await ArtistProfile.findById(id);
+    } else {
+      // Try username lookup (slug-based URL e.g. /udaymicroartist)
+      artist = await ArtistProfile.findOne({ username: id.toLowerCase() });
+    }
+
     if (!artist || !artist.isActive) {
       return res.status(404).json({ error: 'Artist not found' });
     }

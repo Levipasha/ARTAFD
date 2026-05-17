@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Globe, Award, Heart, Zap, ChevronRight, Calendar } from 'lucide-react';
 import dscf9962 from './dscf9962-dJobNl5GE4tzKV9B.jpg';
-import logoCircle from './Untitled design (3).png';
+import logoCircle from './aa logos_20250926_144624_0000.png';
 import { artistsAPI, galleryAPI } from '../services/api';
 import './team-cards.css';
 
@@ -365,21 +365,12 @@ const AboutPage = () => {
                       </p>
                     </div>
                   </div>
-                  <a
-                    href={
-                      member.social?.website ||
-                      member.social?.instagram ||
-                      member.social?.linkedin ||
-                      member.social?.twitter ||
-                      member.social?.facebook ||
-                      '#'
-                    }
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    onClick={() => navigate(`/artist/${member._id}`)}
                     className="card__btn"
                   >
                     View
-                  </a>
+                  </button>
                 </footer>
               </article>
             ))}

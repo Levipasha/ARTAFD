@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, Plus, MessageSquare, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
-import logo from './Untitled design (3).png';
+import logo from './aa logos_20250926_144624_0000.png';
 import NavHeader from './ui/nav-header';
 import AnnouncementBar from './AnnouncementBar';
 import LoginModal from './LoginModal';
@@ -22,7 +22,7 @@ const Navbar = () => {
     { to: '/events', label: 'Events' },
     { to: '/nft', label: 'NFT' },
     { to: '/virtual-gallery', label: 'Virtual Gallery' },
-    { to: '/art-supplies', label: 'Art Value Calculator' }
+    { to: '/art-value-calculator', label: 'Art Value Calculator' }
   ];
 
   const toggleMenu = () => {
@@ -58,8 +58,8 @@ const Navbar = () => {
                 className="w-9 h-9 md:w-10 md:h-10 object-cover"
               />
               <div className="text-lg md:text-2xl font-bold leading-none whitespace-nowrap">
-                <span className="text-black">ART</span>
-                <span className="text-red-600">ARTIST</span>
+                <span className="text-red-600">ART</span>
+                <span className="text-black">ARTIST</span>
               </div>
             </Link>
           </div>
