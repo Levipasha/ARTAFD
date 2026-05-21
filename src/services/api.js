@@ -271,8 +271,19 @@ export const artistsAPI = {
     const response = await api.get('/artists/team', { params });
     return response.data;
   },
+  getArtistCountSummary: async () => {
+    const response = await api.get('/artists/count/summary');
+    return response.data;
+  },
   getArtist: async (id) => {
     const response = await api.get(`/artists/${id}`);
+    return response.data;
+  }
+};
+
+export const settingsAPI = {
+  getPublicSettings: async () => {
+    const response = await api.get('/settings/public');
     return response.data;
   }
 };

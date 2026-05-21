@@ -396,7 +396,7 @@ const Hero = () => {
                 <div className="mt-4 flex flex-wrap gap-2 text-xs">
                   {selectedArtist.social?.instagram ? <a href={selectedArtist.social.instagram} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Instagram</a> : null}
                   {selectedArtist.social?.facebook ? <a href={selectedArtist.social.facebook} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Facebook</a> : null}
-                  {selectedArtist.social?.twitter ? <a href={selectedArtist.social.twitter} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Twitter</a> : null}
+                  {selectedArtist.social?.twitter ? <a href={selectedArtist.social.twitter.startsWith('http') ? selectedArtist.social.twitter : `https://x.com/${selectedArtist.social.twitter}`} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">X</a> : null}
                   {selectedArtist.social?.linkedin ? <a href={selectedArtist.social.linkedin} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">LinkedIn</a> : null}
                   {selectedArtist.social?.website ? <a href={selectedArtist.social.website} target="_blank" rel="noreferrer" className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Website</a> : null}
                 </div>

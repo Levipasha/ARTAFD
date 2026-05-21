@@ -30,6 +30,8 @@ import UserProfile from './components/UserProfile';
 import UserDashboard from './components/UserDashboard';
 import ArtistProfile from './components/ArtistProfile';
 import PageLoader from './components/PageLoader';
+import ArtDistrict from './components/ArtDistrict';
+import FormPage from './components/FormPage';
 // import Cart from './components/Cart';
 
 // Wrapper component to add loader to each route
@@ -74,6 +76,8 @@ function App() {
               <Route path="/admin" element={<RouteWithLoader element={<AdminDashboard />} />} />
               <Route path="/profile" element={<RouteWithLoader element={<UserProfile />} />} />
               <Route path="/dashboard" element={<RouteWithLoader element={<UserDashboard />} />} />
+              <Route path="/art-district" element={<RouteWithLoader element={<ArtDistrict />} />} />
+              <Route path="/forms/:formId" element={<RouteWithLoader element={<FormPage />} />} />
               <Route path="/artist/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
               {/* Clean username-based artist profile URLs e.g. /udaymicroartist */}
               <Route path="/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />

@@ -223,6 +223,16 @@ const EventsPage = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   
+  const [expandedDescIds, setExpandedDescIds] = useState(new Set());
+  const toggleExpanded = (id) => {
+    setExpandedDescIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
+  };
+  
   // Newsletter subscription state
   const [subEmail, setSubEmail] = useState('');
   const [subName, setSubName] = useState('');
@@ -253,6 +263,7 @@ const EventsPage = () => {
   const filteredEvents = events;
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       weekday: 'short', 
@@ -262,6 +273,7 @@ const EventsPage = () => {
   };
 
   const formatTime = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -356,19 +368,37 @@ const EventsPage = () => {
                   {event.title}
                 </h3>
                 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {event.description}
-                </p>
+                <div className="mb-4">
+                  <p className={`text-gray-600 text-sm whitespace-pre-line ${expandedDescIds.has(event._id) ? '' : 'line-clamp-2'}`}>
+                    {event.description}
+                  </p>
+                  {event.description?.length > 80 && (
+                    <button 
+                      onClick={() => toggleExpanded(event._id)} 
+                      className="text-red-600 hover:text-red-700 text-xs font-semibold mt-1 outline-none"
+                    >
+                      {expandedDescIds.has(event._id) ? 'View Less' : 'View More'}
+                    </button>
+                  )}
+                </div>
                 
                 {/* Event Details */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
                     <Calendar size={16} className="flex-shrink-0" />
-                    <span className="truncate">{formatDate(event.date?.start)}</span>
+                    <span className="truncate">
+                      {formatDate(event.date?.start)}
+                      {event.date?.end && formatDate(event.date?.start) !== formatDate(event.date?.end)
+                        ? ` - ${formatDate(event.date?.end)}`
+                        : ''}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
                     <Clock size={16} className="flex-shrink-0" />
-                    <span className="truncate">{formatTime(event.date?.start)}</span>
+                    <span className="truncate">
+                      {formatTime(event.date?.start)}
+                      {event.date?.end ? ` - ${formatTime(event.date?.end)}` : ''}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700 text-sm">
                     <MapPin size={16} className="flex-shrink-0" />
@@ -387,7 +417,13 @@ const EventsPage = () => {
                   </div>
 
                   <button
-                    onClick={() => setSelectedEvent(event)}
+                    onClick={() => {
+                      if (event.location?.virtualLink) {
+                        window.open(event.location.virtualLink, '_blank', 'noopener,noreferrer');
+                      } else {
+                        setSelectedEvent(event);
+                      }
+                    }}
                     className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors flex items-center gap-2"
                   >
                     <Ticket size={16} />

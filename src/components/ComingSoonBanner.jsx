@@ -37,7 +37,7 @@ const ComingSoonBanner = () => {
   };
 
   return (
-    <div className="w-full bg-white py-20 px-4 overflow-hidden">
+    <div className="w-full bg-white pt-4 pb-4 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="relative rounded-[3rem] bg-gradient-to-br from-gray-900 via-black to-red-950 p-1 md:p-2 shadow-2xl">
             <div className="relative rounded-[2.8rem] bg-[#050505] overflow-hidden p-6 sm:p-8 md:p-20 pb-16">
@@ -53,7 +53,7 @@ const ComingSoonBanner = () => {
                   </div>
                   
                   <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] sm:leading-[0.9] mb-6 sm:mb-8 uppercase tracking-tighter">
-                    Art <span className="text-red-600">Marketplace</span> <br />
+                    <span className="text-red-600">Marketplace</span> <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Coming Soon</span>
                   </h2>
                   

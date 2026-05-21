@@ -4,6 +4,10 @@
  * @returns {Array<Record<string, string>>}
  */
 function parseCSV(csvText) {
+  // Strip UTF-8 Byte Order Mark (BOM) if present
+  if (csvText.startsWith('\ufeff')) {
+    csvText = csvText.slice(1);
+  }
   const lines = csvText.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length === 0) return [];
 

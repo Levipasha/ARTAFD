@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { 
-  Send, 
-  MoreVertical, 
-  Smile, 
+import {
+  Send,
+  MoreVertical,
+  Smile,
   CheckCheck,
   User as UserIcon,
   ChevronLeft
@@ -20,7 +20,7 @@ const resolveSocketUrl = () => {
   }
 
   // Priority 2: New Production URL
-  return 'https://sverx.nanoprofiles.com'; 
+  return 'https://sverx.nanoprofiles.com';
 };
 
 const SOCKET_URL = resolveSocketUrl();
@@ -43,19 +43,19 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
 
   // Initialize Socket and Fetch History
   useEffect(() => {
-    console.log('[DEBUG] ChatWindow useEffect triggered:', { 
-      currentUser: currentUser?._id, 
+    console.log('[DEBUG] ChatWindow useEffect triggered:', {
+      currentUser: currentUser?._id,
       currentUserEmail: currentUser?.email,
-      partnerId, 
+      partnerId,
       partnerEmail,
       currentUserFull: currentUser,
       partnerIdFull: partnerId
     });
-    
+
     // More permissive check - only require currentUser and partnerId
     if (!currentUser || !partnerId) {
-      console.log('[DEBUG] ChatWindow early return - missing data:', { 
-        hasCurrentUser: !!currentUser, 
+      console.log('[DEBUG] ChatWindow early return - missing data:', {
+        hasCurrentUser: !!currentUser,
         hasPartnerId: !!partnerId,
         currentUserKeys: currentUser ? Object.keys(currentUser) : [],
         currentUserType: typeof currentUser
@@ -69,7 +69,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
         console.log('✅ Chat Socket Connected:', socketInstance.id);
         const myId = currentUser?._id || currentUser?.id;
         const pId = partnerId;
-        
+
         // Join individual user room for general notifications
         socketInstance.emit('join_conversation', `user_${myId}`);
 
@@ -85,7 +85,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
           conversationId = [myId?.toString(), pId?.toString()].sort().join('_');
           console.log(`[SOCKET] Joining ID-based room (email missing): ${conversationId}`);
         }
-        
+
         socketInstance.emit('join_conversation', conversationId);
       });
 
@@ -93,8 +93,15 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
         console.log('📩 New Message Received via Socket:', msg);
         const msgSenderId = (msg.sender?._id || msg.sender)?.toString();
         const currentUserId = (currentUser?._id || currentUser?.id)?.toString();
-        
-        if (msgSenderId !== currentUserId) {
+
+        // Robust consolidated identity check via ID, User ID, email, or senderType matches
+        const currentUserUserId = currentUser?.userId?.toString();
+        const isMsgFromMe = msgSenderId === currentUserId || 
+                            (currentUserUserId && msgSenderId === currentUserUserId) ||
+                            (msg.sender?.email && currentUser?.email && msg.sender.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+                            (msg.senderType === 'user' && currentUser?.role === 'user');
+
+        if (!isMsgFromMe) {
           setMessages((prev) => {
             // Robust duplicate check
             const isDuplicate = prev.some(m => m._id === msg._id || (m.text === msg.text && Math.abs(new Date(m.createdAt) - new Date(msg.createdAt)) < 2000));
@@ -134,21 +141,21 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
         console.log(`[DEBUG] - partnerId type: ${typeof partnerId}`);
         console.log(`[DEBUG] - currentUser:`, currentUser);
         console.log(`[DEBUG] - API call: messagesAPI.getConversationHistory(${partnerId})`);
-        
+
         const response = await messagesAPI.getConversationHistory(partnerId);
         console.log(`[DEBUG] ChatWindow API Response:`);
         console.log(`[DEBUG] - Response type: ${typeof response}`);
         console.log(`[DEBUG] - Response:`, response);
         console.log(`[DEBUG] - Is Array: ${Array.isArray(response)}`);
         console.log(`[DEBUG] - Length: ${response?.length || 0}`);
-        
+
         // Check if response has nested data
         let messagesData = response;
         if (response && response.data && Array.isArray(response.data)) {
           messagesData = response.data;
           console.log(`[DEBUG] Using response.data instead: ${messagesData.length} messages`);
         }
-        
+
         if (Array.isArray(messagesData)) {
           console.log(`[DEBUG] Setting messages state with ${messagesData.length} messages`);
           setMessages(messagesData);
@@ -182,7 +189,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
   const handleSend = async () => {
     const myId = currentUser?._id || currentUser?.id;
     const pId = partnerId;
-    
+
     if (!newMessage.trim() || !myId || !pId) return;
 
     const text = newMessage.trim();
@@ -198,7 +205,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
       // 2. Add to local state
       setMessages((prev) => [...prev, sentMsg]);
       if (onNewMessage) onNewMessage(sentMsg);
-      
+
       // 3. Stop typing via socket
       if (socket?.connected) {
         const myEmail = currentUser?.email;
@@ -218,7 +225,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
-    
+
     const myId = currentUser?._id || currentUser?.id;
     const pId = partnerId;
     if (!myId || !pId || !socket?.connected) return;
@@ -232,14 +239,14 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
       } else {
         conversationId = [myId.toString(), pId.toString()].sort().join('_');
       }
-      
+
       if (!isTyping) {
         setIsTyping(true);
         socket.emit('typing', { conversationId, senderId: myId });
       }
 
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      
+
       typingTimeoutRef.current = setTimeout(() => {
         setIsTyping(false);
         socket.emit('stop_typing', { conversationId, senderId: myId });
@@ -269,7 +276,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
                 </div>
               )}
             </div>
-            <div 
+            <div
               title={socket?.connected ? 'Connected' : 'Disconnected (Click to retry)'}
               onClick={() => !socket?.connected && window.location.reload()}
               className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#202c33] cursor-pointer ${socket?.connected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 animate-pulse'}`}
@@ -289,16 +296,16 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4 text-gray-400">
           <MoreVertical size={20} className="cursor-pointer hover:text-white transition-colors" />
         </div>
       </div>
 
       {/* Chat Background / Messages Area */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0b141a] custom-scrollbar"
-        style={{ 
+        style={{
           backgroundImage: 'url("https://w0.peakpx.com/wallpaper/818/148/HD-wallpaper-whatsapp-dark-background-w-whatsapp-dark-pattern.jpg")',
           backgroundSize: '400px',
           backgroundBlendMode: 'overlay'
@@ -329,16 +336,21 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
               messages.map((msg, idx) => {
                 const msgSenderId = msg.sender?._id || msg.sender;
                 const currentUserId = currentUser?._id || currentUser?.id;
-                const isMe = msgSenderId?.toString() === currentUserId?.toString();
                 
+                // Robust consolidated identity check via ID, User ID, email, or senderType matches
+                const currentUserUserId = currentUser?.userId?.toString();
+                const isMe = msgSenderId?.toString() === currentUserId?.toString() ||
+                             (currentUserUserId && msgSenderId?.toString() === currentUserUserId) ||
+                             (msg.sender?.email && currentUser?.email && msg.sender.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+                             (msg.senderType === 'user' && currentUser?.role === 'user');
+
                 return (
                   <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                    <div 
-                      className={`max-w-[75%] rounded-lg px-3 py-2 shadow-md relative group transition-all duration-300 transform hover:scale-[1.01] ${
-                        isMe 
-                          ? 'bg-[#005c4b] text-gray-100 rounded-tr-none' 
+                    <div
+                      className={`max-w-[75%] rounded-lg px-3 py-2 shadow-md relative group transition-all duration-300 transform hover:scale-[1.01] ${isMe
+                          ? 'bg-[#005c4b] text-gray-100 rounded-tr-none'
                           : 'bg-[#202c33] text-gray-100 rounded-tl-none'
-                      }`}
+                        }`}
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                       <div className="flex items-center justify-end gap-1 mt-1">
@@ -356,19 +368,19 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
                 );
               })
             )}
-        {partnerTyping && (
-          <div className="flex justify-start">
-            <div className="bg-[#202c33] rounded-lg px-4 py-2 rounded-tl-none shadow-md">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            {partnerTyping && (
+              <div className="flex justify-start">
+                <div className="bg-[#202c33] rounded-lg px-4 py-2 rounded-tl-none shadow-md">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </>
+            )}
+            <div ref={messagesEndRef} />
+          </>
         )}
       </div>
 
@@ -376,14 +388,14 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
       <div className="p-3 bg-[#202c33] flex items-center gap-3 relative">
         <div className="flex items-center gap-3 text-gray-400 px-1">
           <div className="relative">
-            <Smile 
-              size={24} 
+            <Smile
+              size={24}
               className={`cursor-pointer transition-colors ${showEmojiPicker ? 'text-emerald-500' : 'hover:text-white'}`}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             />
             {showEmojiPicker && (
               <div className="absolute bottom-12 left-0 z-[100] shadow-2xl">
-                <EmojiPicker 
+                <EmojiPicker
                   onEmojiClick={handleEmojiClick}
                   theme="dark"
                   searchDisabled
@@ -396,8 +408,8 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
           </div>
         </div>
         <div className="flex-1 relative">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={newMessage}
             onChange={handleTyping}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
@@ -405,14 +417,13 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
             className="w-full bg-[#2a3942] text-gray-100 py-2 px-4 rounded-xl focus:outline-none border border-transparent focus:border-gray-600 transition-all text-sm"
           />
         </div>
-        <button 
+        <button
           onClick={handleSend}
           disabled={!newMessage.trim()}
-          className={`p-2 rounded-full transition-all ${
-            newMessage.trim() 
-              ? 'bg-[#00a884] text-white scale-110 shadow-lg' 
+          className={`p-2 rounded-full transition-all ${newMessage.trim()
+              ? 'bg-[#00a884] text-white scale-110 shadow-lg'
               : 'bg-gray-700 text-gray-400'
-          }`}
+            }`}
         >
           <Send size={20} />
         </button>

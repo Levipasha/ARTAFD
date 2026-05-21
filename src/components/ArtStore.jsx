@@ -555,22 +555,24 @@ const ArtStore = () => {
               <div className="w-full space-y-4">
                 <div className="flex justify-center gap-3">
                   {previewArtist.social?.instagram && (
-                    <a href={previewArtist.social.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                    <a href={previewArtist.social.instagram.startsWith('http') ? previewArtist.social.instagram : `https://instagram.com/${previewArtist.social.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
                       <Instagram size={18} />
                     </a>
                   )}
                   {previewArtist.social?.facebook && (
-                    <a href={previewArtist.social.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                    <a href={previewArtist.social.facebook.startsWith('http') ? previewArtist.social.facebook : `https://facebook.com/${previewArtist.social.facebook}`} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
                       <Facebook size={18} />
                     </a>
                   )}
                   {previewArtist.social?.twitter && (
-                    <a href={previewArtist.social.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
-                      <Twitter size={18} />
+                    <a href={previewArtist.social.twitter.startsWith('http') ? previewArtist.social.twitter : `https://x.com/${previewArtist.social.twitter}`} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all" title="X">
+                      <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 text-black fill-current">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
                     </a>
                   )}
                   {previewArtist.social?.website && (
-                    <a href={previewArtist.social.website} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
+                    <a href={previewArtist.social.website.startsWith('http') ? previewArtist.social.website : `https://${previewArtist.social.website}`} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all">
                       <Globe size={18} />
                     </a>
                   )}

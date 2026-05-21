@@ -195,10 +195,9 @@ router.post('/', async (req, res) => {
     if (!recipientId || !text) return res.status(400).json({ error: 'Recipient and text are required' });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const myId = decoded.userId || decoded.id || decoded.artistId;
-    
-    // Determine sender model
+    // Determine sender model and ID robustly to prevent collection mismatches
     const senderModel = decoded.artistId ? 'ArtistProfile' : 'User';
+    const myId = decoded.artistId ? decoded.artistId : (decoded.userId || decoded.id);
     const senderType = decoded.artistId ? 'artist' : (decoded.role || 'user');
 
     // Determine recipient model

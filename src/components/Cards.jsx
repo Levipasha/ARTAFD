@@ -157,9 +157,15 @@ const Cards = () => {
             <p className="text-gray-700 leading-relaxed">
               Locate the nearest artist meetup or carnival in real-time.
             </p>
-            <p className="text-sm text-gray-500 mt-3">
+            <p className="text-sm text-gray-500 mt-3 mb-6">
               Discover local workshops, exhibition spaces, and nearby artist communities instantly.
             </p>
+            <button 
+              onClick={() => navigate('/art-district')}
+              className="w-full bg-red-600 text-white px-6 py-3 rounded-full font-medium hover:bg-red-700 transition-colors"
+            >
+              GO TO STUDIOS
+            </button>
           </div>
 
           {/* Middle Card - Become Verified Artist */}

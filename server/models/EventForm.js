@@ -5,7 +5,8 @@ const eventFormSchema = new mongoose.Schema(
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
-      required: true,
+      required: false,
+      default: null,
       index: true
     },
     title: {

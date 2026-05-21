@@ -2,7 +2,7 @@
 
 ## Problem Summary
 Images were loading intermittently because:
-1. Frontend was using hardcoded `localhost:5000` URLs in production
+1. Frontend was using hardcoded local API URLs in production (now: `https://sverx.nanoprofiles.com`)
 2. API URL was not properly configured via environment variables
 3. Caching issues on Vercel were causing stale responses
 
@@ -94,7 +94,7 @@ vercel --prod
 
 2. Check Network tab in DevTools:
    - API calls should go to `https://your-backend.vercel.app/api/...`
-   - Not `http://localhost:5000/api/...`
+   - Not `https://sverx.nanoprofiles.com/api/...`
 
 3. Check Response Headers:
    - Should see `Cache-Control: no-store, no-cache`

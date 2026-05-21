@@ -95,6 +95,8 @@ const chatbotRoutes = require('./routes/chatbot');
 const formRoutes = require('./routes/forms');
 const messageRoutes = require('./routes/messages');
 const SiteSettings = require('./models/SiteSettings');
+const ArtDistrictConfig = require('./models/ArtDistrictConfig');
+const ArtDistrictRegistration = require('./models/ArtDistrictRegistration');
 
 const app = express();
 
@@ -124,9 +126,11 @@ const corsOptions = {
       'https://www.artartist.in',
       'https://artartist.in',
       'http://localhost:3000',
+      'http://localhost:3001',
       'http://localhost:5173',
       'http://localhost:5174',
       'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
       'http://127.0.0.1:5173',
       'http://127.0.0.1:5174'
     ];
@@ -255,6 +259,75 @@ app.get('/api/settings/hero', async (req, res) => {
     res.json({ heroImage: '' });
   }
 });
+
+// Public site settings endpoint (no auth required)
+app.get('/api/settings/public', async (req, res) => {
+  try {
+    const settings = await SiteSettings.getSingleton();
+    res.json(settings.toObject());
+  } catch (error) {
+    console.error('Get public settings error:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+// ── Public ArtDistrict endpoints (no auth — read by main app) ──
+
+// GET prices, paymentLink, and gallery images
+app.get('/api/art-district/config', async (req, res) => {
+  try {
+    const config = await ArtDistrictConfig.getSingleton();
+    res.json({
+      passes:        config.passes,
+      heroImages:    config.heroImages,
+      testimonials:  config.testimonials,
+      galleryImages: config.galleryImages
+    });
+  } catch (error) {
+    console.error('Public ArtDistrict config error:', error);
+    res.status(500).json({ error: 'Failed to fetch config' });
+  }
+});
+
+// POST registration — called when user completes the checkout form
+app.post('/api/art-district/registrations', async (req, res) => {
+  try {
+    const { fullName, email, insta, category, passType, price, initials,
+            memberId, validFrom, validThru, qrCodeUrl, paymentMethod } = req.body || {};
+
+    if (!fullName || !email || !passType || !memberId) {
+      return res.status(400).json({ error: 'fullName, email, passType and memberId are required' });
+    }
+
+    // Check for duplicate memberId (extremely rare but safe)
+    const existing = await ArtDistrictRegistration.findOne({ memberId });
+    if (existing) {
+      return res.status(409).json({ error: 'Member ID already exists' });
+    }
+
+    const reg = await ArtDistrictRegistration.create({
+      fullName:      String(fullName).trim(),
+      email:         String(email).trim().toLowerCase(),
+      insta:         String(insta || '').trim(),
+      category:      String(category || '').trim(),
+      passType:      String(passType).trim(),
+      price:         String(price || '').trim(),
+      initials:      String(initials || '').trim(),
+      memberId:      String(memberId).trim(),
+      validFrom:     String(validFrom || '').trim(),
+      validThru:     String(validThru || '').trim(),
+      qrCodeUrl:     String(qrCodeUrl || '').trim(),
+      paymentMethod: String(paymentMethod || 'UPI').trim(),
+      source:        'online'
+    });
+
+    res.status(201).json(reg);
+  } catch (error) {
+    console.error('Public ArtDistrict registration error:', error);
+    res.status(500).json({ error: 'Failed to save registration', details: error.message });
+  }
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

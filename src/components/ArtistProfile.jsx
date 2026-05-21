@@ -24,7 +24,7 @@ const ArtistProfile = () => {
       try {
         setLoading(true);
         console.log('Fetching artist with ID:', artistId);
-        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
+        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'https://sverx.nanoprofiles.com/api');
         
         // Get artist from API
         const res = await artistsAPI.getArtist(artistId);
@@ -289,7 +289,14 @@ const ArtistProfile = () => {
                 {/* Artist Details */}
                 <div className="flex-grow">
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-2 tracking-tight">{artist.name || 'Artist'}</h1>
+                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-2 tracking-tight">
+                      {artist.name || 'Artist'}
+                      {artist.artistNumber && (
+                        <span className="ml-3 text-lg md:text-xl font-bold text-gray-400/80">
+                          #{artist.artistNumber}
+                        </span>
+                      )}
+                    </h1>
                     <div className="flex flex-wrap gap-3 text-sm">
                       <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">
                         <Palette size={16} className="text-red-500" />
@@ -335,13 +342,15 @@ const ArtistProfile = () => {
                     )}
                     {artist.social?.twitter && (
                       <a 
-                        href={artist.social.twitter.startsWith('http') ? artist.social.twitter : `https://twitter.com/${artist.social.twitter}`}
+                        href={artist.social.twitter.startsWith('http') ? artist.social.twitter : `https://x.com/${artist.social.twitter}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-full border border-gray-700 hover:border-gray-600 hover:shadow-lg transition-all duration-300"
                       >
-                        <Twitter size={18} />
-                        <span className="font-medium">Twitter</span>
+                        <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 text-white fill-current">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                        <span className="font-medium">X</span>
                         <ExternalLink size={14} />
                       </a>
                     )}
@@ -533,13 +542,14 @@ const ArtistProfile = () => {
                 <div>
                   <h3 className="text-lg font-black text-red-600 mb-3">Contact Information</h3>
                   <div className="space-y-2">
-                    {artist.email && (
+                    {artist.email && artist.email.trim().toLowerCase() !== 'udaymicroartist@gmail.com' && (
                       <p><span className="text-gray-400">Email:</span> <span className="text-gray-900 font-medium">{artist.email}</span></p>
                     )}
-                    {artist.phone && (
+                    {artist.phone && artist.phone.toString().trim().replace(/[\s-()]/g, '') !== '1234567895' && (
                       <p><span className="text-gray-400">Phone:</span> <span className="text-gray-900 font-medium">{artist.phone}</span></p>
                     )}
-                    {!artist.email && !artist.phone && (
+                    {(!artist.email || artist.email.trim().toLowerCase() === 'udaymicroartist@gmail.com') && 
+                     (!artist.phone || artist.phone.toString().trim().replace(/[\s-()]/g, '') === '1234567895') && (
                       <p className="text-gray-500">Contact through social media channels</p>
                     )}
                   </div>

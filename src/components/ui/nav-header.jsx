@@ -18,7 +18,8 @@ function NavHeader() {
     { to: '/events', label: 'Events' },
     { to: '/nft', label: 'NFT' },
     { to: '/virtual-gallery', label: 'Virtual Gallery' },
-    { to: '/art-value-calculator', label: 'Art Value Calculator' }
+    { to: '/art-value-calculator', label: 'Art Value Calculator' },
+    { to: '/art-district', label: 'ArtDistrict' }
   ], []);
 
   // Set initial position for active link

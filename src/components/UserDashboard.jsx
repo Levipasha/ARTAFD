@@ -14,7 +14,7 @@ import { io } from 'socket.io-client';
 // Helper to resolve socket URL
 const resolveSocketUrl = () => {
   if (process.env.REACT_APP_API_URL) return process.env.REACT_APP_API_URL.replace(/\/api$/, '');
-  return 'https://sverx.nanoprofiles.com'; 
+  return 'https://sverx.nanoprofiles.com';
 };
 
 const SOCKET_URL = resolveSocketUrl();
@@ -35,10 +35,10 @@ const UserDashboard = () => {
     if (isAuthenticated && !loadingMessages && location.state?.startChatWith) {
       const target = location.state.startChatWith;
       const targetId = target._id || target.id;
-      
+
       // Check if conversation already exists
       const existing = conversations.find(c => (c.partner?._id || c.partner?.id) === targetId);
-      
+
       if (existing) {
         setSelectedConversation(existing);
       } else {
@@ -60,7 +60,7 @@ const UserDashboard = () => {
         setConversations(prev => [tempConv, ...prev]);
         setSelectedConversation(tempConv);
       }
-      
+
       // Clear location state to prevent re-triggering on refresh
       window.history.replaceState({}, document.title);
     }
@@ -78,7 +78,7 @@ const UserDashboard = () => {
       const convData = await messagesAPI.getConversations();
       const newConvs = Array.isArray(convData) ? convData : [];
       setConversations(newConvs);
-      
+
       await messagesAPI.getMessages();
       // setMessages(Array.isArray(rawData) ? rawData : []);
     } catch (err) {
@@ -91,7 +91,7 @@ const UserDashboard = () => {
   // ── Sync Selected Conversation when list updates ──────────────────────────
   useEffect(() => {
     if (selectedConversation && conversations.length > 0) {
-      const fresh = conversations.find(c => 
+      const fresh = conversations.find(c =>
         (c.partner?._id || c.partner?.id) === (selectedConversation.partner?._id || selectedConversation.partner?.id)
       );
       // Only update if the object reference is actually different to avoid unnecessary re-renders
@@ -147,34 +147,34 @@ const UserDashboard = () => {
       />
 
       <div className="flex h-screen bg-[#111b21] overflow-hidden font-sans antialiased text-gray-200">
-        
+
         {/* ── Left Navigation Rail ── */}
         <div className="hidden md:flex w-16 flex-col items-center py-4 bg-[#202c33] border-r border-white/5">
           <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center mb-6 cursor-pointer hover:rotate-12 transition-transform shadow-lg shadow-red-600/20" onClick={() => navigate('/')}>
-             <span className="font-bold text-white text-xl">A</span>
+            <span className="font-bold text-white text-xl">A</span>
           </div>
-          
+
           <div className="flex flex-col gap-6 mt-4 flex-1">
-             <div className="p-2 bg-white/10 rounded-lg text-white cursor-pointer"><MessageSquare size={24} /></div>
-             <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><User size={24} /></div>
-             <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><Clock size={24} /></div>
+            <div className="p-2 bg-white/10 rounded-lg text-white cursor-pointer"><MessageSquare size={24} /></div>
+            <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><User size={24} /></div>
+            <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><Clock size={24} /></div>
           </div>
 
           <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors mt-auto">
-             <LogOut size={24} />
+            <LogOut size={24} />
           </button>
         </div>
 
         {/* ── Main Content Area ── */}
         <div className="flex-1 flex overflow-hidden">
-          
+
           {/* Conversation List Sidebar */}
           <div className={`${showMobileChat ? 'hidden' : 'flex'} w-full md:flex md:w-80 lg:w-96 bg-[#111b21] flex flex-col border-r border-white/5`}>
             <div className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => navigate('/')} 
+                  <button
+                    onClick={() => navigate('/')}
                     className="p-1 hover:bg-white/5 rounded-full md:hidden text-gray-400"
                     title="Back to Home"
                   >
@@ -183,23 +183,23 @@ const UserDashboard = () => {
                   <h1 className="text-xl font-bold text-white tracking-tight">Messages</h1>
                 </div>
                 <div className="flex gap-2">
-                   <button onClick={fetchMessages} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
-                      <RefreshCw size={18} className={loadingMessages ? 'animate-spin' : ''} />
-                   </button>
-                   <button onClick={handleLogout} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-red-500 md:hidden">
-                      <LogOut size={18} />
-                   </button>
+                  <button onClick={fetchMessages} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
+                    <RefreshCw size={18} className={loadingMessages ? 'animate-spin' : ''} />
+                  </button>
+                  <button onClick={handleLogout} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-red-500 md:hidden">
+                    <LogOut size={18} />
+                  </button>
                 </div>
               </div>
-              
+
               {/* Profile Card */}
               <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold shadow-lg">
-                   {(user.displayName || user.email)[0].toUpperCase()}
+                  {(user.displayName || user.email)[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                   <p className="text-sm font-bold text-white truncate">{user.displayName || 'User'}</p>
-                   <p className="text-[10px] text-gray-500 truncate uppercase tracking-widest">{isArtist ? 'Artist Profile' : 'Collector Account'}</p>
+                  <p className="text-sm font-bold text-white truncate">{user.displayName || 'User'}</p>
+                  <p className="text-[10px] text-gray-500 truncate uppercase tracking-widest">{isArtist ? 'Artist Profile' : 'Collector Account'}</p>
                 </div>
               </div>
             </div>
@@ -214,7 +214,7 @@ const UserDashboard = () => {
                 ) : conversations.length === 0 ? (
                   <div className="p-20 text-center flex flex-col items-center gap-4">
                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-gray-700">
-                       <MessageSquare size={32} />
+                      <MessageSquare size={32} />
                     </div>
                     <p className="text-gray-500 text-sm italic">No conversations yet</p>
                   </div>
@@ -223,19 +223,19 @@ const UserDashboard = () => {
                     const { partner, lastMessage, unreadCount } = conv;
                     const partnerId = partner._id || partner.id;
                     const isSelected = selectedConversation?.partner?._id === partnerId;
-                    
+
                     return (
-                      <div 
+                      <div
                         key={partnerId || idx}
                         onClick={() => {
                           console.log('[DEBUG] Selected conversation:', { partner, partnerId, unreadCount });
-                          console.log('[DEBUG] Partner details:', { 
+                          console.log('[DEBUG] Partner details:', {
                             partnerId: partner._id || partner.id,
                             partnerName: partner?.name || partner?.displayName,
                             partnerEmail: partner?.email,
                             partnerFull: partner
                           });
-                          setSelectedConversation({ 
+                          setSelectedConversation({
                             partner,
                             partnerId: partner._id || partner.id,
                             lastMessage,
@@ -243,9 +243,8 @@ const UserDashboard = () => {
                           });
                           setShowMobileChat(true);
                         }}
-                        className={`group p-4 flex items-center gap-4 cursor-pointer rounded-2xl transition-all duration-300 mx-2 mb-1 ${
-                          isSelected ? 'bg-red-600/10 border border-red-600/20' : 'hover:bg-white/5 border border-transparent'
-                        }`}
+                        className={`group p-4 flex items-center gap-4 cursor-pointer rounded-2xl transition-all duration-300 mx-2 mb-1 ${isSelected ? 'bg-red-600/10 border border-red-600/20' : 'hover:bg-white/5 border border-transparent'
+                          }`}
                       >
                         <div className="relative">
                           <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'border-red-600' : 'border-white/10'}`}>
@@ -279,7 +278,7 @@ const UserDashboard = () => {
                             {lastMessage?.text || 'Start a conversation'}
                           </p>
                         </div>
-                        
+
                         {isSelected && (
                           <div className="w-1.5 h-6 bg-red-600 rounded-full" />
                         )}
@@ -304,7 +303,7 @@ const UserDashboard = () => {
                   partnerEmail: selectedConversation.partner?.email,
                   currentUser: user
                 })}
-                <ChatWindow 
+                <ChatWindow
                   currentUser={user}
                   partnerId={selectedConversation.partnerId || selectedConversation.partner?._id}
                   partnerName={selectedConversation.partner?.name || selectedConversation.partner?.displayName}
@@ -319,16 +318,16 @@ const UserDashboard = () => {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
                 <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 relative">
-                   <MessageSquare size={64} className="text-white/10" />
-                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 rounded-lg rotate-12 flex items-center justify-center shadow-lg shadow-red-600/20">
-                      <CheckCircle2 size={18} className="text-white" />
-                   </div>
+                  <MessageSquare size={64} className="text-white/10" />
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 rounded-lg rotate-12 flex items-center justify-center shadow-lg shadow-red-600/20">
+                    <CheckCircle2 size={18} className="text-white" />
+                  </div>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">Your Creative Space</h2>
                 <p className="text-gray-500 max-w-sm leading-relaxed">
                   Select an artist from the sidebar to continue your creative journey. All your chats are encrypted and secure.
                 </p>
-                <button 
+                <button
                   onClick={() => navigate('/')}
                   className="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-red-600/20"
                 >
@@ -340,8 +339,9 @@ const UserDashboard = () => {
         </div>
 
       </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }

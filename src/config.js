@@ -21,7 +21,7 @@ const resolveApiBaseUrl = () => {
 
   // Priority 2: Local development
   if (process.env.NODE_ENV === 'development') {
-    return `${process.env.REACT_APP_DEV_API_URL || 'http://localhost:5000'}/api`;
+    return `${process.env.REACT_APP_DEV_API_URL || 'https://sverx.nanoprofiles.com'}/api`;
   }
 
   // Priority 3: Default production URL (fallback)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Mic, MapPin, Palette } from 'lucide-react';
+import { Search, Mic, MapPin, Palette, Sparkles } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI } from '../services/api';
 import SEO from './SEO';
@@ -8,6 +8,7 @@ import Loader from './Loader';
 import Footer from './Footer';
 import Chatbot from './Chatbot';
 import ComingSoonBanner from './ComingSoonBanner';
+import API_URL from '../config';
 
 const ArtistsPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const ArtistsPage = () => {
   const [artists, setArtists] = useState([]);
   const [search, setSearch] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [heroImage, setHeroImage] = useState('');
+  const [artistCount, setArtistCount] = useState(0);
 
   
   const startListening = () => {
@@ -68,6 +71,48 @@ const ArtistsPage = () => {
     };
   }, [search]);
 
+  useEffect(() => {
+    const fetchHeroImage = () => {
+      fetch(`${API_URL}/announcements/active`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          if (data.data && data.data.heroLogo) {
+            const imageUrl = data.data.heroLogo.includes('cloudinary')
+              ? `${data.data.heroLogo}?t=${Date.now()}`
+              : data.data.heroLogo;
+            setHeroImage(imageUrl);
+          }
+        })
+        .catch((err) => {
+          console.error('Hero image fetch error:', err);
+        });
+    };
+
+    if (API_URL) {
+      fetchHeroImage();
+    }
+
+    const fetchCount = async () => {
+      try {
+        const res = await artistsAPI.getArtistCountSummary();
+        if (res && res.success) {
+          setArtistCount(res.artistCount || 0);
+        }
+      } catch (err) {
+        console.error('Failed to fetch artist count:', err);
+      }
+    };
+    fetchCount();
+  }, []);
+
   return (
     <>
       <SEO 
@@ -80,7 +125,7 @@ const ArtistsPage = () => {
         <Navbar />
 
         {/* Dynamic Header Area */}
-        <div className={`bg-white transition-all duration-700 ease-in-out border-b border-gray-100 ${!search.trim() ? 'py-10 md:py-16' : 'py-6 sticky top-0 z-40 shadow-sm'}`}>
+        <div className={`bg-white transition-all duration-700 ease-in-out border-b border-gray-100 ${!search.trim() ? 'pt-10 pb-4 md:pt-16 md:pb-6' : 'py-6 sticky top-0 z-40 shadow-sm'}`}>
           <div className="max-w-5xl mx-auto px-4 flex flex-col items-center">
             
             {/* Back button removed as this is now the landing page */}
@@ -88,10 +133,24 @@ const ArtistsPage = () => {
             {/* Big Logo / Title (Only visible when no search query) */}
             {!search.trim() && (
               <div className="text-center mb-8 transform transition-all duration-700">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 pb-1">
-                  <span className="text-black">Discover Amazing </span>
-                  <span className="text-red-600">Artists</span>
-                </h1>
+                {heroImage ? (
+                  <div className="flex items-center justify-center mb-4">
+                    <img
+                      src={heroImage}
+                      alt="ArtArtist"
+                      className="max-h-32 md:max-h-48 w-auto object-contain"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<h1 class="text-4xl md:text-6xl font-black tracking-tight mb-4 pb-1"><span class="text-black">Discover Amazing </span><span class="text-red-600">Artists</span></h1>';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 pb-1">
+                    <span className="text-black">Discover Amazing </span>
+                    <span className="text-red-600">Artists</span>
+                  </h1>
+                )}
                 <p className="text-lg md:text-xl text-gray-500 font-medium max-w-2xl mx-auto">
                   Search by artist name, art form, or location to find talented creators across India
                 </p>
@@ -123,6 +182,19 @@ const ArtistsPage = () => {
                 >
                   <Mic className={`h-6 w-6 ${isListening ? 'scale-110' : ''}`} />
                 </button>
+              </div>
+            </div>
+
+            {/* Stats Row Styled Like About Page */}
+            <div className="mt-8 flex items-center justify-center gap-8 sm:gap-16 text-center animate-fade-in z-40">
+              <div className="transition-transform duration-300 hover:scale-105">
+                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">100+</div>
+                <div className="text-gray-500 font-semibold text-xs sm:text-sm tracking-wide">Art</div>
+              </div>
+              <div className="w-px h-8 bg-gray-200" />
+              <div className="transition-transform duration-300 hover:scale-105">
+                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">{(artistCount * 50) || 400}</div>
+                <div className="text-gray-500 font-semibold text-xs sm:text-sm tracking-wide">Artists</div>
               </div>
             </div>
             
@@ -195,6 +267,11 @@ const ArtistsPage = () => {
                   
                   <div className="p-5">
                     <div className="space-y-3 mb-6">
+                      {artist.artistNumber && (
+                        <div className="text-xs font-bold text-red-600">
+                          <span>ID: #{artist.artistNumber}</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Palette size={16} className="text-red-500" />
                         <span className="font-medium text-gray-800">{artist.artForm || 'Artist'}</span>
@@ -233,7 +310,7 @@ const ArtistsPage = () => {
         {!search.trim() && <ComingSoonBanner />}
 
         {/* Cards Section - All content from Home page */}
-        <div className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="bg-gray-50 pt-4 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-6xl mx-auto">
             {/* Top Section - Modern Art Supply Store and NFT Launch Side by Side */}
             <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -384,9 +461,15 @@ const ArtistsPage = () => {
                 <p className="text-gray-700 leading-relaxed">
                   Locate the nearest artist meetup or carnival in real-time.
                 </p>
-                <p className="text-sm text-gray-500 mt-3">
+                <p className="text-sm text-gray-500 mt-3 mb-6">
                   Discover local workshops, exhibition spaces, and nearby artist communities instantly.
                 </p>
+                <button 
+                  onClick={() => navigate('/art-district')}
+                  className="w-full bg-red-600 text-white px-6 py-3 rounded-full font-medium hover:bg-red-700 transition-colors"
+                >
+                  GO TO STUDIOS
+                </button>
               </div>
 
               {/* Middle Card - Become Verified Artist */}

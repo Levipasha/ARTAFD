@@ -252,6 +252,7 @@ router.post('/login/verify-otp', async (req, res) => {
       token,
       artist: {
         _id: artist._id,
+        artistNumber: artist.artistNumber || '',
         userId: user ? user._id : null,
         name: artist.name,
         email: artist.email,
@@ -277,6 +278,7 @@ router.get('/me', authenticateArtist, async (req, res) => {
       success: true,
       data: {
         _id: artist._id,
+        artistNumber: artist.artistNumber || '',
         name: artist.name,
         email: artist.email,
         artForm: artist.artForm,
@@ -323,6 +325,7 @@ router.put('/me', authenticateArtist, async (req, res) => {
       message: 'Profile updated successfully',
       data: {
         _id: updatedArtist._id,
+        artistNumber: updatedArtist.artistNumber || '',
         name: updatedArtist.name,
         email: updatedArtist.email,
         artForm: updatedArtist.artForm,
@@ -365,6 +368,7 @@ router.post('/me/upload-image', authenticateArtist, artistUpload.single('image')
       publicId: result.publicId,
       data: {
         _id: updatedArtist._id,
+        artistNumber: updatedArtist.artistNumber || '',
         name: updatedArtist.name,
         email: updatedArtist.email,
         artForm: updatedArtist.artForm,
@@ -465,6 +469,16 @@ router.get('/team', async (req, res) => {
   } catch (error) {
     console.error('Get team artists error:', error);
     res.status(500).json({ error: 'Failed to get team artists' });
+  }
+});
+
+router.get('/count/summary', async (req, res) => {
+  try {
+    const artistCount = await ArtistProfile.countDocuments({ isActive: true });
+    res.json({ success: true, artistCount });
+  } catch (error) {
+    console.error('Get artist count error:', error);
+    res.status(500).json({ error: 'Failed to get count' });
   }
 });
 

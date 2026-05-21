@@ -7,6 +7,8 @@ const Event = require('../models/Event');
 const GalleryItem = require('../models/GalleryItem');
 const ArtistProfile = require('../models/ArtistProfile');
 const SiteSettings = require('../models/SiteSettings');
+const ArtDistrictConfig = require('../models/ArtDistrictConfig');
+const ArtDistrictRegistration = require('../models/ArtDistrictRegistration');
 const { authenticate } = require('../middleware/auth');
 const multer = require('multer');
 const { uploadImage } = require('../services/mediaStorage');
@@ -455,7 +457,7 @@ router.put('/settings', adminAuth, async (req, res) => {
     // Allowed fields for security
     const allowedFields = ['siteName', 'siteDescription', 'maintenanceMode', 'allowRegistrations', 'maxUploadSize', 'supportedImageFormats', 'currency', 'timezone'];
     Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key)) {
+      if (allowedFields.includes(key) || key.startsWith('about')) {
         settings[key] = updates[key];
       }
     });
@@ -708,6 +710,7 @@ router.post('/artists', adminAuth, async (req, res) => {
     }
 
     const artist = await ArtistProfile.create({
+      artistNumber: String(payload.artistNumber || '').trim(),
       name: String(payload.name).trim(),
       email: String(payload.email || '').trim().toLowerCase(),
       phone: String(payload.phone || '').trim(),
@@ -754,6 +757,7 @@ router.put('/artists/:id', adminAuth, async (req, res) => {
     console.log('Update artist payload:', { id, email: p.email, phone: p.phone });
     
     const updates = {
+      ...(typeof p.artistNumber !== 'undefined' ? { artistNumber: String(p.artistNumber).trim() } : {}),
       ...(typeof p.name !== 'undefined' ? { name: String(p.name).trim() } : {}),
       ...(typeof p.email !== 'undefined' ? { email: String(p.email).trim().toLowerCase() } : {}),
       ...(typeof p.phone !== 'undefined' ? { phone: String(p.phone).trim() } : {}),
@@ -864,7 +868,22 @@ router.post('/artists/bulk-upload', adminAuth, async (req, res) => {
     // Normalize CSV headers based on user's format: ID, name, instagram, artform, Mob#, Email, Location
     for (const row of rows) {
       try {
-        const id = row.id || row.ID || '';
+        // Robust flexible matching for Artist ID / Number column
+        let id = '';
+        const allowedIdKeys = [
+          'id', 's.no', 'sno', 'sl.no', 'slno', 's.no.', 'sl.no.',
+          'number', 'no', 'no.', 'artist number', 'artist_number',
+          'artist number / id', 'artist number/id', 'artist_id',
+          'artist id', 'artistid', 'artist no', 'artist no.', 'artist_no'
+        ];
+        for (const key of Object.keys(row)) {
+          const k = key.trim().toLowerCase();
+          if (allowedIdKeys.includes(k)) {
+            id = row[key];
+            if (id) break;
+          }
+        }
+        id = (id || '').trim();
         const name = row.name || row.Name || row.NAME || '';
         const instagram = row.instagram || row.Instagram || row.INSTAGRAM || '';
         const artForm = row.artform || row.artForm || row.ArtForm || row['art form'] || row['Art Form'] || '';
@@ -909,6 +928,7 @@ router.post('/artists/bulk-upload', adminAuth, async (req, res) => {
             { email: email.toLowerCase() },
             {
               $set: {
+                artistNumber: id.trim(),
                 name: name.trim(),
                 artForm: artForm.trim() || 'Artist',
                 phone: phone.trim(),
@@ -929,6 +949,9 @@ router.post('/artists/bulk-upload', adminAuth, async (req, res) => {
 
         if (artist) {
           // Update existing
+          if (id && id.trim()) {
+            artist.artistNumber = id.trim();
+          }
           artist.name = name.trim();
           artist.artForm = artForm.trim() || artist.artForm || 'Artist';
           artist.phone = phone.trim();
@@ -940,6 +963,7 @@ router.post('/artists/bulk-upload', adminAuth, async (req, res) => {
         } else {
           // Create new
           artist = await ArtistProfile.create({
+            artistNumber: id.trim(),
             name: name.trim(),
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
@@ -1098,4 +1122,307 @@ router.post('/announcements/bulk-email', adminAuth, async (req, res) => {
   }
 });
 
+// Broadcast message to all active artists
+router.post('/artists/broadcast-message', adminAuth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: 'Message text is required' });
+    }
+
+    // Find or create the ArtArtist system User account
+    const User = require('../models/User');
+    const ArtistProfile = require('../models/ArtistProfile');
+    const Message = require('../models/Message');
+    const { getIO } = require('../services/socketService');
+
+    let systemUser = await User.findOne({ email: 'artartistofficial@gmail.com' });
+    if (!systemUser) {
+      systemUser = await User.create({
+        firebaseUid: 'system-artartist-broadcast-uid',
+        email: 'artartistofficial@gmail.com',
+        displayName: 'ArtArtist',
+        role: 'admin',
+        photoURL: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg'
+      });
+    }
+
+    // Get all active artists
+    const activeArtists = await ArtistProfile.find({ isActive: true });
+    if (activeArtists.length === 0) {
+      return res.status(404).json({ error: 'No active artists found' });
+    }
+
+    const messagesSaved = [];
+    const io = getIO();
+
+    for (const artist of activeArtists) {
+      const message = new Message({
+        sender: systemUser._id,
+        senderModel: 'User',
+        recipient: artist._id,
+        recipientModel: 'ArtistProfile',
+        text: text.trim(),
+        senderType: 'admin',
+        recipientType: 'artist',
+        status: 'sent'
+      });
+
+      await message.save();
+
+      // Populate sender and recipient for proper frontend rendering
+      const populated = await Message.findById(message._id)
+        .populate('sender', 'displayName email photoURL role')
+        .populate('recipient', 'name email image');
+
+      messagesSaved.push(populated);
+
+      // Emit real-time socket events for smooth instant reception in browser
+      try {
+        // Robust room naming: sorting emails
+        const senderEmail = systemUser.email;
+        const recipientEmail = artist.email;
+        let conversationId;
+        if (senderEmail && recipientEmail) {
+          conversationId = [senderEmail.toLowerCase(), recipientEmail.toLowerCase()].sort().join('_');
+        } else {
+          conversationId = [systemUser._id.toString(), artist._id.toString()].sort().join('_');
+        }
+
+        io.to(conversationId).emit('receive_message', populated);
+
+        // Notify artist of new message
+        io.to(`user_${artist._id}`).emit('new_message_notification', populated);
+      } catch (socketErr) {
+        console.warn(`Socket emit failed for artist ${artist.name}:`, socketErr.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully broadcasted message to ${activeArtists.length} artists`,
+      sentCount: activeArtists.length
+    });
+
+  } catch (error) {
+    console.error('Broadcast message error:', error);
+    res.status(500).json({ error: 'Failed to broadcast message', details: error.message });
+  }
+});
+
+// ════════════════════════════════════════════
+// ArtDistrict — Config (prices, payment link, gallery)
+// ════════════════════════════════════════════
+
+// GET config
+router.get('/art-district/config', adminAuth, async (req, res) => {
+  try {
+    const config = await ArtDistrictConfig.getSingleton();
+    res.json(config.toObject());
+  } catch (error) {
+    console.error('Get ArtDistrict config error:', error);
+    res.status(500).json({ error: 'Failed to fetch ArtDistrict config' });
+  }
+});
+
+// PUT config (prices + payment link)
+router.put('/art-district/config', adminAuth, async (req, res) => {
+  try {
+    const { passes, heroImages, testimonials, stats } = req.body || {};
+    const config = await ArtDistrictConfig.getSingleton();
+    
+    if (passes && Array.isArray(passes)) {
+      config.passes = passes.map(p => ({
+        title: String(p.title || '').trim(),
+        subtitle: String(p.subtitle || '').trim(),
+        price: String(p.price || '').trim(),
+        period: String(p.period || '').trim(),
+        features: Array.isArray(p.features) ? p.features.map(f => String(f).trim()) : [],
+        iconType: String(p.iconType || 'palette').trim(),
+        paymentLink: String(p.paymentLink || '').trim(),
+        themeColor: String(p.themeColor || 'black').trim()
+      }));
+    }
+
+    if (heroImages && Array.isArray(heroImages)) {
+      config.heroImages = heroImages.map(url => String(url).trim());
+    }
+
+    if (testimonials && Array.isArray(testimonials)) {
+      config.testimonials = testimonials.map(t => ({
+        text: String(t.text || '').trim(),
+        name: String(t.name || '').trim(),
+        jobtitle: String(t.jobtitle || '').trim(),
+        image: String(t.image || '').trim(),
+        social: String(t.social || '').trim()
+      }));
+    }
+
+    if (stats && Array.isArray(stats)) {
+      config.stats = stats.map(s => ({
+        num: String(s.num || '').trim(),
+        label: String(s.label || '').trim()
+      }));
+    }
+
+    await config.save();
+    res.json({ message: 'Config updated', config: config.toObject() });
+  } catch (error) {
+    console.error('Update ArtDistrict config error:', error);
+    res.status(500).json({ error: 'Failed to update ArtDistrict config' });
+  }
+});
+
+// GET gallery images list
+router.get('/art-district/gallery', adminAuth, async (req, res) => {
+  try {
+    const config = await ArtDistrictConfig.getSingleton();
+    res.json({ galleryImages: config.galleryImages });
+  } catch (error) {
+    console.error('Get ArtDistrict gallery error:', error);
+    res.status(500).json({ error: 'Failed to fetch gallery' });
+  }
+});
+
+// PUT gallery images (replace entire array)
+router.put('/art-district/gallery', adminAuth, async (req, res) => {
+  try {
+    const { galleryImages } = req.body || {};
+    if (!Array.isArray(galleryImages)) {
+      return res.status(400).json({ error: 'galleryImages must be an array' });
+    }
+    const config = await ArtDistrictConfig.getSingleton();
+    config.galleryImages = galleryImages.map((img, i) => ({
+      url:     String(img.url     || '').trim(),
+      alt:     String(img.alt     || '').trim(),
+      caption: String(img.caption || '').trim(),
+      order:   typeof img.order !== 'undefined' ? Number(img.order) : i
+    }));
+    await config.save();
+    res.json({ message: 'Gallery updated', galleryImages: config.galleryImages });
+  } catch (error) {
+    console.error('Update ArtDistrict gallery error:', error);
+    res.status(500).json({ error: 'Failed to update gallery' });
+  }
+});
+
+// Upload an image for the ArtDistrict gallery (Admin → Cloudinary)
+router.post('/art-district/gallery/upload', adminAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const result = await uploadImage({
+      filePath: req.file.path,
+      mimetype: req.file.mimetype,
+      filename: req.file.originalname,
+      folder: 'art-district-gallery'
+    });
+    res.json(result);
+  } catch (error) {
+    console.error('ArtDistrict gallery upload error:', error);
+    res.status(500).json({ error: 'Upload failed', message: error.message });
+  } finally {
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {});
+    }
+  }
+});
+
+// ════════════════════════════════════════════
+// ArtDistrict — Registrations (admin view + manual issue)
+// ════════════════════════════════════════════
+
+// GET all registrations (with optional search/filter)
+router.get('/art-district/registrations', adminAuth, async (req, res) => {
+  try {
+    const { search = '', passType = '', category = '' } = req.query;
+    const query = {};
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { email:    { $regex: search, $options: 'i' } },
+        { memberId: { $regex: search, $options: 'i' } }
+      ];
+    }
+    if (passType) query.passType = { $regex: passType, $options: 'i' };
+    if (category) query.category = category;
+
+    const registrations = await ArtDistrictRegistration.find(query)
+      .sort({ createdAt: -1 });
+    res.json({ registrations });
+  } catch (error) {
+    console.error('Get ArtDistrict registrations error:', error);
+    res.status(500).json({ error: 'Failed to fetch registrations' });
+  }
+});
+
+// POST — admin manually issues a walk-in pass
+router.post('/art-district/registrations', adminAuth, async (req, res) => {
+  try {
+    const { fullName, email, insta, category, passType, paymentMethod } = req.body || {};
+    if (!fullName || !email || !passType) {
+      return res.status(400).json({ error: 'fullName, email and passType are required' });
+    }
+
+    const config = await ArtDistrictConfig.getSingleton();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const today  = new Date();
+    const validFrom = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+
+    const expiry = new Date();
+    if (passType.toLowerCase().includes('daily'))       expiry.setDate(today.getDate() + 1);
+    else if (passType.toLowerCase().includes('weekly')) expiry.setDate(today.getDate() + 7);
+    else                                                 expiry.setDate(today.getDate() + 30);
+    const validThru = `${expiry.getDate()} ${months[expiry.getMonth()]} ${expiry.getFullYear()}`;
+
+    const names    = fullName.trim().split(' ');
+    const initials = names.length > 1
+      ? (names[0][0] + names[names.length - 1][0]).toUpperCase()
+      : names[0].substring(0, 2).toUpperCase();
+
+    const randomId = Math.floor(1000 + Math.random() * 9000);
+    const memberId = `AA-2026-${randomId}`;
+
+    let price = `₹${config.daily}`;
+    if (passType.toLowerCase().includes('weekly'))      price = `₹${config.weekly}`;
+    else if (passType.toLowerCase().includes('monthly')) price = `₹${config.monthly}`;
+
+    const qrData  = encodeURIComponent(`ID:${memberId}|Name:${fullName}|Pass:${passType}`);
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+
+    const reg = await ArtDistrictRegistration.create({
+      fullName: fullName.trim(),
+      email:    email.trim().toLowerCase(),
+      insta:    (insta || '').trim().startsWith('@') ? insta.trim() : `@${(insta || '').trim()}`,
+      category: (category || '').trim(),
+      passType: passType.trim(),
+      price,
+      initials,
+      memberId,
+      validFrom,
+      validThru,
+      qrCodeUrl,
+      paymentMethod: paymentMethod || 'UPI',
+      source: 'manual'
+    });
+
+    res.status(201).json(reg);
+  } catch (error) {
+    console.error('Create ArtDistrict registration error:', error);
+    res.status(500).json({ error: 'Failed to create registration', details: error.message });
+  }
+});
+
+// DELETE a registration
+router.delete('/art-district/registrations/:id', adminAuth, async (req, res) => {
+  try {
+    const reg = await ArtDistrictRegistration.findByIdAndDelete(req.params.id);
+    if (!reg) return res.status(404).json({ error: 'Registration not found' });
+    res.json({ message: 'Registration deleted' });
+  } catch (error) {
+    console.error('Delete ArtDistrict registration error:', error);
+    res.status(500).json({ error: 'Failed to delete registration' });
+  }
+});
+
 module.exports = router;
+

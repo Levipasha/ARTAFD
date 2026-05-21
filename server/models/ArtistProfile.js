@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const artistProfileSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    artistNumber: { type: String, default: '' },
     username: { type: String, trim: true, lowercase: true, default: '' },
     email: { type: String, trim: true, lowercase: true, default: '' },
     phone: { type: String, trim: true, default: '' },

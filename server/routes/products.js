@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const Product = require('../models/Product');
 const { authenticate } = require('../middleware/auth');
+const { uploadImage } = require('../services/mediaStorage');
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -151,30 +152,21 @@ router.post('/', authenticate, upload.array('images', 5), async (req, res) => {
       }
     }
 
-    // Upload images to Cloudinary using Promise wrapper
-    const uploadToCloudinary = (buffer) => {
-      return new Promise((resolve, reject) => {
-        const stream = req.app.locals.cloudinary.uploader.upload_stream(
-          {
-            resource_type: 'image',
-            folder: 'art-marketplace/products',
-            transformation: [{ width: 800, height: 600, crop: 'fit', quality: 'auto' }]
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(buffer);
-      });
-    };
-
     let images = productData.images || [];
     if (req.files && req.files.length > 0) {
-      const uploadedImages = await Promise.all(req.files.map(f => uploadToCloudinary(f.buffer)));
+      const uploadedImages = await Promise.all(
+        req.files.map(f => 
+          uploadImage({
+            buffer: f.buffer,
+            mimetype: f.mimetype,
+            filename: f.originalname,
+            folder: 'products'
+          })
+        )
+      );
       images = uploadedImages.map(img => ({
-        url: img.secure_url,
-        publicId: img.public_id,
+        url: img.url,
+        publicId: img.publicId,
         alt: productData.name || 'artwork'
       }));
     }
@@ -231,19 +223,19 @@ router.put('/:id', authenticate, upload.array('images', 5), async (req, res) => 
 
     // Upload new images using Promise wrapper
     if (req.files && req.files.length > 0) {
-      const uploadToCloudinary = (buffer) => {
-        return new Promise((resolve, reject) => {
-          const stream = req.app.locals.cloudinary.uploader.upload_stream(
-            { resource_type: 'image', folder: 'art-marketplace/products' },
-            (error, result) => { if (error) reject(error); else resolve(result); }
-          );
-          stream.end(buffer);
-        });
-      };
-      const uploadedImages = await Promise.all(req.files.map(f => uploadToCloudinary(f.buffer)));
+      const uploadedImages = await Promise.all(
+        req.files.map(f => 
+          uploadImage({
+            buffer: f.buffer,
+            mimetype: f.mimetype,
+            filename: f.originalname,
+            folder: 'products'
+          })
+        )
+      );
       const newImages = uploadedImages.map(img => ({
-        url: img.secure_url,
-        publicId: img.public_id,
+        url: img.url,
+        publicId: img.publicId,
         alt: updates.name || product.name
       }));
       updates.images = [...(product.images || []), ...newImages];

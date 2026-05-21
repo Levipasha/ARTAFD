@@ -68,22 +68,22 @@ router.post('/admin/forms', adminAuth, async (req, res) => {
   try {
     const { eventId, title, description, fields, isActive, maxSubmissions } = req.body;
 
-    if (!eventId || !title || !fields || !fields.length) {
-      return res.status(400).json({ error: 'eventId, title and at least one field are required' });
+    if (!title || !fields || !fields.length) {
+      return res.status(400).json({ error: 'title and at least one field are required' });
     }
 
-    // Verify event exists
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ error: 'Event not found' });
-
-    // Check if form already exists for this event
-    const existing = await EventForm.findOne({ eventId });
-    if (existing) {
-      return res.status(400).json({ error: 'A form already exists for this event' });
+    // If eventId provided, verify event exists and no duplicate
+    if (eventId) {
+      const event = await Event.findById(eventId);
+      if (!event) return res.status(404).json({ error: 'Event not found' });
+      const existing = await EventForm.findOne({ eventId });
+      if (existing) {
+        return res.status(400).json({ error: 'A form already exists for this event' });
+      }
     }
 
     const form = await EventForm.create({
-      eventId,
+      eventId: eventId || null,
       title: String(title).trim(),
       description: String(description || '').trim(),
       fields: fields.map((f, i) => ({
@@ -248,6 +248,92 @@ router.get('/admin/submissions', adminAuth, async (req, res) => {
 });
 
 // ==================== PUBLIC ROUTES ====================
+
+// Get form by form ID directly (public) — for shareable form links
+router.get('/:formId', async (req, res) => {
+  try {
+    const form = await EventForm.findById(req.params.formId)
+      .populate('eventId', 'title category date');
+
+    if (!form || !form.isActive) {
+      return res.status(404).json({ error: 'Form not found or inactive' });
+    }
+
+    // Check max submissions
+    if (form.maxSubmissions) {
+      const count = await FormSubmission.countDocuments({ formId: form._id });
+      if (count >= form.maxSubmissions) {
+        return res.json({ form: null, message: 'Form is no longer accepting submissions' });
+      }
+    }
+
+    res.json({ form });
+  } catch (error) {
+    console.error('Get form by ID error:', error);
+    res.status(500).json({ error: 'Failed to fetch form' });
+  }
+});
+
+// Submit form by form ID directly (public)
+router.post('/:formId/submit', async (req, res) => {
+  try {
+    const { responses, guestName, guestEmail } = req.body;
+
+    const form = await EventForm.findById(req.params.formId);
+    if (!form || !form.isActive) {
+      return res.status(404).json({ error: 'Form not found or inactive' });
+    }
+
+    // Check max submissions
+    if (form.maxSubmissions) {
+      const count = await FormSubmission.countDocuments({ formId: form._id });
+      if (count >= form.maxSubmissions) {
+        return res.status(400).json({ error: 'Maximum submissions reached' });
+      }
+    }
+
+    // Validate required fields
+    const missingFields = form.fields
+      .filter(f => f.required)
+      .filter(f => {
+        const response = responses?.find(r => r.fieldLabel === f.label);
+        return !response || !response.value || !response.value.toString().trim();
+      });
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: 'Required fields missing',
+        missingFields: missingFields.map(f => f.label)
+      });
+    }
+
+    const formResponses = form.fields.map(field => {
+      const response = responses?.find(r => r.fieldLabel === field.label);
+      return {
+        fieldLabel: field.label,
+        fieldType: field.type,
+        value: response?.value || ''
+      };
+    });
+
+    const submission = await FormSubmission.create({
+      formId: form._id,
+      eventId: form.eventId || null,
+      guestName: String(guestName || '').trim(),
+      guestEmail: String(guestEmail || '').trim().toLowerCase(),
+      responses: formResponses
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Form submitted successfully',
+      submissionId: submission._id
+    });
+  } catch (error) {
+    console.error('Submit form by ID error:', error);
+    res.status(500).json({ error: 'Failed to submit form' });
+  }
+});
 
 // Get form for a specific event (public)
 router.get('/event/:eventId', async (req, res) => {
