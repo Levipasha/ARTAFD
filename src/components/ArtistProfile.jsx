@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Instagram, Facebook, Twitter, Globe, MapPin, Palette, Heart, ExternalLink, Share2, Send } from 'lucide-react';
+import { ArrowLeft, Instagram, Facebook, Globe, MapPin, Palette, Heart, ExternalLink, Share2, Send } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI, productsAPI } from '../services/api';
 import SEO from './SEO';

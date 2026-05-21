@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Twitter, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
+import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productsAPI } from '../services/api';

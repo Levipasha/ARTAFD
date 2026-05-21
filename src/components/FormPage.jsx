@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { API_URL } from '../config';
-import { CheckCircle, AlertCircle, Loader, FileText, ExternalLink } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader, FileText } from 'lucide-react';
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -46,7 +46,7 @@ const FormPage = () => {
       }
     };
     fetchForm();
-  }, [formId]);
+  }, [formId, baseUrl]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,59 +80,6 @@ const FormPage = () => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const renderField = (field) => {
-    const commonCls = `w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white transition-colors`;
-
-    if (field.type === 'textarea') {
-      return (
-        <textarea
-          className={`${commonCls} min-h-[100px] resize-y`}
-          placeholder={field.placeholder}
-          value={values[field.label] || ''}
-          onChange={e => setValues(p => ({ ...p, [field.label]: e.target.value }))}
-          required={field.required}
-        />
-      );
-    }
-    if (field.type === 'select') {
-      return (
-        <select
-          className={commonCls}
-          value={values[field.label] || ''}
-          onChange={e => setValues(p => ({ ...p, [field.label]: e.target.value }))}
-          required={field.required}
-        >
-          <option value="">Select an option…</option>
-          {field.options?.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
-        </select>
-      );
-    }
-    if (field.type === 'checkbox') {
-      return (
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500"
-            checked={!!values[field.label]}
-            onChange={e => setValues(p => ({ ...p, [field.label]: e.target.checked }))}
-            required={field.required}
-          />
-          <span className="text-sm text-gray-700">{field.placeholder || field.label}</span>
-        </label>
-      );
-    }
-    return (
-      <input
-        type={field.type}
-        className={commonCls}
-        placeholder={field.placeholder}
-        value={values[field.label] || ''}
-        onChange={e => setValues(p => ({ ...p, [field.label]: e.target.value }))}
-        required={field.required}
-      />
-    );
   };
 
   return (

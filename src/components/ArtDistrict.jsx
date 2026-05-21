@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import { motion } from 'framer-motion';
 import { 
   PenTool, 
   Globe, 
@@ -24,97 +23,7 @@ import {
 import './ArtDistrict.css';
 import { API_URL } from '../config';
 
-const generateWaveVariants = () => {
-  const variants = [];
-  for (let i = 0; i < 30; i++) {
-    variants.push({
-      initial: {
-        scaleY: 1.5,
-        transition: {
-          duration: 0.5,
-        },
-      },
-      animate: {
-        scaleY: [1, Math.random() * 1.2 + 1, 1],
-        transition: {
-          duration: Math.random() * 0.5 + 0.5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: Math.random() * 0.5,
-        },
-      },
-    });
-  }
-  return variants;
-};
-
-const waveVariants = generateWaveVariants();
-
 const ArtDistrict = () => {
-  // Testimonials are fetched from API
-
-  const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null);
-  const [audioElements, setAudioElements] = useState([]);
-
-  useEffect(() => {
-    const elements = [];
-    testimonials.forEach((testimonial) => {
-      if (testimonial.audio) {
-        const audio = new Audio(`/audio/${testimonial.audio}`);
-        audio.addEventListener('ended', handleAudioEnded);
-        elements.push(audio);
-      } else {
-        elements.push(null);
-      }
-    });
-    setAudioElements(elements);
-
-    return () => {
-      elements.forEach((audio) => {
-        if (audio) {
-          audio.pause();
-          audio.removeEventListener('ended', handleAudioEnded);
-        }
-      });
-    };
-  }, []);
-
-  const handlePlay = (index) => {
-    if (currentPlayingIndex !== null && currentPlayingIndex !== index) {
-      stopAudio(currentPlayingIndex);
-    }
-
-    const audio = audioElements[index];
-    if (audio) {
-      audio.play().catch((error) => console.error('Audio playback error:', error));
-      setCurrentPlayingIndex(index);
-    }
-  };
-
-  const stopAudio = (index) => {
-    const audio = audioElements[index];
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      setCurrentPlayingIndex(null);
-    }
-  };
-
-  const handlePause = (index) => {
-    stopAudio(index);
-  };
-
-  const handleAudioEnded = () => {
-    setCurrentPlayingIndex(null);
-  };
-
-  const openInNewTab = (url) => {
-    const win = window.open(url, '_blank');
-    if (win) {
-      win.focus();
-    }
-  };
-
   // Scroll reveal references
   const revealRefs = useRef([]);
   revealRefs.current = [];
@@ -165,18 +74,6 @@ const ArtDistrict = () => {
           }
           if (data.testimonials && Array.isArray(data.testimonials)) {
             setTestimonials(data.testimonials);
-            // Re-setup audio elements if necessary
-            const elements = [];
-            data.testimonials.forEach((testimonial) => {
-              if (testimonial.audio) {
-                const audio = new Audio(`/audio/${testimonial.audio}`);
-                audio.addEventListener('ended', handleAudioEnded);
-                elements.push(audio);
-              } else {
-                elements.push(null);
-              }
-            });
-            setAudioElements(elements);
           }
           if (Array.isArray(data.galleryImages) && data.galleryImages.length > 0) {
             setApiGallery(data.galleryImages);
