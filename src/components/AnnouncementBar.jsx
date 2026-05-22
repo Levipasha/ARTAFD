@@ -7,7 +7,7 @@ import { API_URL } from "../config";
 // Color mapping for Tailwind classes - ensures colors are properly included in build
 const COLOR_MAP = {
   // Background colors (with opacity)
-  red: { bg: 'bg-red-500/10', border: 'border-red-500/30', solid: 'bg-red-500' },
+  red: { bg: 'bg-brand/10', border: 'border-brand/30', solid: 'bg-brand' },
   orange: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', solid: 'bg-orange-500' },
   amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', solid: 'bg-amber-500' },
   yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', solid: 'bg-yellow-500' },
@@ -35,7 +35,7 @@ const COLOR_MAP = {
 
 // Text color mapping
 const TEXT_COLOR_MAP = {
-  red: 'text-red-800',
+  red: 'text-brand-800',
   orange: 'text-orange-800',
   amber: 'text-amber-800',
   yellow: 'text-yellow-800',
@@ -63,7 +63,7 @@ const TEXT_COLOR_MAP = {
 
 // Badge background mapping
 const BADGE_BG_MAP = {
-  red: 'bg-red-100',
+  red: 'bg-brand-100',
   orange: 'bg-orange-100',
   amber: 'bg-amber-100',
   yellow: 'bg-yellow-100',

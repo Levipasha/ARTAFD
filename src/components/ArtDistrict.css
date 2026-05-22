@@ -429,6 +429,7 @@
   height: 3px; background: rgba(255,255,255,.1);
   transition: background .3s;
 }
+.pass-card { cursor: pointer; }
 .pass-card:hover { transform: translateY(-8px); }
 .pass-card:hover::before { background: var(--red); }
 

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { waitlistAPI } from '../services/api';
+import banner1 from '../assets/banner/banner-1.jpeg';
+import banner2 from '../assets/banner/banner-2.jpeg';
+import banner3 from '../assets/banner/banner-3.jpeg';
+import banner4 from '../assets/banner/banner-4.jpeg';
 
 const ComingSoonBanner = () => {
   const { user, isAuthenticated } = useAuth();
@@ -104,18 +108,18 @@ const ComingSoonBanner = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-6 pt-12">
                     <div className="aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-500">
-                      <img src="https://images.pexels.com/photos/1269968/pexels-photo-1269968.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Art 1" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                      <img src={banner1} alt="Art 1" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                     </div>
                     <div className="aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-500">
-                      <img src="https://images.pexels.com/photos/1572386/pexels-photo-1572386.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Art 2" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                      <img src={banner2} alt="Art 2" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                     </div>
                   </div>
                   <div className="space-y-6">
                     <div className="aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-500">
-                      <img src="https://images.pexels.com/photos/1183992/pexels-photo-1183992.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Art 3" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                      <img src={banner3} alt="Art 3" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                     </div>
                     <div className="aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-500">
-                      <img src="https://images.pexels.com/photos/1585325/pexels-photo-1585325.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Art 4" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                      <img src={banner4} alt="Art 4" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                     </div>
                   </div>
                 </div>

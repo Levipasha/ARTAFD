@@ -17,9 +17,7 @@ function NavHeader() {
     { to: '/', label: 'Artists' },
     { to: '/events', label: 'Events' },
     { to: '/nft', label: 'NFT' },
-    { to: '/virtual-gallery', label: 'Virtual Gallery' },
-    { to: '/art-value-calculator', label: 'Art Value Calculator' },
-    { to: '/art-district', label: 'ArtDistrict' }
+    { to: '/virtual-gallery', label: 'Virtual Gallery' }
   ], []);
 
   // Set initial position for active link
@@ -44,7 +42,7 @@ function NavHeader() {
 
   return (
     <ul
-      className="relative mx-auto flex flex-nowrap rounded-full border border-gray-200 bg-white/90 backdrop-blur-md p-1.5 shadow-lg"
+      className="relative mx-auto flex flex-nowrap items-center rounded-full border border-gray-200 bg-white/90 backdrop-blur-md p-1.5 shadow-lg overflow-hidden"
       onMouseLeave={() => {
         const activeItem = navItems.find(item => location.pathname === item.to);
         if (activeItem) {
@@ -131,7 +129,7 @@ const Cursor = ({ position }) => {
         stiffness: 400,
         damping: 30
       }}
-      className="absolute z-0 h-8 rounded-full bg-gradient-to-r from-red-500 to-red-600 shadow-md md:h-10"
+      className="absolute z-0 top-1.5 bottom-1.5 rounded-full bg-brand"
     />
   );
 };

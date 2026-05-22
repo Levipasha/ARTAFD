@@ -5,6 +5,18 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        brand: {
+          DEFAULT: '#C31D1D',
+          50: '#FBE8E8',
+          100: '#F5D0D0',
+          400: '#E04A4A',
+          500: '#C31D1D',
+          600: '#C31D1D',
+          700: '#9E1717',
+          800: '#7A1212',
+        },
+      },
       animation: {
         'pencil-body1': 'pencilBody1 3s infinite',
         'pencil-body2': 'pencilBody2 3s infinite',

@@ -21,9 +21,7 @@ const Navbar = () => {
     { to: '/', label: 'Artists' },
     { to: '/events', label: 'Events' },
     { to: '/nft', label: 'NFT' },
-    { to: '/virtual-gallery', label: 'Virtual Gallery' },
-    { to: '/art-value-calculator', label: 'Art Value Calculator' },
-    { to: '/art-district', label: 'ArtDistrict' }
+    { to: '/virtual-gallery', label: 'Virtual Gallery' }
   ];
 
   const toggleMenu = () => {
@@ -59,7 +57,7 @@ const Navbar = () => {
                 className="w-9 h-9 md:w-10 md:h-10 object-cover"
               />
               <div className="text-lg md:text-2xl font-bold leading-none whitespace-nowrap">
-                <span className="text-red-600">ART</span>
+                <span className="text-brand">ART</span>
                 <span className="text-black">ARTIST</span>
               </div>
             </Link>
@@ -103,7 +101,7 @@ const Navbar = () => {
                     {user?.role === 'admin' && (
                       <Link 
                         to="/admin" 
-                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                       >
                         <Plus size={18} />
                         <span>Admin Panel</span>
@@ -112,7 +110,7 @@ const Navbar = () => {
                     
                     <Link 
                       to="/dashboard"
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     >
                       <MessageSquare size={18} />
                       <span>Messages</span>
@@ -120,7 +118,7 @@ const Navbar = () => {
 
                     <Link 
                       to="/profile"
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     >
                       <User size={18} />
                       <span>Profile</span>
@@ -130,7 +128,7 @@ const Navbar = () => {
 
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 transition-colors"
                     >
                       <LogOut size={18} />
                       <span>Logout</span>
@@ -157,7 +155,7 @@ const Navbar = () => {
           <div className="lg:hidden absolute right-0 top-1/2 -translate-y-1/2">
             <button 
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-600 transition-colors"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand transition-colors"
               aria-label="Toggle navigation menu"
             >
               {isMenuOpen ? (
@@ -181,7 +179,7 @@ const Navbar = () => {
                 key={link.to}
                 to={link.to}
                 className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  isActive ? 'text-red-600 bg-red-50 border border-red-100' : 'text-gray-700 hover:text-black hover:bg-gray-50 border border-transparent'
+                  isActive ? 'text-brand-600 bg-brand-50 border border-brand-100' : 'text-gray-700 hover:text-black hover:bg-gray-50 border border-transparent'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -209,7 +207,7 @@ const Navbar = () => {
                   </Link>
                   <Link 
                     to="/admin"
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors w-full"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 transition-colors w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User size={16} />
@@ -246,7 +244,7 @@ const Navbar = () => {
                 <div className={`grid grid-cols-1 gap-1 transition-all duration-300 overflow-hidden ${isProfileExpanded ? 'max-h-60 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <Link 
                     to="/dashboard"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     onClick={() => {
                       setIsMenuOpen(false);
                       setIsProfileExpanded(false);
@@ -258,7 +256,7 @@ const Navbar = () => {
 
                   <Link 
                     to="/profile"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     onClick={() => {
                       setIsMenuOpen(false);
                       setIsProfileExpanded(false);
@@ -275,7 +273,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsProfileExpanded(false);
                     }}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 transition-colors w-full text-left"
                   >
                     <LogOut size={18} />
                     <span>Logout</span>

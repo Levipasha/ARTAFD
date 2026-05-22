@@ -553,11 +553,22 @@ const ArtDistrict = () => {
             else if (pass.iconType === 'palette') IconComp = Palette;
 
             const cardClass = pass.themeColor === 'red' ? 'monthly-card' : pass.themeColor === 'white' ? 'weekly-card' : 'daily-card';
-            const btnClass = pass.themeColor === 'red' ? 'fill-red' : pass.themeColor === 'white' ? 'fill-white' : 'outline-red';
             const textColor = pass.themeColor === 'black' ? 'var(--red)' : 'var(--white)';
 
             return (
-              <div key={i} className={`pass-card ${cardClass}`}>
+              <div
+                key={i}
+                role="button"
+                tabIndex={0}
+                className={`pass-card ${cardClass} cursor-pointer`}
+                onClick={() => openModal(pass)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal(pass);
+                  }
+                }}
+              >
                 <span className="pass-card-palette-icon"><IconComp size={28} /></span>
                 <span className="pass-name">{pass.title}</span>
                 <div className="pass-price">₹{pass.price}</div>
@@ -568,12 +579,9 @@ const ArtDistrict = () => {
                     <li key={j}>{featLine}</li>
                   ))}
                 </ul>
-                <div className="text-center font-bold tracking-widest text-xs uppercase mt-4 mb-2" style={{ fontFamily: 'var(--font-head)', color: textColor }}>
+                <div className="text-center font-bold tracking-widest text-xs uppercase mt-4" style={{ fontFamily: 'var(--font-head)', color: textColor }}>
                   {pass.subtitle}
                 </div>
-                <button className={`pass-btn ${btnClass}`} onClick={() => openModal(pass)}>
-                  Select Pass
-                </button>
               </div>
             );
           })}
@@ -661,7 +669,6 @@ const ArtDistrict = () => {
           <span className="red">DISTRICT?</span>
         </h2>
         <p className="cta-sub">Claim your co-creative pass today and become part of Hyderabad's premier artistic hub.</p>
-        <button className="cta-final-btn" onClick={() => openModal()}>Get Started Now</button>
       </section>
 
       <Footer />

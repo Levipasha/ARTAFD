@@ -1,4 +1,5 @@
 import React from 'react';
+import footerLogo from './aa-logo-footer.png';
 
 const Footer = () => {
   return (
@@ -7,14 +8,17 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Column 1 - Logo */}
           <div>
-            <div className="mb-4">
+            <div className="inline-flex flex-col items-start gap-2 mb-4">
               <img
-                src="/logo.png"
+                src={footerLogo}
                 alt="ArtArtist"
-                className="w-12 h-12 object-cover"
+                className="w-9 h-9 md:w-10 md:h-10 object-contain"
               />
+              <h3 className="text-xl font-bold leading-none">
+                <span className="text-brand">ART</span>
+                <span className="text-white">ARTIST</span>
+              </h3>
             </div>
-            <h3 className="text-xl font-bold mb-2"><span className="text-red-600">ART</span><span className="text-white">ARTIST</span></h3>
             <p className="text-gray-400 text-sm">
               Empowering artists across India with tools, community, and opportunities.
             </p>
@@ -66,7 +70,7 @@ const Footer = () => {
                 href="https://www.skywebdev.xyz/#home"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-red-500 hover:text-red-400 transition-colors"
+                className="text-brand hover:text-brand-400 transition-colors"
               >
                 Sky Web Dev
               </a>
