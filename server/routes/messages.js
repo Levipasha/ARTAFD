@@ -198,7 +198,7 @@ router.post('/', async (req, res) => {
     // Determine sender model and ID robustly to prevent collection mismatches
     const senderModel = decoded.artistId ? 'ArtistProfile' : 'User';
     const myId = decoded.artistId ? decoded.artistId : (decoded.userId || decoded.id);
-    const senderType = decoded.artistId ? 'artist' : (decoded.role || 'user');
+    const senderType = decoded.artistId ? 'artist' : 'user';
 
     // Determine recipient model
     let recipientModel = 'User';
