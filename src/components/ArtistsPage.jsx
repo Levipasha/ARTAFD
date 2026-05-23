@@ -189,12 +189,12 @@ const ArtistsPage = () => {
             {/* Stats Row Styled Like About Page */}
             <div className="mt-8 flex items-center justify-center gap-8 sm:gap-16 text-center animate-fade-in z-40">
               <div className="transition-transform duration-300 hover:scale-105">
-                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">100+</div>
+                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">{artistCount ? artistCount * 50 : '100+'}</div>
                 <div className="text-gray-500 font-semibold text-xs sm:text-sm tracking-wide">Art</div>
               </div>
               <div className="w-px h-8 bg-gray-200" />
               <div className="transition-transform duration-300 hover:scale-105">
-                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">{(artistCount * 50) || 400}</div>
+                <div className="text-3xl sm:text-4xl font-black text-red-600 tracking-tight mb-1">{artistCount || 400}</div>
                 <div className="text-gray-500 font-semibold text-xs sm:text-sm tracking-wide">Artists</div>
               </div>
             </div>
@@ -256,7 +256,7 @@ const ArtistsPage = () => {
                 >
                   <div className="relative overflow-hidden image-container">
                     <img 
-                      src={artist?.image?.url || "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg"}
+                      src={artist?.image?.url || '/default-artist-avatar.png'}
                       alt={artist.name || "Profile"} 
                       className="w-full aspect-square object-cover image-scale bg-gray-100"
                     />

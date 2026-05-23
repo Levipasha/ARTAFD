@@ -112,6 +112,10 @@ app.use((req, res, next) => {
   next();
 });
 
+const path = require('path');
+// Serve static files from the 'public' directory (e.g., default avatars)
+app.use(express.static(path.join(__dirname, 'public')));
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -203,6 +207,24 @@ mongoose.connect(process.env.MONGODB_URI, {
   // Log database name (safely)
   const dbName = mongoose.connection.name;
   console.log(`Using database: ${dbName}`);
+
+  // Automatically clean up existing empty-string usernames & emails that violate the unique sparse index
+  const ArtistProfile = require('./models/ArtistProfile');
+  ArtistProfile.updateMany({ username: "" }, { $unset: { username: 1 } })
+    .then(res => {
+      if (res.modifiedCount > 0) {
+        console.log(`🧹 DB Migration: Unset empty string usernames in ${res.modifiedCount} artist profiles.`);
+      }
+    })
+    .catch(err => console.error('❌ DB Migration error (username cleanup):', err));
+
+  ArtistProfile.updateMany({ email: "" }, { $unset: { email: 1 } })
+    .then(res => {
+      if (res.modifiedCount > 0) {
+        console.log(`🧹 DB Migration: Unset empty string emails in ${res.modifiedCount} artist profiles.`);
+      }
+    })
+    .catch(err => console.error('❌ DB Migration error (email cleanup):', err));
 })
 .catch(err => {
   console.error('❌ MongoDB connection error:', err.message);

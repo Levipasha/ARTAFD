@@ -14,6 +14,7 @@ const multer = require('multer');
 const { uploadImage } = require('../services/mediaStorage');
 const { parseCSV } = require('../utils/csvParser');
 const { artistInviteEmail, bulkAnnouncementEmail } = require('../utils/emailTemplates');
+const { getDefaultArtistImage } = require('../constants/defaultArtistImage');
 
 const router = express.Router();
 
@@ -709,10 +710,9 @@ router.post('/artists', adminAuth, async (req, res) => {
       return res.status(400).json({ error: 'name, imageUrl and artForm are required' });
     }
 
-    const artist = await ArtistProfile.create({
+    const createData = {
       artistNumber: String(payload.artistNumber || '').trim(),
       name: String(payload.name).trim(),
-      email: String(payload.email || '').trim().toLowerCase(),
       phone: String(payload.phone || '').trim(),
       image: {
         url: String(payload.imageUrl).trim(),
@@ -737,7 +737,16 @@ router.post('/artists', adminAuth, async (req, res) => {
       },
       bio: String(payload.bio || '').trim(),
       isActive: Boolean(payload.isActive ?? true)
-    });
+    };
+
+    if (payload.email && String(payload.email).trim()) {
+      createData.email = String(payload.email).trim().toLowerCase();
+    }
+    if (payload.username && String(payload.username).trim()) {
+      createData.username = String(payload.username).trim().toLowerCase();
+    }
+
+    const artist = await ArtistProfile.create(createData);
     
     console.log('Created artist:', { id: artist._id, email: artist.email, phone: artist.phone });
 
@@ -759,7 +768,6 @@ router.put('/artists/:id', adminAuth, async (req, res) => {
     const updates = {
       ...(typeof p.artistNumber !== 'undefined' ? { artistNumber: String(p.artistNumber).trim() } : {}),
       ...(typeof p.name !== 'undefined' ? { name: String(p.name).trim() } : {}),
-      ...(typeof p.email !== 'undefined' ? { email: String(p.email).trim().toLowerCase() } : {}),
       ...(typeof p.phone !== 'undefined' ? { phone: String(p.phone).trim() } : {}),
       ...(typeof p.artForm !== 'undefined' ? { artForm: String(p.artForm).trim() } : {}),
       ...(typeof p.teamRole !== 'undefined' ? { teamRole: String(p.teamRole).trim() } : {}),
@@ -788,12 +796,37 @@ router.put('/artists/:id', adminAuth, async (req, res) => {
         website: String(p.website || '').trim()
       }
     };
+
+    const updateQuery = { $set: updates };
+    const unsets = {};
+
+    if (typeof p.email !== 'undefined') {
+      const emailVal = String(p.email).trim().toLowerCase();
+      if (emailVal) {
+        updates.email = emailVal;
+      } else {
+        unsets.email = 1;
+      }
+    }
+
+    if (typeof p.username !== 'undefined') {
+      const usernameVal = String(p.username).trim().toLowerCase();
+      if (usernameVal) {
+        updates.username = usernameVal;
+      } else {
+        unsets.username = 1;
+      }
+    }
+
+    if (Object.keys(unsets).length > 0) {
+      updateQuery.$unset = unsets;
+    }
     
-    console.log('Update artist updates object:', updates);
+    console.log('Update artist query object:', updateQuery);
 
     const artist = await ArtistProfile.findByIdAndUpdate(
       id,
-      { $set: updates },
+      updateQuery,
       { new: true, runValidators: true }
     );
     if (!artist) return res.status(404).json({ error: 'Artist not found' });
@@ -865,118 +898,130 @@ router.post('/artists/bulk-upload', adminAuth, async (req, res) => {
       emailsFailed: 0
     };
 
-    // Normalize CSV headers based on user's format: ID, name, instagram, artform, Mob#, Email, Location
+    // Minimal CSV: Artist ID + Email only (artists complete profile after invite)
+    const allowedIdKeys = [
+      'id', 's.no', 'sno', 'sl.no', 'slno', 's.no.', 'sl.no.',
+      'number', 'no', 'no.', 'artist number', 'artist_number',
+      'artist number / id', 'artist number/id', 'artist_id',
+      'artist id', 'artistid', 'artist no', 'artist no.', 'artist_no'
+    ];
+
+    const emailHeaderKeys = ['email', 'e-mail', 'mail', 'mail id', 'mailid'];
+
+    const extractArtistId = (row) => {
+      for (const key of Object.keys(row)) {
+        const k = key.trim().toLowerCase();
+        if (allowedIdKeys.includes(k)) {
+          const val = String(row[key] ?? '').trim();
+          if (val) return val;
+        }
+      }
+      // Fallback: any non-email column (supports custom headers)
+      for (const key of Object.keys(row)) {
+        const k = key.trim().toLowerCase();
+        if (!emailHeaderKeys.includes(k)) {
+          const val = String(row[key] ?? '').trim();
+          if (val) return val;
+        }
+      }
+      return '';
+    };
+
+    const extractEmail = (row) => {
+      for (const key of Object.keys(row)) {
+        const k = key.trim().toLowerCase();
+        if (emailHeaderKeys.includes(k)) {
+          return String(row[key] ?? '').trim().toLowerCase();
+        }
+      }
+      return String(row.email || row.Email || row.EMAIL || '').trim().toLowerCase();
+    };
+
+    const normalizeArtistId = (raw) => String(raw ?? '').trim().slice(0, 64);
+
+    const placeholderNameFromEmail = (email, artistNumber) => {
+      const local = email.split('@')[0]?.replace(/[._+-]/g, ' ').trim();
+      if (local && local.length >= 2) {
+        return local.charAt(0).toUpperCase() + local.slice(1);
+      }
+      return artistNumber ? `Artist ${artistNumber}` : 'Artist';
+    };
+
+    const processedEmails = new Set();
+    const processedUsernames = new Set();
+
     for (const row of rows) {
       try {
-        // Robust flexible matching for Artist ID / Number column
-        let id = '';
-        const allowedIdKeys = [
-          'id', 's.no', 'sno', 'sl.no', 'slno', 's.no.', 'sl.no.',
-          'number', 'no', 'no.', 'artist number', 'artist_number',
-          'artist number / id', 'artist number/id', 'artist_id',
-          'artist id', 'artistid', 'artist no', 'artist no.', 'artist_no'
-        ];
-        for (const key of Object.keys(row)) {
-          const k = key.trim().toLowerCase();
-          if (allowedIdKeys.includes(k)) {
-            id = row[key];
-            if (id) break;
-          }
-        }
-        id = (id || '').trim();
-        const name = row.name || row.Name || row.NAME || '';
-        const instagram = row.instagram || row.Instagram || row.INSTAGRAM || '';
-        const artForm = row.artform || row.artForm || row.ArtForm || row['art form'] || row['Art Form'] || '';
-        const phone = row.mob || row['mob#'] || row.Mob || row['Mob#'] || row.phone || row.Phone || row.PHONE || '';
-        const email = row.email || row.Email || row.EMAIL || '';
-        const locationRaw = row.location || row.Location || row.LOCATION || '';
+        const id = normalizeArtistId(extractArtistId(row));
+        const email = extractEmail(row);
 
-        if (!name || !email) {
-          results.failed.push({ row, reason: 'name and email are required' });
+        if (!email) {
+          results.failed.push({ row, reason: 'Email is required' });
+          continue;
+        }
+        if (!id) {
+          results.failed.push({ row, reason: 'Artist ID is required (letters, numbers, or both)' });
           continue;
         }
 
-        // Parse location into city/state/country (e.g., "Hyderabad" or "Hyderabad, Telangana, India")
-        const locParts = locationRaw.split(',').map((s) => s.trim());
-        const location = {
-          city: locParts[0] || '',
-          state: locParts[1] || '',
-          country: locParts[2] || ''
-        };
-
-        const social = {
-          instagram: instagram,
-          facebook: '',
-          twitter: '',
-          linkedin: '',
-          website: ''
-        };
-
-        // Default placeholder image until they upload one
-        const defaultImage = {
-          url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg',
-          alt: name,
-          publicId: null
-        };
-
-        let artist;
-        let isNew = false;
-
-        if (id && id.trim()) {
-          // Try to update existing artist by custom ID reference (email is the real key)
-          artist = await ArtistProfile.findOneAndUpdate(
-            { email: email.toLowerCase() },
-            {
-              $set: {
-                artistNumber: id.trim(),
-                name: name.trim(),
-                artForm: artForm.trim() || 'Artist',
-                phone: phone.trim(),
-                email: email.trim().toLowerCase(),
-                location,
-                social,
-                isActive: true
-              }
-            },
-            { new: true }
-          );
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          results.failed.push({ row, reason: 'Invalid email address' });
+          continue;
         }
 
-        if (!artist) {
-          // Check if artist exists by email
-          artist = await ArtistProfile.findOne({ email: email.toLowerCase() });
+        // Skip duplicate emails in current CSV batch gracefully
+        if (processedEmails.has(email)) {
+          results.failed.push({ row, reason: 'Duplicate email in CSV batch' });
+          continue;
+        }
+        processedEmails.add(email);
+
+        // Skip duplicate emails that already exist in database gracefully
+        const existingArtistByEmail = await ArtistProfile.findOne({ email });
+        if (existingArtistByEmail) {
+          results.failed.push({ row, reason: 'Email already exists in database' });
+          continue;
         }
 
-        if (artist) {
-          // Update existing
-          if (id && id.trim()) {
-            artist.artistNumber = id.trim();
+        const artistId = id;
+        const baseUsername = artistId.toLowerCase().trim();
+        let username = baseUsername;
+
+        // Ensure username is unique and never empty
+        if (!username) {
+          results.failed.push({ row, reason: 'Cannot generate a valid username from Artist ID' });
+          continue;
+        }
+
+        const existingUser = await ArtistProfile.findOne({ username });
+        if (existingUser || processedUsernames.has(username)) {
+          username = `${baseUsername}_${Date.now()}`;
+          // Belt and suspenders fallback in case timestamp is duplicated (extremely unlikely)
+          let attempts = 0;
+          while ((await ArtistProfile.findOne({ username })) || processedUsernames.has(username)) {
+            username = `${baseUsername}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+            attempts++;
+            if (attempts > 10) break;
           }
-          artist.name = name.trim();
-          artist.artForm = artForm.trim() || artist.artForm || 'Artist';
-          artist.phone = phone.trim();
-          artist.location = location;
-          artist.social = { ...artist.social, ...social };
-          artist.isActive = true;
-          await artist.save();
-          results.updated.push({ id: artist._id, name: artist.name, email: artist.email });
-        } else {
-          // Create new
-          artist = await ArtistProfile.create({
-            artistNumber: id.trim(),
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone.trim(),
-            artForm: artForm.trim() || 'Artist',
-            image: defaultImage,
-            location,
-            social,
-            bio: '',
-            isActive: true
-          });
-          isNew = true;
-          results.created.push({ id: artist._id, name: artist.name, email: artist.email });
         }
+        processedUsernames.add(username);
+
+        const placeholderName = placeholderNameFromEmail(email, artistId);
+        const artist = await ArtistProfile.create({
+          artistNumber: artistId,
+          name: placeholderName,
+          email,
+          username,
+          phone: '',
+          artForm: 'Artist',
+          image: getDefaultArtistImage(placeholderName),
+          location: { city: '', state: '', country: '' },
+          social: { instagram: '', facebook: '', twitter: '', linkedin: '', website: '' },
+          bio: '',
+          isActive: true
+        });
+        results.created.push({ id: artist._id, name: artist.name, email: artist.email, username: artist.username });
 
         // Send invite email
         if (sendEmails && artist.email) {

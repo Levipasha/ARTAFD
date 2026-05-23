@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Plus, MessageSquare, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, Plus, MessageSquare, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutFirebase } from '../firebase';
 import logo from './aa logos_20250926_144624_0000.png';
@@ -70,6 +70,14 @@ const Navbar = () => {
 
           {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center space-x-3">
+            <a 
+              href="https://artiest-dashbaord.vercel.app/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
+            >
+              ARTIST DASHBOARD
+            </a>
             {isAuthenticated ? (
               <div className="relative group">
                 <button 
@@ -107,6 +115,16 @@ const Navbar = () => {
                         <span>Admin Panel</span>
                       </Link>
                     )}
+
+                    <a 
+                      href="https://artiest-dashbaord.vercel.app/dashboard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                    >
+                      <LayoutDashboard size={18} />
+                      <span>Artist Dashboard</span>
+                    </a>
                     
                     <Link 
                       to="/dashboard"
@@ -241,7 +259,21 @@ const Navbar = () => {
                   />
                 </button>
 
-                <div className={`grid grid-cols-1 gap-1 transition-all duration-300 overflow-hidden ${isProfileExpanded ? 'max-h-60 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className={`grid grid-cols-1 gap-1 transition-all duration-300 overflow-hidden ${isProfileExpanded ? 'max-h-[300px] mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <a 
+                    href="https://artiest-dashbaord.vercel.app/dashboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsProfileExpanded(false);
+                    }}
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>Artist Dashboard</span>
+                  </a>
+
                   <Link 
                     to="/dashboard"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
@@ -283,6 +315,15 @@ const Navbar = () => {
             </>
           ) : (
             <>
+              <a 
+                href="https://artiest-dashbaord.vercel.app/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:text-black hover:bg-gray-50 border border-gray-200 transition-colors w-full text-left"
+              >
+                <LayoutDashboard size={16} />
+                Artist Dashboard
+              </a>
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);

@@ -11,7 +11,6 @@ import {
 import EmojiPicker from 'emoji-picker-react';
 import { format } from 'date-fns';
 import { messagesAPI } from '../services/api';
-import { isMessageFromCurrentUser } from '../utils/chatIdentity';
 
 // Robust Socket URL resolution (matches api.js logic)
 const resolveSocketUrl = () => {
@@ -92,7 +91,15 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
 
       socketInstance.on('receive_message', (msg) => {
         console.log('📩 New Message Received via Socket:', msg);
-        const isMsgFromMe = isMessageFromCurrentUser(msg, currentUser);
+        const msgSenderId = (msg.sender?._id || msg.sender)?.toString();
+        const currentUserId = (currentUser?._id || currentUser?.id)?.toString();
+
+        // Robust consolidated identity check via ID, User ID, email, or senderType matches
+        const currentUserUserId = currentUser?.userId?.toString();
+        const isMsgFromMe = msgSenderId === currentUserId || 
+                            (currentUserUserId && msgSenderId === currentUserUserId) ||
+                            (msg.sender?.email && currentUser?.email && msg.sender.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+                            (msg.senderType === 'user' && currentUser?.role === 'user');
 
         if (!isMsgFromMe) {
           setMessages((prev) => {
@@ -327,7 +334,15 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
               </div>
             ) : (
               messages.map((msg, idx) => {
-                const isMe = isMessageFromCurrentUser(msg, currentUser);
+                const msgSenderId = msg.sender?._id || msg.sender;
+                const currentUserId = currentUser?._id || currentUser?.id;
+                
+                // Robust consolidated identity check via ID, User ID, email, or senderType matches
+                const currentUserUserId = currentUser?.userId?.toString();
+                const isMe = msgSenderId?.toString() === currentUserId?.toString() ||
+                             (currentUserUserId && msgSenderId?.toString() === currentUserUserId) ||
+                             (msg.sender?.email && currentUser?.email && msg.sender.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+                             (msg.senderType === 'user' && currentUser?.role === 'user');
 
                 return (
                   <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>

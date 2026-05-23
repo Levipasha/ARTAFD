@@ -278,7 +278,7 @@ const ArtistProfile = () => {
                 <div className="flex-shrink-0">
                   <div className="relative">
                     <img 
-                      src={artist.image?.url || "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg"}
+                      src={artist.image?.url || '/default-artist-avatar.png'}
                       alt={artist.name}
                       className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-white shadow-2xl"
                     />
