@@ -23,6 +23,17 @@ const artistUpload = multer({
 // In-memory OTP storage for artists (email -> { otp, expiresAt })
 const artistOtpStore = new Map();
 
+/** Strip private contact fields from public artist API responses */
+const sanitizePublicArtist = (doc) => {
+  if (!doc) return doc;
+  const obj = doc.toObject ? doc.toObject() : { ...doc };
+  delete obj.phone;
+  delete obj.email;
+  return obj;
+};
+
+const sanitizePublicArtists = (docs) => (docs || []).map(sanitizePublicArtist);
+
 // Clean up expired OTPs every 5 minutes
 setInterval(() => {
   const now = Date.now();
@@ -451,7 +462,7 @@ router.get('/search', async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(safeLimit);
 
-    res.json({ artists });
+    res.json({ artists: sanitizePublicArtists(artists) });
   } catch (error) {
     console.error('Artist search error:', error);
     res.status(500).json({ error: 'Failed to search artists' });
@@ -465,7 +476,7 @@ router.get('/team', async (req, res) => {
     const artists = await ArtistProfile.find({ isActive: true, isTeamMember: true })
       .sort({ displayOrder: 1, createdAt: -1 })
       .limit(safeLimit);
-    res.json({ artists });
+    res.json({ artists: sanitizePublicArtists(artists) });
   } catch (error) {
     console.error('Get team artists error:', error);
     res.status(500).json({ error: 'Failed to get team artists' });
@@ -500,7 +511,7 @@ router.get('/:id', async (req, res) => {
     if (!artist || !artist.isActive) {
       return res.status(404).json({ error: 'Artist not found' });
     }
-    res.json(artist);
+    res.json(sanitizePublicArtist(artist));
   } catch (error) {
     console.error('Get artist error:', error);
     res.status(500).json({ error: 'Failed to get artist' });

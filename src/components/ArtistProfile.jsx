@@ -540,22 +540,6 @@ const ArtistProfile = () => {
                 )}
 
                 <div>
-                  <h3 className="text-lg font-black text-red-600 mb-3">Contact Information</h3>
-                  <div className="space-y-2">
-                    {artist.email && artist.email.trim().toLowerCase() !== 'udaymicroartist@gmail.com' && (
-                      <p><span className="text-gray-400">Email:</span> <span className="text-gray-900 font-medium">{artist.email}</span></p>
-                    )}
-                    {artist.phone && artist.phone.toString().trim().replace(/[\s-()]/g, '') !== '1234567895' && (
-                      <p><span className="text-gray-400">Phone:</span> <span className="text-gray-900 font-medium">{artist.phone}</span></p>
-                    )}
-                    {(!artist.email || artist.email.trim().toLowerCase() === 'udaymicroartist@gmail.com') && 
-                     (!artist.phone || artist.phone.toString().trim().replace(/[\s-()]/g, '') === '1234567895') && (
-                      <p className="text-gray-500">Contact through social media channels</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
                   <h3 className="text-lg font-black text-red-600 mb-3">Location</h3>
                   <p className="text-gray-900 font-medium">
                     {[artist.location?.city, artist.location?.state, artist.location?.country].filter(Boolean).join(', ') || 'Location not specified'}

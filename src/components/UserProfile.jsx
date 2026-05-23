@@ -2,12 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Calendar, Edit, ShoppingBag, Heart, Settings, LogOut } from 'lucide-react';
-import { logoutFirebase } from '../firebase';
+import { logoutFirebase, auth } from '../firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 const UserProfile = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ displayName: '' });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [settingsMessage, setSettingsMessage] = useState('');
+  const [emailNotifications, setEmailNotifications] = useState(true);
+
+  const isArtist = user?.role === 'artist' || user?.isArtist;
 
   useEffect(() => {
     document.title = 'My Profile - ARTARTIST';
@@ -15,6 +23,39 @@ const UserProfile = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({ displayName: user.displayName || user.name || '' });
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    try {
+      setSavingProfile(true);
+      setSettingsMessage('');
+      await updateUser({ displayName: profileForm.displayName.trim() });
+      setEditingProfile(false);
+      setSettingsMessage('Profile updated successfully.');
+    } catch (err) {
+      setSettingsMessage(err.message || 'Failed to update profile.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!user?.email) {
+      setSettingsMessage('No email on file for password reset.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, user.email);
+      setSettingsMessage('Password reset email sent. Check your inbox.');
+    } catch (err) {
+      setSettingsMessage(err.message || 'Could not send reset email.');
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -225,27 +266,93 @@ const UserProfile = () => {
               {activeTab === 'settings' && (
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Account Settings</h2>
+                  {settingsMessage && (
+                    <p className="mb-4 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                      {settingsMessage}
+                    </p>
+                  )}
                   <div className="space-y-4">
                     <div className="border border-gray-200 rounded-lg p-4">
                       <h3 className="font-medium text-gray-900 mb-2">Profile Information</h3>
                       <p className="text-sm text-gray-500 mb-3">Update your account profile details.</p>
-                      <button className="text-red-600 hover:text-red-700 font-medium text-sm">
-                        Edit Profile →
-                      </button>
+                      {isArtist && !editingProfile ? (
+                        <button
+                          type="button"
+                          onClick={() => navigate('/artist-hub')}
+                          className="text-red-600 hover:text-red-700 font-medium text-sm"
+                        >
+                          Manage artist profile →
+                        </button>
+                      ) : editingProfile ? (
+                        <div className="space-y-3 mt-2">
+                          <label className="block text-sm font-medium text-gray-700">Display name</label>
+                          <input
+                            type="text"
+                            value={profileForm.displayName}
+                            onChange={(e) => setProfileForm({ displayName: e.target.value })}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={handleSaveProfile}
+                              disabled={savingProfile}
+                              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {savingProfile ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingProfile(false);
+                                setProfileForm({ displayName: user.displayName || user.name || '' });
+                              }}
+                              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingProfile(true)}
+                          className="text-red-600 hover:text-red-700 font-medium text-sm"
+                        >
+                          Edit Profile →
+                        </button>
+                      )}
                     </div>
                     <div className="border border-gray-200 rounded-lg p-4">
                       <h3 className="font-medium text-gray-900 mb-2">Password</h3>
                       <p className="text-sm text-gray-500 mb-3">Change your password or enable 2FA.</p>
-                      <button className="text-red-600 hover:text-red-700 font-medium text-sm">
-                        Security Settings →
+                      <button
+                        type="button"
+                        onClick={handlePasswordReset}
+                        className="text-red-600 hover:text-red-700 font-medium text-sm"
+                      >
+                        Send password reset email →
                       </button>
                     </div>
                     <div className="border border-gray-200 rounded-lg p-4">
                       <h3 className="font-medium text-gray-900 mb-2">Notifications</h3>
                       <p className="text-sm text-gray-500 mb-3">Manage your email and push notifications.</p>
-                      <button className="text-red-600 hover:text-red-700 font-medium text-sm">
-                        Notification Preferences →
-                      </button>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={emailNotifications}
+                          onChange={(e) => {
+                            setEmailNotifications(e.target.checked);
+                            setSettingsMessage(
+                              e.target.checked
+                                ? 'Email notifications enabled (saved locally).'
+                                : 'Email notifications disabled (saved locally).'
+                            );
+                          }}
+                          className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                        />
+                        <span className="text-sm text-gray-700">Email me about messages and orders</span>
+                      </label>
                     </div>
                   </div>
                 </div>

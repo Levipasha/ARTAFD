@@ -19,6 +19,15 @@ const resolveSocketUrl = () => {
 
 const SOCKET_URL = resolveSocketUrl();
 
+/** Safe avatar URL — avoids crash when partner.image is undefined but photoURL exists */
+const getPartnerAvatarUrl = (partner) => {
+  if (!partner) return null;
+  if (typeof partner.image === 'string' && partner.image) return partner.image;
+  if (partner.image?.url) return partner.image.url;
+  if (partner.photoURL) return partner.photoURL;
+  return null;
+};
+
 const UserDashboard = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -43,13 +52,17 @@ const UserDashboard = () => {
         setSelectedConversation(existing);
       } else {
         // Create a temporary conversation entry
+        const avatarUrl =
+          typeof target.image === 'string'
+            ? target.image
+            : target.image?.url || target.photoURL || null;
+
         const tempConv = {
           partner: {
             _id: targetId,
             name: target.name,
             displayName: target.name,
-            image: { url: target.image },
-            photoURL: target.image,
+            ...(avatarUrl ? { image: { url: avatarUrl }, photoURL: avatarUrl } : {}),
             email: target.email
           },
           partnerId: targetId,
@@ -221,8 +234,9 @@ const UserDashboard = () => {
                 ) : (
                   conversations.map((conv, idx) => {
                     const { partner, lastMessage, unreadCount } = conv;
-                    const partnerId = partner._id || partner.id;
+                    const partnerId = partner?._id || partner?.id;
                     const isSelected = selectedConversation?.partner?._id === partnerId;
+                    const avatarUrl = getPartnerAvatarUrl(partner);
 
                     return (
                       <div
@@ -248,8 +262,8 @@ const UserDashboard = () => {
                       >
                         <div className="relative">
                           <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'border-red-600' : 'border-white/10'}`}>
-                            {partner?.image?.url || partner?.photoURL ? (
-                              <img src={partner.image.url || partner.photoURL} alt="" className="w-full h-full object-cover" />
+                            {avatarUrl ? (
+                              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400 font-bold text-lg">
                                 {(partner?.name || partner?.displayName || 'A')[0]}
@@ -307,7 +321,7 @@ const UserDashboard = () => {
                   currentUser={user}
                   partnerId={selectedConversation.partnerId || selectedConversation.partner?._id}
                   partnerName={selectedConversation.partner?.name || selectedConversation.partner?.displayName}
-                  partnerImage={selectedConversation.partner?.image?.url || selectedConversation.partner?.photoURL}
+                  partnerImage={getPartnerAvatarUrl(selectedConversation.partner)}
                   partnerEmail={selectedConversation.partner?.email}
                   onBack={() => setShowMobileChat(false)}
                   onNewMessage={(msg) => {
