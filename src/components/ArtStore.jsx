@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 
 import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -81,7 +81,7 @@ const ArtStore = () => {
     };
   }, [search, selectedPill]);
 
-  const loadMoreProducts = async () => {
+  const loadMoreProducts = useCallback(async () => {
     if (loading || loadingMore || !hasMore) return;
 
     try {
@@ -111,7 +111,7 @@ const ArtStore = () => {
     } finally {
       setLoadingMore(false);
     }
-  };
+  }, [loading, loadingMore, hasMore, page, search, selectedPill]);
 
   useEffect(() => {
     if (loading || !hasMore || loadingMore) return;
@@ -135,7 +135,7 @@ const ArtStore = () => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [loading, loadingMore, hasMore, page, search, selectedPill]);
+  }, [loading, loadingMore, hasMore, loadMoreProducts]);
 
   const pills = ['All', 'Painting', 'Digital Art', 'Sculpture', 'Photography', 'Print', 'Supplies', 'Other'];
 
