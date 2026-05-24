@@ -467,22 +467,7 @@ const ArtistProfile = () => {
                               {Array.isArray(artwork.likes) ? artwork.likes.length : (artwork.likes || 0)}
                             </span>
                           </button>
-                          <div className="flex items-center gap-2">
-                            {artwork.views && (
-                              <span className="text-xs text-gray-500">
-                                {artwork.views} views
-                              </span>
-                            )}
-                            <button 
-                              onClick={() => {
-                                // Navigate to product details or show modal
-                                console.log('View artwork details:', artwork._id);
-                              }}
-                              className="text-red-600 hover:text-red-700 font-black text-sm transition-colors"
-                            >
-                              View Details
-                            </button>
-                          </div>
+
                         </div>
                       </div>
                     </div>

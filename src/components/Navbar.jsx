@@ -45,11 +45,11 @@ const Navbar = () => {
   return (
     <>
       <AnnouncementBar />
-      <nav className="w-full bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 relative z-50">
-      <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="flex items-center justify-between h-16 lg:h-[72px] relative">
-          {/* Logo - Absolutely centered on mobile, left on desktop */}
-          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:flex-shrink-0">
+      <nav className="w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 sticky top-0 relative z-50 shadow-sm">
+      <div className="w-full px-6 sm:px-8 lg:px-12">
+        <div className="flex items-center justify-between h-16 lg:h-20 relative">
+          {/* Logo - Fixed width left section */}
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:w-[320px] lg:flex-shrink-0">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src={logo}
@@ -63,18 +63,18 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Center Navigation - Desktop */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3">
-            <NavHeader />
+          {/* Center Navigation - Absolutely centered on screen */}
+          <div className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10">
+            <NavHeader onAccountClick={() => setIsLoginModalOpen(true)} />
           </div>
 
-          {/* Right Side - Desktop */}
-          <div className="hidden lg:flex items-center space-x-3">
+          {/* Right Side - Fixed width right section */}
+          <div className="hidden lg:flex items-center justify-end w-[320px] flex-shrink-0 space-x-4">
             <a 
               href="https://artiest-dashbaord.vercel.app/dashboard"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
+              className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1 whitespace-nowrap"
             >
               ARTIST DASHBOARD
             </a>
@@ -156,13 +156,13 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <button 
+                <button
                   onClick={() => setIsLoginModalOpen(true)}
-                  className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1"
+                  className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1 cursor-pointer whitespace-nowrap"
                 >
                   ACCOUNT
                 </button>
-                <Link to="/artist-hub" className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+                <Link to="/artist-hub" className="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors whitespace-nowrap">
                   JOINNN...
                 </Link>
               </>

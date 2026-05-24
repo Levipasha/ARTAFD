@@ -4,7 +4,7 @@ import React, { useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 
-function NavHeader() {
+function NavHeader({ onAccountClick }) {
   const [position, setPosition] = useState({
     left: 0,
     width: 0,
@@ -22,7 +22,7 @@ function NavHeader() {
 
   // Set initial position for active link
   React.useEffect(() => {
-    const activeItem = navItems.find(item => location.pathname === item.to);
+    const activeItem = navItems.find(item => item.to && location.pathname === item.to);
     if (activeItem) {
       // Find the active tab element and set its position
       const activeTab = document.querySelector(`[href="${activeItem.to}"]`);
@@ -42,9 +42,9 @@ function NavHeader() {
 
   return (
     <ul
-      className="relative mx-auto flex flex-nowrap items-center rounded-full border border-gray-200 bg-white/90 backdrop-blur-md p-1.5 shadow-lg overflow-hidden"
+      className="relative mx-auto flex flex-nowrap items-center gap-1 rounded-full border border-gray-200/80 bg-white/95 backdrop-blur-xl p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] overflow-hidden"
       onMouseLeave={() => {
-        const activeItem = navItems.find(item => location.pathname === item.to);
+        const activeItem = navItems.find(item => item.to && location.pathname === item.to);
         if (activeItem) {
           const activeTab = document.querySelector(`[href="${activeItem.to}"]`);
           if (activeTab) {
@@ -61,10 +61,11 @@ function NavHeader() {
     >
       {navItems.map((item) => (
         <Tab 
-          key={item.to}
+          key={item.to || item.label}
           setPosition={setPosition}
           to={item.to}
-          isActive={location.pathname === item.to}
+          onClick={item.onClick}
+          isActive={item.to && location.pathname === item.to}
         >
           {item.label}
         </Tab>
@@ -79,6 +80,7 @@ const Tab = ({
   children,
   setPosition,
   to,
+  onClick,
   isActive,
 }) => {
   const ref = useRef(null);
@@ -108,14 +110,23 @@ const Tab = ({
           left: ref.current.offsetLeft,
         });
       }}
-      className="relative z-10 block cursor-pointer px-3 py-1.5 text-xs font-medium uppercase transition-all duration-200 whitespace-nowrap md:px-4 md:py-2 md:text-sm"
+      className="relative z-10 block cursor-pointer px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 whitespace-nowrap md:px-6 md:py-3 md:text-[13.5px]"
     >
-      <Link 
-        to={to}
-        className={`relative z-20 block ${isActive ? 'text-white font-semibold' : 'text-gray-700 hover:text-gray-900'}`}
-      >
-        {children}
-      </Link>
+      {to ? (
+        <Link 
+          to={to}
+          className={`relative z-20 block ${isActive ? 'text-white font-semibold' : 'text-gray-700 hover:text-gray-900'}`}
+        >
+          {children}
+        </Link>
+      ) : (
+        <button 
+          onClick={onClick}
+          className="relative z-20 block text-gray-700 hover:text-gray-900"
+        >
+          {children}
+        </button>
+      )}
     </li>
   );
 };
@@ -129,7 +140,7 @@ const Cursor = ({ position }) => {
         stiffness: 400,
         damping: 30
       }}
-      className="absolute z-0 top-1.5 bottom-1.5 rounded-full bg-brand"
+      className="absolute z-0 top-[5px] bottom-[7px] m-0 p-0 list-none leading-none rounded-full bg-brand shadow-md"
     />
   );
 };

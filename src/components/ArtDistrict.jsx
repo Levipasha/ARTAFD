@@ -595,7 +595,6 @@ const ArtDistrict = () => {
             <h2 className="section-label">COMMUNITY GALLERY</h2>
             <p className="section-sub">A glimpse of the masterpieces created within our district.</p>
           </div>
-          <Link to="/art" className="view-all">View All Masterpieces ➔</Link>
         </div>
         <div className="gallery-masonry stagger" ref={addToRevealRefs}>
           {(apiGallery.length > 0 ? apiGallery : [

@@ -164,7 +164,9 @@ const NFTPage = () => {
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {tab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                {tab === 'what-is-nft' 
+                  ? 'What is NFT' 
+                  : tab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </button>
             ))}
           </div>
@@ -360,18 +362,7 @@ const NFTPage = () => {
               ))}
             </div>
 
-            <div className="bg-black rounded-2xl p-8 text-white text-center">
-              <h3 className="text-3xl font-bold mb-4">Start Your NFT Journey</h3>
-              <p className="text-xl mb-6">Join thousands of artists and collectors in the digital art revolution</p>
-              <div className="flex justify-center gap-4">
-                <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
-                  Explore Marketplace
-                </button>
-                <button className="bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                  Create Your First NFT
-                </button>
-              </div>
-            </div>
+
           </div>
         )}
 
@@ -443,18 +434,7 @@ const NFTPage = () => {
               ))}
             </div>
 
-            <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-              <h3 className="text-2xl font-semibold text-red-900 mb-4">Still have questions?</h3>
-              <p className="text-red-700 mb-6">Join our community and get answers from experienced NFT collectors and artists</p>
-              <div className="flex justify-center gap-4">
-                <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
-                  Join Discord Community
-                </button>
-                <button className="bg-white text-red-600 border border-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors">
-                  Read Documentation
-                </button>
-              </div>
-            </div>
+
           </div>
         )}
       </div>

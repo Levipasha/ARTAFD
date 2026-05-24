@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 
 import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +17,16 @@ const pillToCategory = {
   'Other': ['other'],
 };
 
+const pillToBackendCategory = {
+  'Painting': 'painting',
+  'Digital Art': 'digitalart',
+  'Sculpture': 'sculpture',
+  'Photography': 'photography',
+  'Print': 'print',
+  'Supplies': 'supplies',
+  'Other': 'other',
+};
+
 const ArtStore = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -27,25 +37,105 @@ const ArtStore = () => {
   const [previewItem, setPreviewItem] = useState(null);
   const [previewArtist, setPreviewArtist] = useState(null);
 
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const observerTarget = useRef(null);
+
+  // Reset and fetch page 1 whenever search or pill changes
   useEffect(() => {
     let cancelled = false;
-    const fetch = async () => {
+    
+    const fetchInitial = async () => {
       try {
         setLoading(true);
-        const res = await productsAPI.getProducts({ page: 1, limit: 60, search: search || undefined });
-        if (!cancelled) setProducts(res.products || []);
+        setPage(1);
+        setHasMore(true);
+
+        const backendCategory = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : undefined;
+        
+        const res = await productsAPI.getProducts({ 
+          page: 1, 
+          limit: 20, 
+          search: search || undefined,
+          category: backendCategory
+        });
+
+        if (!cancelled) {
+          const newProducts = res.products || [];
+          setProducts(newProducts);
+          setHasMore(newProducts.length >= 20);
+        }
       } catch (e) {
+        console.error('ArtStore initial fetch error:', e);
         if (!cancelled) setProducts([]);
-        console.error('ArtStore products error:', e);
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
-    fetch();
+
+    fetchInitial();
+
     return () => {
       cancelled = true;
     };
-  }, [search]);
+  }, [search, selectedPill]);
+
+  const loadMoreProducts = async () => {
+    if (loading || loadingMore || !hasMore) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const backendCategory = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : undefined;
+
+      const res = await productsAPI.getProducts({
+        page: nextPage,
+        limit: 20,
+        search: search || undefined,
+        category: backendCategory
+      });
+
+      const newProducts = res.products || [];
+      
+      setProducts(prev => {
+        const existingIds = new Set(prev.map(p => p._id));
+        const uniqueNew = newProducts.filter(p => !existingIds.has(p._id));
+        return [...prev, ...uniqueNew];
+      });
+
+      setPage(nextPage);
+      setHasMore(newProducts.length >= 20);
+    } catch (e) {
+      console.error('ArtStore load more error:', e);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    if (loading || !hasMore || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreProducts();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [loading, loadingMore, hasMore, page, search, selectedPill]);
 
   const pills = ['All', 'Painting', 'Digital Art', 'Sculpture', 'Photography', 'Print', 'Supplies', 'Other'];
 
@@ -278,19 +368,20 @@ const ArtStore = () => {
           </div>
         )}
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-12">
-          <div className="flex items-center gap-2">
-            <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <span className="text-sm">Previous</span>
-            </button>
-            <button className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md">
-              <span className="text-sm">1</span>
-            </button>
-            <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <span className="text-sm">Next</span>
-            </button>
-          </div>
+        {/* Infinite Scroll Observer Target */}
+        <div ref={observerTarget} className="w-full flex flex-col items-center justify-center py-10 mt-6 border-t border-gray-100">
+          {loadingMore && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+              <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider animate-pulse">Loading more artworks...</p>
+            </div>
+          )}
+          {!hasMore && products.length > 0 && (
+            <div className="flex flex-col items-center gap-2 text-gray-400">
+              <Palette size={24} className="text-gray-300 animate-bounce" />
+              <p className="text-xs font-bold uppercase tracking-widest">You've reached the end of the collection</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -364,7 +455,10 @@ const ArtStore = () => {
 
                 {/* Mobile Priority Info - Always visible without scroll */}
                 <div className="space-y-4 md:hidden">
-                  <div className="flex items-center gap-3 bg-neutral-50 p-3 rounded-2xl border border-neutral-100">
+                  <button
+                    onClick={() => setPreviewArtist(getArtistData(previewItem))}
+                    className="w-full flex items-center gap-3 bg-neutral-50 p-3 rounded-2xl border border-neutral-100 text-left active:scale-[0.98] transition-transform duration-200 cursor-pointer"
+                  >
                     <div className="relative">
                       {getArtistData(previewItem).imageUrl ? (
                         <img
@@ -389,7 +483,7 @@ const ArtStore = () => {
                         {getArtistData(previewItem).location}
                       </div>
                     </div>
-                  </div>
+                  </button>
                   <div>
                     <h3 className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1">The Story Behind</h3>
                     <p className="text-gray-600 text-xs font-medium line-clamp-2 leading-relaxed">
@@ -531,17 +625,7 @@ const ArtStore = () => {
                 <span>{previewArtist.location || 'Based in India'}</span>
               </div>
 
-              {/* Stats Row */}
-              <div className="grid grid-cols-2 gap-4 w-full mb-8">
-                <div className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Experience</div>
-                  <div className="font-black text-gray-900">5+ Years</div>
-                </div>
-                <div className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Artworks</div>
-                  <div className="font-black text-gray-900">24+ Pieces</div>
-                </div>
-              </div>
+
 
               {/* Bio */}
               <div className="w-full mb-8">

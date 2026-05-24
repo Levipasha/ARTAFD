@@ -34,7 +34,11 @@ const ComingSoonBanner = () => {
       }, 5000);
     } catch (error) {
       console.error('Waitlist error:', error);
-      alert('Failed to join waitlist. Please try again.');
+      if (error.response?.status === 409 || error.response?.data?.error?.toLowerCase().includes('already')) {
+        alert('You are already on the waitlist!');
+      } else {
+        alert(error.response?.data?.error || 'Failed to join waitlist. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

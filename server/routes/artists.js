@@ -448,10 +448,12 @@ router.get('/search', async (req, res) => {
       // General text search (no specific filters)
       const text = escapeRegex(String(q).trim());
       const locRegex = buildFlexibleRegex(String(q).trim());
+      const idText = escapeRegex(String(q).trim().replace(/^#/, ''));
       query.$or = [
         { name: { $regex: text, $options: 'i' } },
         { artForm: { $regex: text, $options: 'i' } },
         { bio: { $regex: text, $options: 'i' } },
+        { artistNumber: { $regex: idText, $options: 'i' } },
         { 'location.city': locRegex },
         { 'location.state': locRegex },
         { 'location.country': locRegex }

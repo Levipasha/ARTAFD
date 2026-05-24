@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { CartProvider } from './contexts/CartContext';
 import AuthProvider from './contexts/AuthContext';
@@ -34,6 +34,17 @@ import ArtDistrict from './components/ArtDistrict';
 import FormPage from './components/FormPage';
 // import Cart from './components/Cart';
 
+// Helper component to scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 // Wrapper component to add loader to each route
 const RouteWithLoader = ({ element }) => {
   return (
@@ -49,6 +60,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<RouteWithLoader element={<ArtistsPage />} />} />
               <Route path="/art" element={<RouteWithLoader element={<ArtStore />} />} />

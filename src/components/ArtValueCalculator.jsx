@@ -120,7 +120,7 @@ const Select = ({ value, onChange, options }) => (
     value={value}
     onChange={e => onChange(e.target.value)}
     style={{
-      width: "100%", background: G.grey, border: `1px solid ${G.greyMid}`, borderRadius: 10, padding: "13px 14px",
+      width: "100%", background: G.grey, border: `1px solid ${G.greyMid}`, borderRadius: 10, padding: "13px 40px 13px 14px",
       color: G.white, fontSize: 14, fontFamily: "'Syne', sans-serif", fontWeight: 600, outline: "none",
       cursor: "pointer", transition: "border-color 0.2s, box-shadow 0.2s", appearance: "none",
       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23E50914' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
