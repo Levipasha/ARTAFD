@@ -185,11 +185,11 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting (skip OPTIONS preflight)
+// Rate limiting (skip OPTIONS preflights, skip in development, raise max to 10000 for high user volume)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  skip: (req) => req.method === 'OPTIONS'
+  max: process.env.RATE_LIMIT_MAX ? Number(process.env.RATE_LIMIT_MAX) : 10000, // highly generous limit (10000 requests)
+  skip: (req) => req.method === 'OPTIONS' || process.env.NODE_ENV === 'development'
 });
 app.use(limiter);
 app.use(express.json({ limit: '10mb' }));

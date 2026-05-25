@@ -41,6 +41,11 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
     setShowEmojiPicker(false);
   };
 
+  const onNewMessageRef = useRef(onNewMessage);
+  useEffect(() => {
+    onNewMessageRef.current = onNewMessage;
+  }, [onNewMessage]);
+
   // Initialize Socket and Fetch History
   useEffect(() => {
     console.log('[DEBUG] ChatWindow useEffect triggered:', {
@@ -108,7 +113,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
             if (isDuplicate) return prev;
             return [...prev, msg];
           });
-          if (onNewMessage) onNewMessage(msg);
+          if (onNewMessageRef.current) onNewMessageRef.current(msg);
         }
       });
 
@@ -179,7 +184,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
     fetchHistory();
 
     return () => newSocket.disconnect();
-  }, [currentUser, partnerId, onNewMessage, partnerEmail]); // Added missing dependencies
+  }, [currentUser?._id, currentUser?.id, partnerId, partnerEmail]); // Added missing dependencies
 
   // Scroll to bottom
   useEffect(() => {
@@ -204,7 +209,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
 
       // 2. Add to local state
       setMessages((prev) => [...prev, sentMsg]);
-      if (onNewMessage) onNewMessage(sentMsg);
+      if (onNewMessageRef.current) onNewMessageRef.current(sentMsg);
 
       // 3. Stop typing via socket
       if (socket?.connected) {

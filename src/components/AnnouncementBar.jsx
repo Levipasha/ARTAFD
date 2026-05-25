@@ -101,6 +101,9 @@ const AnnouncementBar = () => {
   const fetchActiveAnnouncement = async () => {
     try {
       const response = await fetch(`${API_URL}/announcements/active`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       if (data.success && data.data) {
         setAnnouncement(data.data);

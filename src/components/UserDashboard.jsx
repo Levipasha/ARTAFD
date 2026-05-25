@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LogOut, MessageSquare, User, Clock,
-  RefreshCw, CheckCircle2, ChevronLeft
+  RefreshCw, CheckCircle2, ChevronLeft, ArrowLeft, Home
 } from 'lucide-react';
 import { logoutFirebase } from '../firebase';
 import { messagesAPI } from '../services/api';
@@ -169,8 +169,7 @@ const UserDashboard = () => {
 
           <div className="flex flex-col gap-6 mt-4 flex-1">
             <div className="p-2 bg-white/10 rounded-lg text-white cursor-pointer"><MessageSquare size={24} /></div>
-            <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><User size={24} /></div>
-            <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')}><Clock size={24} /></div>
+            <div className="p-2 text-gray-500 hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/')} title="Back to Home"><Home size={24} /></div>
           </div>
 
           <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors mt-auto">
@@ -186,13 +185,6 @@ const UserDashboard = () => {
             <div className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => navigate('/')}
-                    className="p-1 hover:bg-white/5 rounded-full md:hidden text-gray-400"
-                    title="Back to Home"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
                   <h1 className="text-xl font-bold text-white tracking-tight">Messages</h1>
                 </div>
                 <div className="flex gap-2">
@@ -204,6 +196,15 @@ const UserDashboard = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Back to Home Button for Mobile & PC screens */}
+              <button 
+                onClick={() => navigate('/')}
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/5 hover:border-white/10 active:scale-95 duration-200"
+              >
+                <ArrowLeft size={16} />
+                <span>Back to Home</span>
+              </button>
 
               {/* Profile Card */}
               <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
