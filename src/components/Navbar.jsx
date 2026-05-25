@@ -70,14 +70,6 @@ const Navbar = () => {
 
           {/* Right Side - Fixed width right section */}
           <div className="hidden lg:flex items-center justify-end w-[320px] flex-shrink-0 space-x-4">
-            <a 
-              href="https://artiest-dashbaord.vercel.app/dashboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-700 hover:text-black text-sm font-medium transition-colors px-2 py-1 whitespace-nowrap"
-            >
-              ARTIST DASHBOARD
-            </a>
             {isAuthenticated ? (
               <div className="relative group">
                 <button 

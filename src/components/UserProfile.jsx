@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Calendar, Edit, ShoppingBag, Heart, Settings, LogOut } from 'lucide-react';
+import { User, Mail, Calendar, Edit, ShoppingBag, Heart, Settings, LogOut, ArrowLeft } from 'lucide-react';
 import { logoutFirebase, auth } from '../firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 
@@ -95,6 +95,17 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        <div className="flex justify-start mb-6">
+          <Link 
+            to="/"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-950 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200/80 font-medium active:scale-95 duration-200"
+          >
+            <ArrowLeft size={18} />
+            <span>Back to Home</span>
+          </Link>
+        </div>
+
         {/* Profile Header */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-red-600 to-red-800 h-32"></div>

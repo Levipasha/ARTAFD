@@ -45,7 +45,18 @@ router.get('/', async (req, res) => {
       query.status = status;
     }
     
-    if (category) query.category = category;
+    if (category) {
+      if (typeof category === 'string') {
+        const cleanCategory = category.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (cleanCategory === 'digitalart') {
+          query.category = { $in: ['digital-art', 'Digital Art', 'digitalart', 'digitalArt'] };
+        } else {
+          query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+        }
+      } else {
+        query.category = category;
+      }
+    }
     if (artist) query.artist = artist;
     if (artistProfile) query.artistProfile = artistProfile;
     if (featured) query.featured = featured === 'true';

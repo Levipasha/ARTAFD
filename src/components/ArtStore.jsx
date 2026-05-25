@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 
-import { Filter, Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
+import { Search, ArrowLeft, MapPin, X, User, ChevronRight, Instagram, Facebook, Globe, MessageSquare, Share2, Heart, Link as LinkIcon, Palette } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productsAPI } from '../services/api';
@@ -18,13 +18,13 @@ const pillToCategory = {
 };
 
 const pillToBackendCategory = {
-  'Painting': 'painting',
-  'Digital Art': 'digitalart',
-  'Sculpture': 'sculpture',
-  'Photography': 'photography',
-  'Print': 'print',
-  'Supplies': 'supplies',
-  'Other': 'other',
+  'Painting': { 'category[$in][]': ['painting', 'Painting'] },
+  'Digital Art': { 'category[$in][]': ['digital-art', 'Digital Art', 'digitalart', 'digitalArt'] },
+  'Sculpture': { 'category[$in][]': ['sculpture', 'Sculpture'] },
+  'Photography': { 'category[$in][]': ['photography', 'Photography'] },
+  'Print': { 'category[$in][]': ['print', 'Print'] },
+  'Supplies': { 'category[$in][]': ['supplies', 'Supplies'] },
+  'Other': { 'category[$in][]': ['other', 'Other'] },
 };
 
 const ArtStore = () => {
@@ -52,13 +52,13 @@ const ArtStore = () => {
         setPage(1);
         setHasMore(true);
 
-        const backendCategory = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : undefined;
+        const categoryParams = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : {};
         
         const res = await productsAPI.getProducts({ 
           page: 1, 
           limit: 20, 
           search: search || undefined,
-          category: backendCategory
+          ...categoryParams
         });
 
         if (!cancelled) {
@@ -87,13 +87,13 @@ const ArtStore = () => {
     try {
       setLoadingMore(true);
       const nextPage = page + 1;
-      const backendCategory = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : undefined;
+      const categoryParams = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : {};
 
       const res = await productsAPI.getProducts({
         page: nextPage,
         limit: 20,
         search: search || undefined,
-        category: backendCategory
+        ...categoryParams
       });
 
       const newProducts = res.products || [];
@@ -242,10 +242,6 @@ const ArtStore = () => {
                 className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:border-red-500 focus:bg-white transition-all"
               />
             </div>
-            
-            <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
-              <Filter size={20} className="text-gray-600" />
-            </button>
           </div>
 
           {/* Category Pills */}
@@ -650,7 +646,7 @@ const ArtStore = () => {
                   )}
                   {previewArtist.social?.twitter && (
                     <a href={previewArtist.social.twitter.startsWith('http') ? previewArtist.social.twitter : `https://x.com/${previewArtist.social.twitter}`} target="_blank" rel="noreferrer" className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-900 transition-all" title="X">
-                      <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 text-black fill-current">
+                      <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-black fill-current">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                       </svg>
                     </a>
