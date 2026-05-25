@@ -184,6 +184,7 @@ const ChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, partner
     fetchHistory();
 
     return () => newSocket.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id, currentUser?.id, partnerId, partnerEmail]); // Added missing dependencies
 
   // Scroll to bottom

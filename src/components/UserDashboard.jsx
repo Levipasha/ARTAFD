@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  LogOut, MessageSquare, User, Clock,
-  RefreshCw, CheckCircle2, ChevronLeft, ArrowLeft, Home
+  LogOut, MessageSquare,
+  RefreshCw, CheckCircle2, ArrowLeft, Home
 } from 'lucide-react';
 import { logoutFirebase } from '../firebase';
 import { messagesAPI } from '../services/api';
