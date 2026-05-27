@@ -369,13 +369,16 @@ const ArtDistrict = () => {
           <div className="hero-co-badge">
             <img src="/art-district-logo.png" alt="ArtDistrict x Cohort Logo" className="hero-co-logo" />
             <div className="hero-co-divider"></div>
-            <span className="hero-co-location">HYDERABAD</span>
+            <span className="hero-co-location">COHORT × ARTARTIST</span>
           </div>
           <h1 className="hero-h1">
-            ARTISTS DON'T<br/>NEED OFFICES.
-            <span className="red">THEY NEED<br/>A DISTRICT.</span>
+            INDIA'S FIRST<br/>CO-CREATIVE
+            <span className="red">ECOSYSTEM<br/>FOR ARTISTS.</span>
           </h1>
-          <p className="hero-sub">A co-creative ecosystem where artists connect, collaborate, create, and evolve together — in partnership with Cohort.</p>
+          <p className="hero-sub" style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--black)', marginBottom: '8px' }}>
+            Built by <span className="red">ArtArtist</span> in collaboration with Cohort.
+          </p>
+          <p className="hero-sub">A new kind of creative culture where artists don’t just work — they connect, collaborate, exhibit, and grow together.</p>
           <div className="hero-btns">
             <button className="btn-primary" onClick={scrollToPasses}>Explore Passes</button>
           </div>
@@ -427,6 +430,63 @@ const ArtDistrict = () => {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CONTINUOUS TAGLINES TICKER ═══ */}
+      <div className="tagline-ticker-container">
+        <div className="tagline-ticker-track">
+          <span>A Space That Creates Culture</span>
+          <span>Not A Workspace. A Creative Ecosystem</span>
+          <span>Artists Don’t Need Offices. They Need A District</span>
+          <span>The Future Of Creative Communities</span>
+          <span>Hyderabad’s Creative Home</span>
+          <span>Create Together</span>
+          <span>Creativity Feels Different Here</span>
+          <span>Culture Starts Here</span>
+          <span>Where Creativity Lives</span>
+          <span>Built By Artists</span>
+          {/* Duplicate for seamless infinite marquee loop */}
+          <span>A Space That Creates Culture</span>
+          <span>Not A Workspace. A Creative Ecosystem</span>
+          <span>Artists Don’t Need Offices. They Need A District</span>
+          <span>The Future Of Creative Communities</span>
+          <span>Hyderabad’s Creative Home</span>
+          <span>Create Together</span>
+          <span>Creativity Feels Different Here</span>
+          <span>Culture Starts Here</span>
+          <span>Where Creativity Lives</span>
+          <span>Built By Artists</span>
+        </div>
+      </div>
+
+      {/* ═══ POSITIONING SECTION ═══ */}
+      <section className="positioning-section reveal" ref={addToRevealRefs}>
+        <div className="positioning-inner">
+          <span className="positioning-tagline">Positioning Statement</span>
+          <h2 className="positioning-h2">
+            The Future Of Creative Spaces <span>Starts Here.</span>
+          </h2>
+          <p className="what-desc" style={{ maxWidth: '750px', margin: '0 auto 40px' }}>
+            Cohort × ArtDistrict is redefining what creative spaces can become.
+          </p>
+          <div className="positioning-blocks">
+            <div className="positioning-block-card">
+              <h3>Not Offices.</h3>
+              <p>Forget the cubicles and rigid structures of corporate work environments.</p>
+            </div>
+            <div className="positioning-block-card">
+              <h3>Not Studios.</h3>
+              <p>More than just four walls of quiet isolation for standalone production.</p>
+            </div>
+            <div className="positioning-block-card">
+              <h3>Not Cafés.</h3>
+              <p>Beyond noisy, cramped tables with poor lighting and zero creative support.</p>
+            </div>
+          </div>
+          <div className="positioning-footer-text">
+            But living ecosystems where people create together.
           </div>
         </div>
       </section>
@@ -488,6 +548,47 @@ const ArtDistrict = () => {
         </div>
       </section>
 
+      {/* ═══ ABOUT COHORT SECTION ═══ */}
+      <section className="about-cohort-section reveal" ref={addToRevealRefs}>
+        <div className="about-cohort-grid">
+          <div className="about-cohort-left">
+            <h2 className="about-cohort-h2">
+              Why <span>Cohort?</span>
+            </h2>
+            <div className="about-cohort-highlight-box">
+              <p>
+                “Cohort is not just providing space. It is helping build a new creative culture.”
+              </p>
+            </div>
+            <div className="about-cohort-quote">
+              “Cohort becomes the space where Hyderabad’s creative culture lives.”
+            </div>
+          </div>
+          
+          <div className="about-cohort-right">
+            <p className="about-cohort-desc">
+              In collaboration with <strong>ArtArtist</strong>, Cohort is becoming home to Hyderabad’s growing creator ecosystem — supporting artists, creators, designers, musicians, filmmakers, and innovators through a shared co-creative environment.
+            </p>
+            <p className="about-cohort-desc" style={{ marginTop: '-15px' }}>
+              Together, we are transforming traditional coworking into something more human, artistic, and collaborative.
+            </p>
+
+            <div className="about-cohort-brand-box">
+              <h4>Cohort × ArtArtist</h4>
+              <p>
+                Creating India’s next-generation co-creative ecosystem. Where infrastructure meets imagination. Where community meets creativity. Where artists finally belong.
+              </p>
+              <div className="about-cohort-brand-footer">
+                From Coworking <span>To Co-Creating</span>
+              </div>
+              <p className="about-cohort-desc" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem', marginTop: '12px', marginBottom: '0', lineHeight: '1.5' }}>
+                Cohort is evolving beyond traditional workspace culture by supporting artist communities, creative collaboration, and cultural innovation through ArtDistrict.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ SECTION 3 — WHY ARTISTS NEED THIS ═══ */}
       <section id="why">
         <div className="reveal" ref={addToRevealRefs}>
@@ -535,6 +636,61 @@ const ArtDistrict = () => {
             <h3>Workshops & Live Sessions</h3>
             <p>Learn, share & grow through expert experiences.</p>
           </div>
+        </div>
+      </section>
+
+      {/* ═══ DESIGNED FOR CREATORS ═══ */}
+      <section className="built-for-creators-section reveal" ref={addToRevealRefs}>
+        <div className="passes-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h2 className="section-label" style={{ justifyContent: 'center' }}>BUILT FOR CREATORS</h2>
+          <p className="section-sub">ArtDistrict at Cohort is designed to empower every creative discipline.</p>
+        </div>
+
+        <div className="creators-grid stagger" ref={addToRevealRefs}>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Palette size={24} /></span>
+            <h3>Painters</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Feather size={24} /></span>
+            <h3>Illustrators</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Layers size={24} /></span>
+            <h3>Sculptors</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Mic size={24} /></span>
+            <h3>Musicians</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><PenTool size={24} /></span>
+            <h3>Designers</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Camera size={24} /></span>
+            <h3>Filmmakers</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Feather size={24} /></span>
+            <h3>Writers</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Camera size={24} /></span>
+            <h3>Photographers</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Layers size={24} /></span>
+            <h3>Digital Creators</h3>
+          </div>
+          <div className="creator-card">
+            <span className="creator-card-icon"><Globe size={24} /></span>
+            <h3>Creative Startups</h3>
+          </div>
+        </div>
+
+        <div className="built-for-creators-footer">
+          A place where creativity feels alive every day.
         </div>
       </section>
 
@@ -612,6 +768,16 @@ const ArtDistrict = () => {
         </div>
       </section>
 
+      {/* ═══ TYPOGRAPHY STATEMENT BANNER ═══ */}
+      <section className="statement-banner-section reveal" ref={addToRevealRefs}>
+        <div className="statement-banner-content">
+          <blockquote className="statement-banner-quote">
+            “India built coworking spaces for startups.
+            <span className="accent block-text">ArtDistrict is building co-creative spaces for artists.”</span>
+          </blockquote>
+        </div>
+      </section>
+
       {/* ═══ SECTION 6 — TESTIMONIALS ═══ */}
       <section id="testimonials" className="bg-[#F2F2F2] py-24 px-6 md:px-12 lg:px-24">
         <div className="reveal max-w-6xl mx-auto mb-16" ref={addToRevealRefs}>
@@ -668,6 +834,16 @@ const ArtDistrict = () => {
         </h2>
         <p className="cta-sub">Claim your co-creative pass today and become part of Hyderabad's premier artistic hub.</p>
       </section>
+
+      {/* ═══ SUB-FOOTER BRAND RIBBON ═══ */}
+      <div className="sub-footer-ribbon">
+        <div className="sub-footer-left">
+          ArtDistrict by ArtArtist <span>× Cohort</span>
+        </div>
+        <div className="sub-footer-right">
+          Create • Connect • Collaborate • Evolve
+        </div>
+      </div>
 
       <Footer />
 
