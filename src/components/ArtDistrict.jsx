@@ -371,14 +371,22 @@ const ArtDistrict = () => {
             <div className="hero-co-divider"></div>
             <span className="hero-co-location">COHORT × ARTARTIST</span>
           </div>
-          <h1 className="hero-h1">
-            INDIA'S FIRST<br/>CO-CREATIVE
-            <span className="red">ECOSYSTEM<br/>FOR ARTISTS.</span>
-          </h1>
-          <p className="hero-sub" style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--black)', marginBottom: '8px' }}>
-            Built by <span className="red">ArtArtist</span> in collaboration with Cohort.
-          </p>
-          <p className="hero-sub">A new kind of creative culture where artists don’t just work — they connect, collaborate, exhibit, and grow together.</p>
+
+          <div className="hero-editorial-flow">
+            <span className="hero-editorial-tag">FOR THOSE WHO CREATE</span>
+            <h1 className="hero-editorial-h1">
+              <span className="blk line-1 animate-reveal-1">NOT JUST</span>
+              <span className="red-brand line-2 animate-reveal-2">CONSUME.</span>
+              <span className="blk line-3 spacer animate-reveal-3">INDIA’S FIRST</span>
+              <span className="blk line-4 animate-reveal-4">CO-CREATIVE</span>
+              <span className="red-brand line-5 animate-reveal-5">ECOSYSTEM</span>
+              <span className="red-brand line-6 animate-reveal-6">FOR ARTISTS.</span>
+            </h1>
+            <p className="hero-editorial-p">
+              Join ArtDistrict and be part of Hyderabad’s growing creative movement. A place where artists connect, collaborate, exhibit, and grow together.
+            </p>
+          </div>
+
           <div className="hero-btns">
             <button className="btn-primary" onClick={scrollToPasses}>Explore Passes</button>
           </div>
