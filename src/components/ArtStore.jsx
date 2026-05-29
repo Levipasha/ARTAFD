@@ -27,11 +27,56 @@ const pillToBackendCategory = {
   'Other': { 'category[$in][]': ['other', 'Other'] },
 };
 
+const getDeterministicHeight = (id) => {
+  if (!id) return 250;
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash % 150) + 200; // Deterministic height between 200px and 350px
+};
+
+const LazyImage = ({ src, alt, height, className }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div 
+      className="relative bg-gray-100 overflow-hidden w-full animate-fade-in"
+      style={{ height: `${height}px` }}
+    >
+      {!loaded && !error && (
+        <div className="absolute inset-0 bg-neutral-150 flex items-center justify-center animate-pulse">
+          <div className="w-full h-full bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-100" />
+        </div>
+      )}
+      {error ? (
+        <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
+          <div className="text-center">
+            <Palette size={32} strokeWidth={1.5} className="mx-auto mb-1 text-gray-400" />
+            <div className="text-xs font-medium">Failed to load</div>
+          </div>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className={`${className} ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} transition-all duration-500 w-full h-full object-cover`}
+        />
+      )}
+    </div>
+  );
+};
+
 const ArtStore = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [search, setSearch] = useState('');
   const [selectedPill, setSelectedPill] = useState('All');
   const [previewItem, setPreviewItem] = useState(null);
@@ -41,6 +86,15 @@ const ArtStore = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const observerTarget = useRef(null);
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   // Reset and fetch page 1 whenever search or pill changes
   useEffect(() => {
@@ -237,8 +291,8 @@ const ArtStore = () => {
               <input
                 type="text"
                 placeholder="Search for art, artists, or styles..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:border-red-500 focus:bg-white transition-all"
               />
             </div>
@@ -271,8 +325,7 @@ const ArtStore = () => {
           <div className="columns-2 sm:columns-2 lg:columns-3 xl:columns-4 gap-3 space-y-3">
             {filteredProducts.map((product) => {
               const imageUrl = product?.images?.[0]?.url;
-              // Generate random height for Pinterest-like masonry effect
-              const randomHeight = Math.floor(Math.random() * 150) + 200; // 200-350px height
+              const stableHeight = getDeterministicHeight(product._id);
               
               return (
                 <div key={product._id} className="break-inside-avoid mb-4 group cursor-pointer">
@@ -284,14 +337,14 @@ const ArtStore = () => {
                     {/* Image Container */}
                     <div className="relative">
                       {imageUrl ? (
-                        <img 
+                        <LazyImage 
                           src={imageUrl} 
                           alt={product.name}
+                          height={stableHeight}
                           className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          style={{ height: `${randomHeight}px` }}
                         />
                       ) : (
-                        <div className="w-full flex items-center justify-center text-gray-400 bg-gray-100" style={{ height: `${randomHeight}px` }}>
+                        <div className="w-full flex items-center justify-center text-gray-400 bg-gray-100" style={{ height: `${stableHeight}px` }}>
                           <div className="text-center">
                             <div className="mb-2">
                               <Palette size={40} strokeWidth={1.5} />
