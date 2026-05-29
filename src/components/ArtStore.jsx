@@ -85,6 +85,8 @@ const ArtStore = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [errorLoadingMore, setErrorLoadingMore] = useState(false);
+  const [initialError, setInitialError] = useState(false);
   const observerTarget = useRef(null);
 
   // Debounce search input
@@ -103,6 +105,8 @@ const ArtStore = () => {
     const fetchInitial = async () => {
       try {
         setLoading(true);
+        setErrorLoadingMore(false);
+        setInitialError(false);
         setPage(1);
         setHasMore(true);
 
@@ -122,7 +126,10 @@ const ArtStore = () => {
         }
       } catch (e) {
         console.error('ArtStore initial fetch error:', e);
-        if (!cancelled) setProducts([]);
+        if (!cancelled) {
+          setProducts([]);
+          setInitialError(true);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -140,6 +147,7 @@ const ArtStore = () => {
 
     try {
       setLoadingMore(true);
+      setErrorLoadingMore(false);
       const nextPage = page + 1;
       const categoryParams = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : {};
 
@@ -162,13 +170,14 @@ const ArtStore = () => {
       setHasMore(newProducts.length >= 20);
     } catch (e) {
       console.error('ArtStore load more error:', e);
+      setErrorLoadingMore(true);
     } finally {
       setLoadingMore(false);
     }
   }, [loading, loadingMore, hasMore, page, search, selectedPill]);
 
   useEffect(() => {
-    if (loading || !hasMore || loadingMore) return;
+    if (loading || !hasMore || loadingMore || errorLoadingMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -189,7 +198,7 @@ const ArtStore = () => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [loading, loadingMore, hasMore, loadMoreProducts]);
+  }, [loading, loadingMore, hasMore, errorLoadingMore, loadMoreProducts]);
 
   const pills = ['All', 'Painting', 'Digital Art', 'Sculpture', 'Photography', 'Print', 'Supplies', 'Other'];
 
@@ -321,6 +330,22 @@ const ArtStore = () => {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
+        ) : initialError ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto bg-neutral-50 border border-neutral-100 rounded-3xl shadow-sm animate-in fade-in duration-300">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-4 animate-bounce">
+              <X size={28} />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Too Many Requests</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              The server has temporarily rate-limited your IP address due to too many requests. Please wait a few minutes and try again.
+            </p>
+            <button 
+              onClick={() => setSelectedPill(selectedPill)}
+              className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold transition-all shadow-lg shadow-red-500/20 active:scale-95 flex items-center gap-2"
+            >
+              Retry Connection
+            </button>
+          </div>
         ) : (
           <div className="columns-2 sm:columns-2 lg:columns-3 xl:columns-4 gap-3 space-y-3">
             {filteredProducts.map((product) => {
@@ -425,7 +450,22 @@ const ArtStore = () => {
               <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider animate-pulse">Loading more artworks...</p>
             </div>
           )}
-          {!hasMore && products.length > 0 && (
+          {errorLoadingMore && !loadingMore && (
+            <div className="flex flex-col items-center gap-3 text-center px-4 max-w-md">
+              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-1">
+                <X size={20} />
+              </div>
+              <p className="text-sm font-semibold text-gray-800">Failed to load more artworks</p>
+              <p className="text-xs text-gray-500">The request was rate limited or timed out. Please try again.</p>
+              <button 
+                onClick={loadMoreProducts}
+                className="mt-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-red-500/20 active:scale-95"
+              >
+                Retry Loading
+              </button>
+            </div>
+          )}
+          {!hasMore && !errorLoadingMore && products.length > 0 && (
             <div className="flex flex-col items-center gap-2 text-gray-400">
               <Palette size={24} className="text-gray-300 animate-bounce" />
               <p className="text-xs font-bold uppercase tracking-widest">You've reached the end of the collection</p>

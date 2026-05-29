@@ -649,7 +649,7 @@ const ArtDistrict = () => {
 
       {/* ═══ DESIGNED FOR CREATORS ═══ */}
       <section className="built-for-creators-section reveal" ref={addToRevealRefs}>
-        <div className="passes-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div className="creators-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h2 className="section-label" style={{ justifyContent: 'center' }}>BUILT FOR CREATORS</h2>
           <p className="section-sub">ArtDistrict at Cohort is designed to empower every creative discipline.</p>
         </div>

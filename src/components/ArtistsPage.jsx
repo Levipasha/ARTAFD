@@ -73,28 +73,48 @@ const ArtistsPage = () => {
   }, [search]);
 
   useEffect(() => {
-    const fetchHeroImage = () => {
-      fetch(`${API_URL}/announcements/active`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          if (data.data && data.data.heroLogo) {
-            const imageUrl = data.data.heroLogo.includes('cloudinary')
-              ? `${data.data.heroLogo}?t=${Date.now()}`
-              : data.data.heroLogo;
-            setHeroImage(imageUrl);
+    const fetchHeroImage = async () => {
+      try {
+        let data;
+        // 1. Check in-memory promise coalescer
+        if (window.__activeAnnouncementPromise) {
+          data = await window.__activeAnnouncementPromise;
+        } else {
+          // 2. Check session storage cache
+          const cached = sessionStorage.getItem('active_announcement');
+          if (cached) {
+            try {
+              data = JSON.parse(cached);
+            } catch (e) {}
           }
-        })
-        .catch((err) => {
-          console.error('Hero image fetch error:', err);
-        });
+
+          if (!data) {
+            // 3. Initiate request and coalesce
+            window.__activeAnnouncementPromise = (async () => {
+              const response = await fetch(`${API_URL}/announcements/active`);
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })();
+            data = await window.__activeAnnouncementPromise;
+          }
+        }
+
+        if (data && data.data && data.data.heroLogo) {
+          const imageUrl = data.data.heroLogo.includes('cloudinary')
+            ? `${data.data.heroLogo}?t=${Date.now()}`
+            : data.data.heroLogo;
+          setHeroImage(imageUrl);
+
+          if (!sessionStorage.getItem('active_announcement')) {
+            sessionStorage.setItem('active_announcement', JSON.stringify(data.data));
+          }
+        }
+      } catch (err) {
+        window.__activeAnnouncementPromise = null;
+        console.error('Hero image fetch error:', err);
+      }
     };
 
     if (API_URL) {
@@ -103,11 +123,31 @@ const ArtistsPage = () => {
 
     const fetchCount = async () => {
       try {
-        const res = await artistsAPI.getArtistCountSummary();
+        // 1. Check in-memory promise coalescer
+        if (window.__artistCountPromise) {
+          const res = await window.__artistCountPromise;
+          if (res && res.success) {
+            setArtistCount(res.artistCount || 0);
+          }
+          return;
+        }
+
+        // 2. Check session storage cache
+        const cached = sessionStorage.getItem('artist_count_summary');
+        if (cached) {
+          setArtistCount(parseInt(cached, 10));
+          return;
+        }
+
+        // 3. Initiate request and coalesce
+        window.__artistCountPromise = artistsAPI.getArtistCountSummary();
+        const res = await window.__artistCountPromise;
         if (res && res.success) {
           setArtistCount(res.artistCount || 0);
+          sessionStorage.setItem('artist_count_summary', String(res.artistCount || 0));
         }
       } catch (err) {
+        window.__artistCountPromise = null;
         console.error('Failed to fetch artist count:', err);
       }
     };

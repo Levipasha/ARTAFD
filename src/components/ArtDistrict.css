@@ -1597,6 +1597,18 @@
   background: var(--white);
   padding: 110px 72px;
 }
+.creators-header {
+  margin-bottom: 40px;
+}
+.creators-header .section-label {
+  color: var(--black);
+}
+.creators-header .section-label::after {
+  background: var(--red);
+}
+.creators-header .section-sub {
+  color: var(--mid);
+}
 .creators-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
