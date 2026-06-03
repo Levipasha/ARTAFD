@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
   const navigate = useNavigate();
   return (
-    <section className="bg-[#f8f9fa] py-16 px-4 sm:px-6 lg:px-8">
+    <section className="bg-[#f8f9fa] py-8 md:py-16 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-5xl mx-auto">
         
         {/* Row 2 - Art Value Calculator & Art Supply Store (2 Columns) */}

@@ -289,7 +289,7 @@ const ArtistsPage = () => {
         <div className={`flex-grow max-w-7xl mx-auto w-full px-4 ${!search.trim() ? 'py-0' : 'py-8 md:py-12'}`}>
           {!search.trim() ? (
             /* Empty State */
-            <div className="max-w-5xl mx-auto py-8 md:py-12">
+            <div className="max-w-5xl mx-auto pt-8 pb-4 md:py-12">
               {/* Become a Verified Artist Card */}
               <div className="relative bg-[#0A0A0A] rounded-[24px] p-8 sm:p-12 lg:p-16 shadow-2xl hover:scale-[1.01] transition-transform duration-300 ease-out overflow-hidden text-left">
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[20%] opacity-[0.08] z-0">
