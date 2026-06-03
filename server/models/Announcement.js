@@ -44,6 +44,31 @@ const announcementSchema = new mongoose.Schema({
     default: '',
     trim: true
   },
+  titleText: {
+    type: String,
+    default: 'Discover Amazing Artists',
+    trim: true
+  },
+  titleType: {
+    type: String,
+    enum: ['text', 'image'],
+    default: 'text'
+  },
+  subtitleText: {
+    type: String,
+    default: 'Search by artist name, art form, or location to find talented creators across India',
+    trim: true
+  },
+  titleAccentColor: {
+    type: String,
+    default: '#D71920',
+    trim: true
+  },
+  subtitleColor: {
+    type: String,
+    default: '#6B7280',
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

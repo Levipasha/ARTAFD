@@ -38,7 +38,12 @@ router.post('/', authenticate, authorize('admin'), async (req, res) => {
       badgeColor,
       badgeTextColor,
       heroImage,
-      heroLogo
+      heroLogo,
+      titleText,
+      titleType,
+      subtitleText,
+      titleAccentColor,
+      subtitleColor
     } = req.body;
 
     // If setting this as active, deactivate all others
@@ -56,7 +61,12 @@ router.post('/', authenticate, authorize('admin'), async (req, res) => {
       badgeColor,
       badgeTextColor,
       heroImage,
-      heroLogo
+      heroLogo,
+      titleText,
+      titleType,
+      subtitleText,
+      titleAccentColor,
+      subtitleColor
     });
 
     await announcement.save();
