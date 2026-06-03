@@ -781,49 +781,51 @@ const ArtDistrict = () => {
         <div className="statement-banner-content">
           <blockquote className="statement-banner-quote">
             “India built coworking spaces for startups.
-            <span className="accent block-text">ArtDistrict is building co-creative spaces for artists.”</span>
+            <span className="accent block-text">ArtDistrict is building <span style={{ whiteSpace: 'nowrap' }}>co-creative</span> spaces for artists.”</span>
           </blockquote>
         </div>
       </section>
 
       {/* ═══ SECTION 6 — TESTIMONIALS ═══ */}
-      <section id="testimonials" className="bg-[#F2F2F2] py-24 px-6 md:px-12 lg:px-24">
-        <div className="reveal max-w-6xl mx-auto mb-16" ref={addToRevealRefs}>
-          <h2 className="section-label">WHAT CREATORS SAY</h2>
-          <p className="section-sub">Real stories from the residents of Hyderabad's creative district.</p>
-        </div>
-        
-        <div className="reveal max-w-6xl mx-auto" ref={addToRevealRefs}>
-          <div className="testimonial-track-wrap">
-            <div className="testimonial-track" ref={trackRef}>
-              {testimonials.map((testimonial, index) => (
-                <div key={index} className="testimonial-card relative">
-                  {/* Removed social icon */}
-                  <div className="testimonial-quote">“</div>
-                  <div className="testimonial-text">
-                    {testimonial.text}
-                  </div>
-                  <div className="testimonial-author">
-                    <div className="testimonial-avatar">
-                      <img src={testimonial.image || 'https://via.placeholder.com/50'} alt={testimonial.name} />
+      {testimonials && testimonials.length > 0 && (
+        <section id="testimonials" className="bg-[#F2F2F2] py-24 px-6 md:px-12 lg:px-24">
+          <div className="reveal max-w-6xl mx-auto mb-16" ref={addToRevealRefs}>
+            <h2 className="section-label">WHAT CREATORS SAY</h2>
+            <p className="section-sub">Real stories from the residents of Hyderabad's creative district.</p>
+          </div>
+          
+          <div className="reveal max-w-6xl mx-auto" ref={addToRevealRefs}>
+            <div className="testimonial-track-wrap">
+              <div className="testimonial-track" ref={trackRef}>
+                {testimonials.map((testimonial, index) => (
+                  <div key={index} className="testimonial-card relative">
+                    {/* Removed social icon */}
+                    <div className="testimonial-quote">“</div>
+                    <div className="testimonial-text">
+                      {testimonial.text}
                     </div>
-                    <div>
-                      <span className="testimonial-name">{testimonial.name}</span>
-                      <span className="testimonial-role">{testimonial.jobtitle}</span>
+                    <div className="testimonial-author">
+                      <div className="testimonial-avatar">
+                        <img src={testimonial.image || 'https://via.placeholder.com/50'} alt={testimonial.name} />
+                      </div>
+                      <div>
+                        <span className="testimonial-name">{testimonial.name}</span>
+                        <span className="testimonial-role">{testimonial.jobtitle}</span>
+                      </div>
                     </div>
+                    
+                    {/* Removed audio player bar */}
                   </div>
-                  
-                  {/* Removed audio player bar */}
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+            <div className="testimonial-nav">
+              <button className="t-nav-btn" onClick={() => scrollTrack('left')}>←</button>
+              <button className="t-nav-btn" onClick={() => scrollTrack('right')}>→</button>
             </div>
           </div>
-          <div className="testimonial-nav">
-            <button className="t-nav-btn" onClick={() => scrollTrack('left')}>←</button>
-            <button className="t-nav-btn" onClick={() => scrollTrack('right')}>→</button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══ SECTION 7 — FINAL CTA ═══ */}
       <section id="cta-final">

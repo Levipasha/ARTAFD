@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Mic, MapPin, Palette } from 'lucide-react';
+import { Search, Mic, MapPin, Palette, UserCheck, ArrowRight, Check } from 'lucide-react';
 import Navbar from './Navbar';
 import { artistsAPI } from '../services/api';
 import SEO from './SEO';
 import Loader from './Loader';
 import Footer from './Footer';
 import Chatbot from './Chatbot';
-import ComingSoonBanner from './ComingSoonBanner';
+// import ComingSoonBanner from './ComingSoonBanner';
 import Cards from './Cards';
 import API_URL from '../config';
 
@@ -18,6 +18,11 @@ const ArtistsPage = () => {
   const [search, setSearch] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [heroImage, setHeroImage] = useState('');
+  const [titleText, setTitleText] = useState('Discover Amazing Artists');
+  const [titleType, setTitleType] = useState('text');
+  const [subtitleText, setSubtitleText] = useState('Search by artist name, art form, or location to find talented creators across India');
+  const [titleAccentColor, setTitleAccentColor] = useState('#D71920');
+  const [subtitleColor, setSubtitleColor] = useState('#6B7280');
   const [artistCount, setArtistCount] = useState(0);
 
   
@@ -80,35 +85,39 @@ const ArtistsPage = () => {
         if (window.__activeAnnouncementPromise) {
           data = await window.__activeAnnouncementPromise;
         } else {
-          // 2. Check session storage cache
-          const cached = sessionStorage.getItem('active_announcement');
-          if (cached) {
-            try {
-              data = JSON.parse(cached);
-            } catch (e) {}
-          }
-
-          if (!data) {
-            // 3. Initiate request and coalesce
-            window.__activeAnnouncementPromise = (async () => {
-              const response = await fetch(`${API_URL}/announcements/active`);
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json();
-            })();
-            data = await window.__activeAnnouncementPromise;
-          }
+          // 2. Initiate request and coalesce
+          window.__activeAnnouncementPromise = (async () => {
+            const response = await fetch(`${API_URL}/announcements/active`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })();
+          data = await window.__activeAnnouncementPromise;
         }
 
-        if (data && data.data && data.data.heroLogo) {
-          const imageUrl = data.data.heroLogo.includes('cloudinary')
-            ? `${data.data.heroLogo}?t=${Date.now()}`
-            : data.data.heroLogo;
-          setHeroImage(imageUrl);
-
-          if (!sessionStorage.getItem('active_announcement')) {
-            sessionStorage.setItem('active_announcement', JSON.stringify(data.data));
+        if (data) {
+          const announcement = data.data || data;
+          if (announcement.heroLogo) {
+            const imageUrl = announcement.heroLogo.includes('cloudinary')
+              ? `${announcement.heroLogo}?t=${Date.now()}`
+              : announcement.heroLogo;
+            setHeroImage(imageUrl);
+          }
+          if (announcement.titleText) {
+            setTitleText(announcement.titleText);
+          }
+          if (announcement.titleType) {
+            setTitleType(announcement.titleType);
+          }
+          if (announcement.subtitleText) {
+            setSubtitleText(announcement.subtitleText);
+          }
+          if (announcement.titleAccentColor) {
+            setTitleAccentColor(announcement.titleAccentColor);
+          }
+          if (announcement.subtitleColor) {
+            setSubtitleColor(announcement.subtitleColor);
           }
         }
       } catch (err) {
@@ -174,7 +183,7 @@ const ArtistsPage = () => {
             {/* Big Logo / Title (Only visible when no search query) */}
             {!search.trim() && (
               <div className="text-center mb-8 transform transition-all duration-700">
-                {heroImage ? (
+                {titleType === 'image' && heroImage ? (
                   <div className="flex items-center justify-center mb-4">
                     <img
                       src={heroImage}
@@ -182,18 +191,30 @@ const ArtistsPage = () => {
                       className="max-h-32 md:max-h-48 w-auto object-contain"
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<h1 class="text-4xl md:text-6xl font-black tracking-tight mb-4 pb-1"><span class="text-black">Discover Amazing </span><span class="text-red-600">Artists</span></h1>';
+                        setTitleType('text');
                       }}
                     />
                   </div>
                 ) : (
                   <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 pb-1">
-                    <span className="text-black">Discover Amazing </span>
-                    <span className="text-red-600">Artists</span>
+                    {(() => {
+                      const words = titleText.split(' ');
+                      if (words.length <= 1) {
+                        return <span style={{ color: titleAccentColor }}>{titleText}</span>;
+                      }
+                      const lastWord = words[words.length - 1];
+                      const otherWords = words.slice(0, -1).join(' ');
+                      return (
+                        <>
+                          <span className="text-black">{otherWords} </span>
+                          <span style={{ color: titleAccentColor }}>{lastWord}</span>
+                        </>
+                      );
+                    })()}
                   </h1>
                 )}
-                <p className="text-lg md:text-xl text-gray-500 font-medium max-w-2xl mx-auto">
-                  Search by artist name, art form, or location to find talented creators across India
+                <p className="text-lg md:text-xl font-medium max-w-2xl mx-auto" style={{ color: subtitleColor }}>
+                  {subtitleText}
                 </p>
               </div>
             )}
@@ -260,7 +281,126 @@ const ArtistsPage = () => {
         <div className={`flex-grow max-w-7xl mx-auto w-full px-4 ${!search.trim() ? 'py-0' : 'py-8 md:py-12'}`}>
           {!search.trim() ? (
             /* Empty State */
-            null
+            <div className="max-w-5xl mx-auto py-8 md:py-12">
+              {/* Become a Verified Artist Card */}
+              <div className="relative bg-[#0A0A0A] rounded-[24px] p-8 sm:p-12 lg:p-16 shadow-2xl hover:scale-[1.01] transition-transform duration-300 ease-out overflow-hidden text-left">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[20%] opacity-[0.08] z-0">
+                  <UserCheck 
+                    size={280} 
+                    className="text-red-600 sm:w-64 sm:h-64 lg:w-80 lg:h-80"
+                  />
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-red-900/20 pointer-events-none z-0" />
+                
+                <div 
+                  className="absolute inset-0 opacity-[0.03] pointer-events-none z-0"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                  }}
+                />
+
+                <div className="relative z-10 grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                  
+                  {/* Left Column: Title, description, stats, CTA */}
+                  <div className="lg:col-span-7 flex flex-col justify-center">
+                    <div className="mb-6 inline-block">
+                      <span className="inline-flex items-center px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-full tracking-wider uppercase">
+                        <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
+                        join as the member
+                      </span>
+                    </div>
+
+                    <h1 className="text-white font-extrabold leading-tight mb-6 uppercase tracking-tight">
+                      <span className="block text-3xl sm:text-4xl lg:text-5xl">
+                        BECOME A
+                      </span>
+                      <span className="block text-3xl sm:text-4xl lg:text-5xl text-brand">
+                        VERIFIED ARTIST
+                      </span>
+                    </h1>
+
+                    <p className="text-gray-400 text-sm sm:text-base lg:text-lg max-w-lg mb-8 leading-relaxed font-medium">
+                      Join {artistCount || 265}+ verified professionals and get high-quality client leads with zero commission.
+                    </p>
+
+                    <div className="flex gap-4 sm:gap-6 mb-8 flex-wrap">
+                      <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl min-w-[120px] backdrop-blur-sm">
+                        <div className="text-2xl font-black text-white">₹1000</div>
+                        <div className="text-[10px] font-bold text-gray-400 tracking-wider">LIFETIME</div>
+                      </div>
+                      <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl min-w-[120px] backdrop-blur-sm">
+                        <div className="text-2xl font-black text-white">0%</div>
+                        <div className="text-[10px] font-bold text-gray-400 tracking-wider">COMMISSION</div>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={() => navigate('/artist-hub')}
+                      className="group inline-flex items-center gap-2 bg-red-600 text-white px-8 py-4 font-bold rounded-2xl hover:bg-red-700 transition-all duration-200 shadow-lg shadow-red-600/20 active:scale-95 w-fit"
+                    >
+                      <span>REGISTER PROFILE</span>
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+
+                  {/* Right Column: Benefits Checklist */}
+                  <div className="lg:col-span-5 bg-white/[0.03] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md">
+                    <h3 className="text-white font-extrabold text-lg sm:text-xl mb-6 tracking-wide uppercase">
+                      Member Perks
+                    </h3>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <Check size={12} className="text-brand" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm sm:text-base leading-snug">Personalized Portfolio</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 leading-normal font-medium">Showcase your creative masterpieces on a dedicated page.</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <Check size={12} className="text-brand" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm sm:text-base leading-snug">Access to Search</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 leading-normal font-medium">Get discovered by buyers looking for custom artwork.</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <Check size={12} className="text-brand" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm sm:text-base leading-snug">Upload & Post Art</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 leading-normal font-medium">Share your gallery and update your portfolio anytime.</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <Check size={12} className="text-brand" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm sm:text-base leading-snug">Direct Fan Messages</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 leading-normal font-medium">Receive direct inquiries and notes from fans and clients.</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <Check size={12} className="text-brand" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm sm:text-base leading-snug">Connect with Artists</p>
+                          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 leading-normal font-medium">Interact and network with fellow verified professionals.</p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+            </div>
           ) : loading ? (
 
             /* Loading State */
@@ -329,9 +469,9 @@ const ArtistsPage = () => {
                         const artistId = artist._id || artist.id || artist.name?.replace(/\s+/g, '-').toLowerCase();
                         console.log('Artist ID:', artistId);
                         if (artistId) {
-                          navigate(`/artist/${artistId}`);
+                           navigate(`/artist/${artistId}`);
                         } else {
-                          alert('Artist ID not found');
+                           alert('Artist ID not found');
                         }
                       }}
                       className="w-full bg-gray-900 text-white rounded-xl px-4 py-3 text-sm font-semibold
@@ -348,9 +488,9 @@ const ArtistsPage = () => {
         </div>
 
         {/* Coming Soon Art Marketplace Section */}
-        {!search.trim() && <ComingSoonBanner />}
+        {/* {!search.trim() && <ComingSoonBanner />} */}
 
-        <Cards />
+        <Cards hideBecomeVerifiedArtist={true} />
 
         <Footer />
         <Chatbot />

@@ -84,30 +84,45 @@
 .hero-co-badge {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 8px 16px;
-  border-radius: 12px;
-  margin-bottom: 28px;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(215, 25, 32, 0.12);
+  padding: 12px 24px;
+  border-radius: 18px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   animation: slideUp .8s ease forwards;
   opacity: 0;
+  cursor: pointer;
+}
+.hero-co-badge:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(215, 25, 32, 0.3);
+  box-shadow: 0 15px 35px rgba(215, 25, 32, 0.08), 0 2px 5px rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.95);
 }
 .hero-co-logo {
-  height: 32px;
+  height: 42px;
   width: auto;
   object-fit: contain;
+  transition: transform 0.3s ease;
+}
+.hero-co-badge:hover .hero-co-logo {
+  transform: scale(1.03);
 }
 .hero-co-divider {
-  width: 1px;
-  height: 18px;
-  background: rgba(0, 0, 0, 0.15);
+  width: 1.5px;
+  height: 24px;
+  background: rgba(215, 25, 32, 0.2);
 }
 .hero-co-location {
   font-family: var(--font-head);
   font-weight: 800;
-  font-size: 0.68rem;
-  letter-spacing: 2px;
+  font-size: 0.82rem;
+  letter-spacing: 2.5px;
   color: var(--black);
 }
 

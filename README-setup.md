@@ -117,7 +117,7 @@ JWT_SECRET=your-super-secret-jwt-key
 
 ### Client (.env)
 ```env
-REACT_APP_API_URL=https://sverx.nanoprofiles.com/api
+REACT_APP_API_URL=http://localhost:5000/api
 REACT_APP_FIREBASE_API_KEY=your-api-key
 REACT_APP_FIREBASE_PROJECT_ID=your-project-id
 ```
@@ -149,13 +149,13 @@ npm test         # Run tests
 
 ```bash
 # Health check
-curl https://sverx.nanoprofiles.com/api/health
+curl http://localhost:5000/api/health
 
 # Get products
-curl https://sverx.nanoprofiles.com/api/products
+curl http://localhost:5000/api/products
 
 # Get events
-curl https://sverx.nanoprofiles.com/api/events
+curl http://localhost:5000/api/events
 ```
 
 ## 🚀 Deployment

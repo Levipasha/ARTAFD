@@ -24,7 +24,7 @@ const ArtistProfile = () => {
       try {
         setLoading(true);
         console.log('Fetching artist with ID:', artistId);
-        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'https://sverx.nanoprofiles.com/api');
+        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
         
         // Get artist from API
         const res = await artistsAPI.getArtist(artistId);
@@ -271,18 +271,18 @@ const ArtistProfile = () => {
           </div>
 
           {/* Profile Info */}
-          <div className="max-w-6xl mx-auto px-4 -mt-20 relative z-10">
+          <div className="max-w-6xl mx-auto px-4 -mt-48 md:-mt-56 relative z-10">
             <div className="bg-white border border-gray-100 rounded-3xl shadow-xl p-6 md:p-8">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
-                  <div className="relative">
+                  <div className="relative w-fit">
                     <img 
                       src={artist.image?.url || '/default-artist-avatar.png'}
                       alt={artist.name}
                       className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-white shadow-2xl"
                     />
-                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
+                    <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-white shadow-md"></div>
                   </div>
                 </div>
 
@@ -380,7 +380,7 @@ const ArtistProfile = () => {
                     )}
                     <button 
                       onClick={handleContact}
-                      className="flex items-center gap-2 bg-red-600 text-white px-6 py-2.5 rounded-full border border-red-500/30 hover:bg-red-700 hover:border-red-400 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-300 active:scale-95"
+                      className="flex items-center gap-2 bg-red-600 text-white px-6 py-2 rounded-full border border-red-500/30 hover:bg-red-700 hover:border-red-400 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-300 active:scale-95"
                     >
                       <Send size={18} className="rotate-[15deg]" />
                       <span className="font-black tracking-tight">DM ME</span>

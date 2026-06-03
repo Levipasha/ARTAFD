@@ -18,10 +18,9 @@ const Navbar = () => {
 
   const navLinks = [
     { to: '/art', label: 'Art' },
-    { to: '/', label: 'Artists' },
+    { to: '/', label: 'Artist' },
     { to: '/events', label: 'Events' },
-    { to: '/nft', label: 'NFT' },
-    { to: '/virtual-gallery', label: 'Virtual Gallery' }
+    { to: '/art-district', label: 'ArtDistrict' }
   ];
 
   const toggleMenu = () => {
@@ -189,7 +188,7 @@ const Navbar = () => {
                 key={link.to}
                 to={link.to}
                 className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  isActive ? 'text-brand-600 bg-brand-50 border border-brand-100' : 'text-gray-700 hover:text-black hover:bg-gray-50 border border-transparent'
+                  isActive ? 'text-white bg-brand border border-brand' : 'text-gray-700 hover:text-black hover:bg-gray-50 border border-transparent'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
