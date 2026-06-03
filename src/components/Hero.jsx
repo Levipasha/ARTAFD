@@ -15,6 +15,13 @@ const Hero = () => {
   const [speechSupported, setSpeechSupported] = useState(false);
   const [speechMessage, setSpeechMessage] = useState('');
   const [heroImage, setHeroImage] = useState('');
+  const [heroSettings, setHeroSettings] = useState({
+    titleType: 'text',
+    titleText: 'DISCOVER ART',
+    titleAccentColor: '#dc2626',
+    subtitleText: '',
+    subtitleColor: '#6B7280'
+  });
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -31,12 +38,23 @@ const Hero = () => {
           return res.json();
         })
         .then(data => {
-          if (data.data && data.data.heroLogo) {
-            // Add cache-busting parameter to Cloudinary images
-            const imageUrl = data.data.heroLogo.includes('cloudinary')
-              ? `${data.data.heroLogo}?t=${Date.now()}`
-              : data.data.heroLogo;
-            setHeroImage(imageUrl);
+          if (data.data) {
+            setHeroSettings({
+              titleType: data.data.titleType || 'text',
+              titleText: data.data.titleText || 'DISCOVER ART',
+              titleAccentColor: data.data.titleAccentColor || '#dc2626',
+              subtitleText: data.data.subtitleText || '',
+              subtitleColor: data.data.subtitleColor || '#6B7280'
+            });
+            if (data.data.heroLogo) {
+              // Add cache-busting parameter to Cloudinary images
+              const imageUrl = data.data.heroLogo.includes('cloudinary')
+                ? `${data.data.heroLogo}?t=${Date.now()}`
+                : data.data.heroLogo;
+              setHeroImage(imageUrl);
+            } else {
+              setHeroImage('');
+            }
           }
         })
         .catch((err) => {
@@ -179,7 +197,7 @@ const Hero = () => {
       <div className="w-full max-w-4xl mx-auto text-center">
         {/* Hero Heading */}
         <div className="mb-12">
-          {heroImage ? (
+          {heroSettings.titleType === 'image' && heroImage ? (
             <div className="flex items-center justify-center">
               <img
                 src={heroImage}
@@ -187,17 +205,39 @@ const Hero = () => {
                 className="max-h-48 md:max-h-64 w-auto object-contain"
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = '<h1 class="text-5xl md:text-7xl font-bold mb-4"><span class="text-black">DISCOVER </span><span class="text-red-600">ART</span></h1>';
+                  e.target.parentElement.innerHTML = `<h1 class="text-5xl md:text-7xl font-bold mb-4"><span class="text-black">DISCOVER </span><span style="color: ${heroSettings.titleAccentColor}">ART</span></h1>`;
                 }}
               />
             </div>
           ) : (
-            <h1 className="text-5xl md:text-7xl font-bold mb-4">
-              <span className="text-black">DISCOVER </span>
-              <span className="text-red-600">ART</span>
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
+              {(() => {
+                const words = heroSettings.titleText.trim().split(/\s+/);
+                if (words.length <= 1) {
+                  return <span style={{ color: heroSettings.titleAccentColor }}>{heroSettings.titleText}</span>;
+                }
+                const lastWord = words.pop();
+                const remainingText = words.join(' ');
+                return (
+                  <>
+                    <span className="text-black">{remainingText} </span>
+                    <span style={{ color: heroSettings.titleAccentColor }}>{lastWord}</span>
+                  </>
+                );
+              })()}
             </h1>
           )}
         </div>
+
+        {/* Hero Subtitle */}
+        {heroSettings.subtitleText && (
+          <p
+            className="text-lg md:text-xl max-w-2xl mx-auto mb-8 font-medium leading-relaxed"
+            style={{ color: heroSettings.subtitleColor }}
+          >
+            {heroSettings.subtitleText}
+          </p>
+        )}
 
         {/* Search Bar */}
         <div className="mb-8">
