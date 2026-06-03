@@ -81,11 +81,13 @@ const ArtistsPage = () => {
     const fetchHeroImage = async () => {
       try {
         let data;
+        let initiatedFetch = false;
         // 1. Check in-memory promise coalescer
         if (window.__activeAnnouncementPromise) {
           data = await window.__activeAnnouncementPromise;
         } else {
           // 2. Initiate request and coalesce
+          initiatedFetch = true;
           window.__activeAnnouncementPromise = (async () => {
             const response = await fetch(`${API_URL}/announcements/active`);
             if (!response.ok) {
@@ -119,6 +121,12 @@ const ArtistsPage = () => {
           if (announcement.subtitleColor) {
             setSubtitleColor(announcement.subtitleColor);
           }
+        }
+
+        if (initiatedFetch) {
+          setTimeout(() => {
+            window.__activeAnnouncementPromise = null;
+          }, 1000);
         }
       } catch (err) {
         window.__activeAnnouncementPromise = null;

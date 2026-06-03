@@ -109,18 +109,7 @@ const AnnouncementBar = () => {
         return;
       }
 
-      // 2. Check session storage cache
-      const cached = sessionStorage.getItem('active_announcement');
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          setAnnouncement(parsed);
-          setLoading(false);
-          return;
-        } catch (e) {}
-      }
-
-      // 3. Initiate request and coalesce
+      // 2. Initiate request and coalesce
       window.__activeAnnouncementPromise = (async () => {
         const response = await fetch(`${API_URL}/announcements/active`);
         if (!response.ok) {
@@ -132,8 +121,12 @@ const AnnouncementBar = () => {
       const data = await window.__activeAnnouncementPromise;
       if (data.success && data.data) {
         setAnnouncement(data.data);
-        sessionStorage.setItem('active_announcement', JSON.stringify(data.data));
       }
+
+      // Clear the promise coalescer after a short delay (1s) so subsequent navigations fetch fresh data
+      setTimeout(() => {
+        window.__activeAnnouncementPromise = null;
+      }, 1000);
     } catch (error) {
       window.__activeAnnouncementPromise = null; // Clear on error
       console.error("Error fetching announcement:", error);
