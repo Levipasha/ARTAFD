@@ -86,7 +86,7 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
 
         {/* Row 3 - ArtDistrict, NFT Launch, and Art Marketplace (3 Columns) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* ArtDistrict */}
+          {/* Virtual Gallery */}
           <div className="relative bg-[#0A0A0A] p-6 sm:p-8 rounded-[24px] shadow-2xl hover:scale-[1.01] transition-transform duration-300 ease-out overflow-hidden text-left flex flex-col justify-between min-h-[380px]">
             <div className="absolute inset-0 bg-gradient-to-br from-red-600/30 via-transparent to-red-900/20 pointer-events-none" />
             <div 
@@ -104,19 +104,19 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
               </div>
               
               <h2 className="text-xl md:text-2xl font-black text-white mb-3 tracking-tight">
-                ARTDISTRICT
+                VIRTUAL GALLERY
               </h2>
               
               <p className="text-gray-400 leading-relaxed text-sm font-medium">
-                Hyderabad’s first co-creative space in partnership with Cohort Coworking. Connect, collaborate, exhibit, and grow alongside Hyderabad's vibrant creative community.
+                Explore immersive 3D art exhibitions. Walk through our virtual museum space, interact with stunning masterpieces, and experience art in a new dimension.
               </p>
             </div>
             
             <button
-              onClick={() => navigate('/art-district')}
+              onClick={() => navigate('/virtual-gallery')}
               className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3.5 rounded-2xl transition-all duration-200 shadow-lg shadow-red-500/25 active:scale-95 text-center mt-6"
             >
-              ENTER DISTRICT
+              ENTER GALLERY
             </button>
           </div>
 
