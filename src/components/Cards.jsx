@@ -78,7 +78,7 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
               </p>
             </div>
 
-            <div className="relative z-10 w-full text-center text-white/40 font-bold mt-6 py-4 tracking-wider text-sm">
+            <div className="relative z-10 w-full text-left text-white/40 font-bold mt-6 py-4 tracking-wider text-sm">
               coming soon
             </div>
           </div>
@@ -121,9 +121,12 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
           </div>
 
           {/* NFT Launch */}
-          <div className="relative text-white p-6 sm:p-8 rounded-[24px] shadow-2xl hover:scale-[1.01] transition-transform duration-300 ease-out overflow-hidden text-left flex flex-col justify-between min-h-[380px]">
+          <div 
+            onClick={() => navigate('/nft')}
+            className="relative text-white p-6 sm:p-8 rounded-[24px] shadow-2xl hover:scale-[1.01] transition-transform duration-300 ease-out overflow-hidden text-left flex flex-col justify-between min-h-[380px] cursor-pointer group"
+          >
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
               style={{
                 backgroundImage: 'url("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1400&h=900&fit=crop")'
               }}
@@ -132,8 +135,8 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
 
             <div className="relative z-10">
               <div className="mb-6">
-                <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-full tracking-wider uppercase">
-                  COMING Q3 2026
+                <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full tracking-wider uppercase">
+                  EXPLORE NOW
                 </span>
               </div>
               
@@ -174,7 +177,7 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
               </div>
               
               <h2 className="text-xl md:text-2xl font-black text-white mb-3 tracking-tight">
-                ART MARKETPLACE
+                MARKETPLACE
               </h2>
               
               <p className="text-gray-400 leading-relaxed text-sm font-medium">
@@ -182,7 +185,7 @@ const Cards = ({ hideArtSupplyStore, hideBecomeVerifiedArtist }) => {
               </p>
             </div>
             
-            <div className="relative z-10 w-full text-center text-white/40 font-bold mt-6 py-4 tracking-wider text-sm">
+            <div className="relative z-10 w-full text-left text-white/40 font-bold mt-6 py-4 tracking-wider text-sm">
               coming soon
             </div>
           </div>
