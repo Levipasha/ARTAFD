@@ -33,6 +33,10 @@ import PageLoader from './components/PageLoader';
 import ArtDistrict from './components/ArtDistrict';
 import FormPage from './components/FormPage';
 // import Cart from './components/Cart';
+import { ArtistProvider } from './components/artist/context/ArtistContext';
+import ArtistLogin from './components/artist/pages/ArtistLogin';
+import ArtistVerifyOTP from './components/artist/pages/ArtistVerifyOTP';
+import ArtistDashboard from './components/artist/pages/ArtistDashboard';
 
 // Helper component to scroll to top on route change
 const ScrollToTop = () => {
@@ -59,7 +63,8 @@ function App() {
     <HelmetProvider>
       <AuthProvider>
         <CartProvider>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ArtistProvider>
+            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<RouteWithLoader element={<ArtistsPage />} />} />
@@ -90,12 +95,16 @@ function App() {
               <Route path="/dashboard" element={<RouteWithLoader element={<UserDashboard />} />} />
               <Route path="/art-district" element={<RouteWithLoader element={<ArtDistrict />} />} />
               <Route path="/forms/:formId" element={<RouteWithLoader element={<FormPage />} />} />
+              <Route path="/artist/login" element={<RouteWithLoader element={<ArtistLogin />} />} />
+              <Route path="/artist/verify-otp" element={<RouteWithLoader element={<ArtistVerifyOTP />} />} />
+              <Route path="/artist/dashboard" element={<RouteWithLoader element={<ArtistDashboard />} />} />
               <Route path="/artist/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
               {/* Clean username-based artist profile URLs e.g. /udaymicroartist */}
               <Route path="/:artistId" element={<RouteWithLoader element={<ArtistProfile />} />} />
             </Routes>
             {/* <Cart /> */}
           </Router>
+          </ArtistProvider>
         </CartProvider>
       </AuthProvider>
     </HelmetProvider>

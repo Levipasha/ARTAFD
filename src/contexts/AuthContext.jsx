@@ -96,6 +96,8 @@ const AuthProvider = ({ children }) => {
         console.error('Error parsing user data:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('artistToken');
+        localStorage.removeItem('artistData');
       }
     }
     dispatch({ type: 'SET_LOADING', payload: false });
@@ -140,6 +142,8 @@ const AuthProvider = ({ children }) => {
       // Clear localStorage
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
+      localStorage.removeItem('artistToken');
+      localStorage.removeItem('artistData');
 
       dispatch({ type: 'LOGOUT' });
     }

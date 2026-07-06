@@ -61,7 +61,7 @@ const ArtDistrict = () => {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const base = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverx.nanoprofiles.com';
+        const base = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverxiioo.nanoprofiles.com';
         const res  = await fetch(`${base}/api/art-district/config`);
         if (res.ok) {
           const data = await res.json();
@@ -281,7 +281,7 @@ const ArtDistrict = () => {
       };
 
       // Save to MongoDB via API
-      const base = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverx.nanoprofiles.com';
+      const base = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverxiioo.nanoprofiles.com';
       const res  = await fetch(`${base}/api/art-district/registrations`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -17,7 +17,7 @@ const FormPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  const baseUrl = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverx.nanoprofiles.com';
+  const baseUrl = API_URL ? API_URL.replace(/\/api$/, '') : 'https://sverxiioo.nanoprofiles.com';
 
   useEffect(() => {
     const fetchForm = async () => {

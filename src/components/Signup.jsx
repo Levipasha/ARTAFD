@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { signInWithGoogle, createUserWithEmail, getCurrentUser, getIdToken } from '../firebase';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 
@@ -17,6 +17,8 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
 
   // Check if user is already logged in
   useEffect(() => {
@@ -26,7 +28,7 @@ const Signup = () => {
         if (currentUser) {
           const token = await getIdToken();
           await login(token);
-          navigate('/dashboard');
+          navigate(from, { replace: true });
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -52,7 +54,7 @@ const Signup = () => {
       
       await login(token);
       
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (error) {
       setError('Failed to sign in with Google. Please try again.');
       console.error('Google sign in error:', error);
@@ -83,7 +85,7 @@ const Signup = () => {
       
       await login(token);
       
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         setError('An account with this email already exists.');

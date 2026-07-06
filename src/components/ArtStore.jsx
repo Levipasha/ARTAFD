@@ -36,25 +36,51 @@ const getDeterministicHeight = (id) => {
   return Math.abs(hash % 150) + 200; // Deterministic height between 200px and 350px
 };
 
+// ── Shimmer skeleton card ────────────────────────────────────────────────────
+const SkeletonCard = ({ height }) => (
+  <div className="break-inside-avoid mb-4" aria-hidden="true">
+    <div className="rounded-2xl overflow-hidden bg-white shadow-sm">
+      <div
+        className="relative overflow-hidden bg-gray-100"
+        style={{ height: `${height}px` }}
+      >
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+      </div>
+      <div className="p-4 space-y-2">
+        <div className="h-3 w-3/4 rounded-full bg-gray-100 overflow-hidden relative">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite_0.1s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+        </div>
+        <div className="h-3 w-1/2 rounded-full bg-gray-100 overflow-hidden relative">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite_0.2s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SKELETON_HEIGHTS = [260, 320, 220, 290, 250, 310, 240, 280, 270, 300, 230, 260];
+
+// ── LazyImage with instant shimmer fade ──────────────────────────────────────
 const LazyImage = ({ src, alt, height, className }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
   return (
-    <div 
-      className="relative bg-gray-100 overflow-hidden w-full animate-fade-in"
+    <div
+      className="relative bg-gray-100 overflow-hidden w-full"
       style={{ height: `${height}px` }}
     >
+      {/* Shimmer placeholder */}
       {!loaded && !error && (
-        <div className="absolute inset-0 bg-neutral-150 flex items-center justify-center animate-pulse">
-          <div className="w-full h-full bg-gradient-to-r from-neutral-100 via-neutral-200 to-neutral-100" />
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.4s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
         </div>
       )}
       {error ? (
         <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
           <div className="text-center">
-            <Palette size={32} strokeWidth={1.5} className="mx-auto mb-1 text-gray-400" />
-            <div className="text-xs font-medium">Failed to load</div>
+            <Palette size={32} strokeWidth={1.5} className="mx-auto mb-1 text-gray-300" />
+            <div className="text-xs font-medium text-gray-400">No image</div>
           </div>
         </div>
       ) : (
@@ -62,9 +88,10 @@ const LazyImage = ({ src, alt, height, className }) => {
           src={src}
           alt={alt}
           loading="lazy"
+          decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
-          className={`${className} ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} transition-all duration-500 w-full h-full object-cover`}
+          className={`${className} absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
       )}
     </div>
@@ -89,21 +116,22 @@ const ArtStore = () => {
   const [initialError, setInitialError] = useState(false);
   const observerTarget = useRef(null);
 
-  // Debounce search input
+  // Debounce search – 300ms feels instant, avoids excess API calls
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearch(searchTerm);
-    }, 500);
-
+    }, 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
   // Reset and fetch page 1 whenever search or pill changes
+  // Stale-while-revalidate: keep old products visible while fetching
   useEffect(() => {
     let cancelled = false;
-    
+
     const fetchInitial = async () => {
       try {
+        // Show skeleton overlay without clearing existing cards (stale-while-revalidate)
         setLoading(true);
         setErrorLoadingMore(false);
         setInitialError(false);
@@ -111,10 +139,10 @@ const ArtStore = () => {
         setHasMore(true);
 
         const categoryParams = selectedPill !== 'All' ? pillToBackendCategory[selectedPill] : {};
-        
-        const res = await productsAPI.getProducts({ 
-          page: 1, 
-          limit: 20, 
+
+        const res = await productsAPI.getProducts({
+          page: 1,
+          limit: 20,
           search: search || undefined,
           ...categoryParams
         });
@@ -136,10 +164,7 @@ const ArtStore = () => {
     };
 
     fetchInitial();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [search, selectedPill]);
 
   const loadMoreProducts = useCallback(async () => {
@@ -185,19 +210,12 @@ const ArtStore = () => {
           loadMoreProducts();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.01, rootMargin: '400px' } // trigger early — 400px before visible
     );
 
     const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
+    if (currentTarget) observer.observe(currentTarget);
+    return () => { if (currentTarget) observer.unobserve(currentTarget); };
   }, [loading, loadingMore, hasMore, errorLoadingMore, loadMoreProducts]);
 
   const pills = ['All', 'Painting', 'Digital Art', 'Sculpture', 'Photography', 'Print', 'Supplies', 'Other'];
@@ -325,21 +343,17 @@ const ArtStore = () => {
           </div>
         </div>
 
-        {/* Products Grid - Pinterest Style Masonry */}
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          </div>
-        ) : initialError ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto bg-neutral-50 border border-neutral-100 rounded-3xl shadow-sm animate-in fade-in duration-300">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-4 animate-bounce">
+        {/* Products Grid — Pinterest-style masonry */}
+        {initialError ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4 max-w-md mx-auto bg-neutral-50 border border-neutral-100 rounded-3xl shadow-sm">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-4">
               <X size={28} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Too Many Requests</h3>
             <p className="text-gray-500 text-sm mb-6">
-              The server has temporarily rate-limited your IP address due to too many requests. Please wait a few minutes and try again.
+              The server has temporarily rate-limited your IP address. Please wait a few minutes and try again.
             </p>
-            <button 
+            <button
               onClick={() => setSelectedPill(selectedPill)}
               className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold transition-all shadow-lg shadow-red-500/20 active:scale-95 flex items-center gap-2"
             >
@@ -347,98 +361,102 @@ const ArtStore = () => {
             </button>
           </div>
         ) : (
-          <div className="columns-2 sm:columns-2 lg:columns-3 xl:columns-4 gap-3 space-y-3">
-            {filteredProducts.map((product) => {
-              const imageUrl = product?.images?.[0]?.url;
-              const stableHeight = getDeterministicHeight(product._id);
-              
-              return (
-                <div key={product._id} className="break-inside-avoid mb-4 group cursor-pointer">
-                  {/* Product Card */}
-                  <div
-                    className="relative overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-xl transition-all duration-300"
-                    onClick={() => setPreviewItem(product)}
-                  >
-                    {/* Image Container */}
-                    <div className="relative">
-                      {imageUrl ? (
-                        <LazyImage 
-                          src={imageUrl} 
-                          alt={product.name}
-                          height={stableHeight}
-                          className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full flex items-center justify-center text-gray-400 bg-gray-100" style={{ height: `${stableHeight}px` }}>
-                          <div className="text-center">
-                            <div className="mb-2">
-                              <Palette size={40} strokeWidth={1.5} />
-                            </div>
-                            <div className="text-sm font-medium">No image</div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Overlay Actions */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm">
-                              <Heart size={14} fill="currentColor" />
-                            </div>
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
-                              <MessageSquare size={14} />
-                            </div>
-                          </div>
-                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
-                            <LinkIcon size={14} />
-                          </div>
-                        </div>
-                      </div>
+          <div className="columns-2 sm:columns-2 lg:columns-3 xl:columns-4 gap-3">
+            {/* While first load is in flight — show skeleton grid */}
+            {loading && products.length === 0
+              ? SKELETON_HEIGHTS.map((h, i) => <SkeletonCard key={i} height={h} />)
+              : filteredProducts.map((product) => {
+                  const imageUrl = product?.images?.[0]?.url;
+                  const stableHeight = getDeterministicHeight(product._id);
 
-                      {/* Category Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className="px-3 py-1 bg-white/95 backdrop-blur-sm text-xs font-medium rounded-full shadow-sm">
-                          {String(product.category || '').toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mb-2">
-                        {product.name}
-                      </h3>
-                      
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {product?.artistProfile?.image?.url || product?.artist?.photoURL ? (
-                            <img 
-                              src={product?.artistProfile?.image?.url || product?.artist?.photoURL} 
-                              alt="Artist"
-                              className="w-6 h-6 rounded-full object-cover border border-gray-200"
+                  return (
+                    <div
+                      key={product._id}
+                      className="break-inside-avoid mb-4 group cursor-pointer"
+                      style={{ willChange: 'transform' }}
+                    >
+                      {/* Product Card */}
+                      <div
+                        className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-shadow duration-300"
+                        onClick={() => setPreviewItem(product)}
+                      >
+                        {/* Image */}
+                        <div className="relative">
+                          {imageUrl ? (
+                            <LazyImage
+                              src={imageUrl}
+                              alt={product.name}
+                              height={stableHeight}
+                              className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border border-gray-100">
-                              <User size={12} />
+                            <div className="w-full flex items-center justify-center text-gray-300 bg-gray-50" style={{ height: `${stableHeight}px` }}>
+                              <div className="text-center">
+                                <Palette size={36} strokeWidth={1.5} />
+                                <div className="text-xs font-medium mt-1">No image</div>
+                              </div>
                             </div>
                           )}
-                          <span className="text-xs text-gray-600">
-                            {product?.artistProfile?.name || product?.artist?.displayName || 'Unknown Artist'}
-                          </span>
+
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm">
+                                  <Heart size={14} fill="currentColor" />
+                                </div>
+                                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
+                                  <MessageSquare size={14} />
+                                </div>
+                              </div>
+                              <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 shadow-sm">
+                                <LinkIcon size={14} />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Category badge */}
+                          <div className="absolute top-3 left-3">
+                            <span className="px-3 py-1 bg-white/95 backdrop-blur-sm text-[10px] font-bold uppercase rounded-full shadow-sm tracking-wide">
+                              {String(product.category || '').toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 mb-2 text-sm">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            {product?.artistProfile?.image?.url || product?.artist?.photoURL ? (
+                              <img
+                                src={product?.artistProfile?.image?.url || product?.artist?.photoURL}
+                                alt="Artist"
+                                loading="lazy"
+                                decoding="async"
+                                className="w-6 h-6 rounded-full object-cover border border-gray-200 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-100 flex-shrink-0">
+                                <User size={12} />
+                              </div>
+                            )}
+                            <span className="text-xs text-gray-500 truncate">
+                              {product?.artistProfile?.name || product?.artist?.displayName || 'Unknown Artist'}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      
-                      {product.description && (
-                        <p className="text-xs text-gray-500 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })
+            }
+
+            {/* Inline skeleton rows while loading MORE (not initial) */}
+            {loading && products.length > 0 &&
+              SKELETON_HEIGHTS.slice(0, 4).map((h, i) => <SkeletonCard key={`more-sk-${i}`} height={h} />)
+            }
           </div>
         )}
 

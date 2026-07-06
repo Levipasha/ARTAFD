@@ -24,7 +24,7 @@ const ArtistProfile = () => {
       try {
         setLoading(true);
         console.log('Fetching artist with ID:', artistId);
-        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'https://sverx.nanoprofiles.com/api');
+        console.log('API URL being used:', process.env.REACT_APP_API_URL || 'https://sverxiioo.nanoprofiles.com/api');
         
         // Get artist from API
         const res = await artistsAPI.getArtist(artistId);

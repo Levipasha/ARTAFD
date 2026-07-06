@@ -3,15 +3,40 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Clock, Ticket, X, CheckCircle, Loader2 } from 'lucide-react';
 import { eventsAPI, formsAPI } from '../services/api';
 import SEO from './SEO';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+
+const isPhoneField = (label, type) => {
+  if (!label) return false;
+  if (type === 'phone') return true;
+  const l = label.toLowerCase();
+  return l.includes('phone') || l.includes('mobile') || l === 'contact' || l === 'contact number';
+};
 
 // Form Modal Component
 const EventFormModal = ({ event, onClose }) => {
+  const { user } = useAuth();
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ guestName: '', guestEmail: '', responses: [] });
+  const [formData, setFormData] = useState({
+    guestName: user ? (user.displayName || user.name || '') : '',
+    guestEmail: user ? (user.email || '') : '',
+    guestPhone: '',
+    responses: []
+  });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        guestName: user.displayName || user.name || '',
+        guestEmail: user.email || ''
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -20,10 +45,17 @@ const EventFormModal = ({ event, onClose }) => {
         const data = await formsAPI.getEventForm(event._id);
         setForm(data.form);
         if (data.form) {
-          setFormData(prev => ({
-            ...prev,
-            responses: data.form.fields.map(f => ({ fieldLabel: f.label, fieldType: f.type, value: '' }))
-          }));
+          setFormData(prev => {
+            const initialResponses = data.form.fields.map(f => ({
+              fieldLabel: f.label,
+              fieldType: f.type,
+              value: (event.pricing?.type === 'paid' && isPhoneField(f.label, f.type)) ? prev.guestPhone : ''
+            }));
+            return {
+              ...prev,
+              responses: initialResponses
+            };
+          });
         }
       } catch (e) {
         console.error('Fetch form error:', e);
@@ -32,7 +64,7 @@ const EventFormModal = ({ event, onClose }) => {
       }
     };
     fetchForm();
-  }, [event._id]);
+  }, [event._id, event.pricing?.type]);
 
   const handleResponseChange = (fieldLabel, value) => {
     setFormData(prev => ({
@@ -45,6 +77,16 @@ const EventFormModal = ({ event, onClose }) => {
     e.preventDefault();
     setError('');
     
+    if (!formData.guestName.trim() || !formData.guestEmail.trim()) {
+      setError('Name and Email are required.');
+      return;
+    }
+
+    if (event.pricing?.type === 'paid' && !formData.guestPhone?.trim()) {
+      setError('Phone number is required for payment verification.');
+      return;
+    }
+
     // Validate required fields
     const missingFields = form.fields
       .filter(f => f.required)
@@ -60,8 +102,64 @@ const EventFormModal = ({ event, onClose }) => {
 
     try {
       setSubmitting(true);
-      await formsAPI.submitForm(event._id, formData);
-      setSubmitted(true);
+      
+      // If event is paid, trigger Cashfree payment flow or redirect
+      if (event.pricing?.type === 'paid' && event.pricing?.amount > 0) {
+        const method = event.pricing.paymentMethod || 'gateway';
+        
+        if (method === 'link') {
+          // Register form details first
+          await formsAPI.submitForm(event._id, {
+            guestName: formData.guestName,
+            guestEmail: formData.guestEmail,
+            responses: [
+              ...formData.responses,
+              { fieldLabel: 'Phone Number', fieldType: 'text', value: formData.guestPhone }
+            ]
+          });
+          setSubmitted(true);
+
+          if (event.pricing.paymentLink) {
+            setTimeout(() => {
+              window.open(event.pricing.paymentLink, '_blank');
+            }, 1000);
+          }
+        } else {
+          // Pay via Cashfree gateway overlay
+          const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://sverxiioo.nanoprofiles.com/api';
+          const response = await axios.post(`${API_BASE_URL}/payments/create-event-session`, {
+            eventId: event._id,
+            guestName: formData.guestName,
+            guestEmail: formData.guestEmail,
+            guestPhone: formData.guestPhone,
+            responses: formData.responses
+          });
+
+          if (response.data && response.data.paymentSessionId) {
+            const { paymentSessionId, environment } = response.data;
+            
+            if (typeof window.Cashfree === 'undefined') {
+               setError('Cashfree SDK is loading, please try again in a moment.');
+               setSubmitting(false);
+               return;
+            }
+
+            const cashfree = window.Cashfree({ mode: environment === 'PRODUCTION' ? 'production' : 'sandbox' });
+            
+            cashfree.checkout({
+              paymentSessionId: paymentSessionId,
+              returnUrl: `${window.location.origin}/events?order_id={order_id}`
+            });
+          } else {
+            setError('Failed to initialize payment session. Please try again.');
+            setSubmitting(false);
+          }
+        }
+      } else {
+        // Free event
+        await formsAPI.submitForm(event._id, formData);
+        setSubmitted(true);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit form. Please try again.');
     } finally {
@@ -139,9 +237,10 @@ const EventFormModal = ({ event, onClose }) => {
                 <input
                   type="text"
                   required
+                  readOnly={!!user}
                   value={formData.guestName}
                   onChange={(e) => setFormData(prev => ({ ...prev, guestName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none ${user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   placeholder="John Doe"
                 />
               </div>
@@ -150,17 +249,59 @@ const EventFormModal = ({ event, onClose }) => {
                 <input
                   type="email"
                   required
+                  readOnly={!!user}
                   value={formData.guestEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, guestEmail: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none ${user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   placeholder="john@example.com"
                 />
               </div>
+              {event.pricing?.type === 'paid' && (
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.guestPhone || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData(prev => {
+                        const updatedResponses = prev.responses.map(r => {
+                          if (isPhoneField(r.fieldLabel, r.fieldType)) {
+                            return { ...r, value: val };
+                          }
+                          return r;
+                        });
+                        return {
+                          ...prev,
+                          guestPhone: val,
+                          responses: updatedResponses
+                        };
+                      });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                    placeholder="9999999999"
+                  />
+                </div>
+              )}
             </div>
 
+            {event.pricing?.type === 'paid' && (
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 flex flex-col gap-1">
+                <span className="font-semibold text-gray-800">Event Price: {event.pricing?.currency} {event.pricing?.amount}</span>
+                {event.pricing?.paymentMethod === 'link' ? (
+                  <span>🔗 After registering, you will be redirected to an external payment link to complete your payment.</span>
+                ) : (
+                  <span>💳 Pay directly using Cashfree inside this checkout session.</span>
+                )}
+              </div>
+            )}
+
             {/* Form Fields */}
-            {form.fields.map((field) => {
-              const response = formData.responses.find(r => r.fieldLabel === field.label);
+            {form.fields
+              .filter(field => !(event.pricing?.type === 'paid' && isPhoneField(field.label, field.type)))
+              .map((field) => {
+                const response = formData.responses.find(r => r.fieldLabel === field.label);
               return (
                 <div key={field.label}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -174,16 +315,38 @@ const EventFormModal = ({ event, onClose }) => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none min-h-[80px]"
                     />
                   ) : field.type === 'select' ? (
-                    <select
-                      value={response?.value || ''}
-                      onChange={(e) => handleResponseChange(field.label, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                    >
-                      <option value="">{field.placeholder || 'Select...'}</option>
-                      {field.options?.map((opt, i) => (
-                        <option key={i} value={opt}>{opt}</option>
-                      ))}
-                    </select>
+                    field.options && field.options.length <= 3 ? (
+                      <div className="flex gap-4 mt-1">
+                        {field.options.map((opt) => {
+                          const isSelected = response?.value === opt;
+                          return (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => handleResponseChange(field.label, opt)}
+                              className={`flex-1 py-3 px-4 rounded-xl border-2 text-center font-bold text-sm tracking-wider transition-all duration-200 active:scale-[0.97] ${
+                                isSelected
+                                  ? 'border-red-600 bg-red-50 text-red-600 shadow-sm'
+                                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50/50'
+                              }`}
+                            >
+                              {opt.toUpperCase()}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <select
+                        value={response?.value || ''}
+                        onChange={(e) => handleResponseChange(field.label, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                      >
+                        <option value="">{field.placeholder || 'Select...'}</option>
+                        {field.options?.map((opt, i) => (
+                          <option key={i} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    )
                   ) : (
                     <input
                       type={field.type}
@@ -219,9 +382,12 @@ const EventFormModal = ({ event, onClose }) => {
 
 const EventsPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState('');
   
   const [expandedDescIds, setExpandedDescIds] = useState(new Set());
   const toggleExpanded = (id) => {
@@ -240,7 +406,45 @@ const EventsPage = () => {
   const [subMessage, setSubMessage] = useState({ type: '', text: '' });
 
 
+  const verifyEventPayment = async (orderId) => {
+    try {
+      setVerifyingPayment(true);
+      setPaymentMessage('Verifying event ticket payment...');
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://sverxiioo.nanoprofiles.com/api';
+      const response = await axios.post(`${API_BASE_URL}/payments/verify-event`, { orderId });
+      
+      if (response.data && response.data.success) {
+        setPaymentMessage('Payment verified! You are registered for the event.');
+        setTimeout(() => {
+          setVerifyingPayment(false);
+          navigate('/profile?tab=orders', { replace: true });
+        }, 3000);
+      } else {
+        alert(response.data?.message || 'Payment verification failed.');
+        setVerifyingPayment(false);
+        navigate('/events', { replace: true });
+      }
+    } catch (err) {
+      console.error('Verify event error:', err);
+      alert(err.response?.data?.error || 'Payment verification failed.');
+      setVerifyingPayment(false);
+      navigate('/events', { replace: true });
+    }
+  };
+
   useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    document.body.appendChild(script);
+    
+    // Check if redirecting from payment verification
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('order_id');
+    if (orderId) {
+      verifyEventPayment(orderId);
+    }
+    
     let cancelled = false;
     const fetch = async () => {
       try {
@@ -257,6 +461,7 @@ const EventsPage = () => {
     fetch();
     return () => {
       cancelled = true;
+      document.body.removeChild(script);
     };
   }, []);
 
@@ -421,7 +626,11 @@ const EventsPage = () => {
                       if (event.location?.virtualLink) {
                         window.open(event.location.virtualLink, '_blank', 'noopener,noreferrer');
                       } else {
-                        setSelectedEvent(event);
+                        if (!isAuthenticated) {
+                          navigate('/login', { state: { from: '/events' } });
+                        } else {
+                          setSelectedEvent(event);
+                        }
                       }
                     }}
                     className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors flex items-center gap-2"
@@ -526,6 +735,17 @@ const EventsPage = () => {
           event={selectedEvent} 
           onClose={() => setSelectedEvent(null)} 
         />
+      )}
+
+      {/* Payment Verification Overlay */}
+      {verifyingPayment && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[110] p-4 animate-in fade-in duration-300">
+          <div className="bg-white text-gray-900 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+            <Loader2 className="w-12 h-12 animate-spin text-red-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2 text-gray-900">{paymentMessage}</h3>
+            <p className="text-gray-500 text-sm">Please do not refresh or close this window.</p>
+          </div>
+        </div>
       )}
     </div>
     </>

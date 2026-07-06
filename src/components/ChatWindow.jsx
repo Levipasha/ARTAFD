@@ -20,7 +20,7 @@ const resolveSocketUrl = () => {
   }
 
   // Priority 2: New Production URL
-  return 'https://sverx.nanoprofiles.com';
+  return 'https://sverxiioo.nanoprofiles.com';
 };
 
 const SOCKET_URL = resolveSocketUrl();

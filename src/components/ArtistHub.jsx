@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, MapPin, Phone, Mail, Camera, CreditCard, Shield, Check } from 'lucide-react';
+import axios from 'axios';
 
 const ArtistHub = () => {
   const navigate = useNavigate();
@@ -76,6 +77,16 @@ const ArtistHub = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -86,29 +97,44 @@ const ArtistHub = () => {
     setIsSubmitting(true);
     
     try {
-      // Store artist data locally
-      const artistData = {
-        ...formData,
-        membershipType: 'ARTIST_HUB',
-        registrationDate: new Date().toISOString(),
-        status: 'pending_payment'
-      };
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://sverxiioo.nanoprofiles.com/api';
       
-      localStorage.setItem('artistRegistration', JSON.stringify(artistData));
-      
-      // Redirect to payment after 2 seconds
-      setTimeout(() => {
-        window.open('https://payments.cashfree.com/forms/Artartist-Membership', '_blank');
-        setIsSubmitting(false);
+      // 1. Create order session in backend
+      const response = await axios.post(`${API_BASE_URL}/payments/create-membership-session`, {
+        name: formData.artistName,
+        email: formData.email,
+        phone: formData.mobile,
+        artForm: 'Visual Artist',
+        bio: `Aadhar Name: ${formData.aadharName}. City: ${formData.city}`
+      });
+
+      if (response.data && response.data.paymentSessionId) {
+        const { paymentSessionId, environment } = response.data;
         
-        // Navigate back to home after redirect
-        setTimeout(() => {
-          navigate('/');
-        }, 3000);
-      }, 2000);
+        // 2. Initialize Cashfree SDK
+        if (typeof window.Cashfree === 'undefined') {
+          alert('Cashfree SDK is loading, please try again in a moment.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const cashfree = window.Cashfree({
+          mode: environment === 'PRODUCTION' ? 'production' : 'sandbox'
+        });
+
+        // 3. Open Checkout
+        cashfree.checkout({
+          paymentSessionId: paymentSessionId,
+          returnUrl: `${window.location.origin}/artist/login?order_id={order_id}`
+        });
+      } else {
+        alert('Failed to initialize payment session. Please try again.');
+        setIsSubmitting(false);
+      }
       
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error:', error.response?.data || error.message);
+      alert(error.response?.data?.error || 'Registration failed. Please try again.');
       setIsSubmitting(false);
     }
   };

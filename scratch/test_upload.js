@@ -35,7 +35,7 @@ async function run() {
     });
 
     console.log('Sending upload request to backend...');
-    const response = await axios.post('https://sverx.nanoprofiles.com/api/products', form, {
+    const response = await axios.post('https://sverxiioo.nanoprofiles.com/api/products', form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${token}`

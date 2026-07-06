@@ -107,15 +107,13 @@ const Navbar = () => {
                       </Link>
                     )}
 
-                    <a 
-                      href="https://artiest-dashbaord.vercel.app/dashboard"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link 
+                      to="/artist/dashboard"
                       className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     >
                       <LayoutDashboard size={18} />
                       <span>Artist Dashboard</span>
-                    </a>
+                    </Link>
                     
                     <Link 
                       to="/dashboard"
@@ -251,10 +249,8 @@ const Navbar = () => {
                 </button>
 
                 <div className={`grid grid-cols-1 gap-1 transition-all duration-300 overflow-hidden ${isProfileExpanded ? 'max-h-[300px] mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
-                  <a 
-                    href="https://artiest-dashbaord.vercel.app/dashboard"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link 
+                    to="/artist/dashboard"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                     onClick={() => {
                       setIsMenuOpen(false);
@@ -263,7 +259,7 @@ const Navbar = () => {
                   >
                     <LayoutDashboard size={18} />
                     <span>Artist Dashboard</span>
-                  </a>
+                  </Link>
 
                   <Link 
                     to="/dashboard"
@@ -306,15 +302,14 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <a 
-                href="https://artiest-dashbaord.vercel.app/dashboard"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link 
+                to="/artist/dashboard"
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:text-black hover:bg-gray-50 border border-gray-200 transition-colors w-full text-left"
+                onClick={() => setIsMenuOpen(false)}
               >
                 <LayoutDashboard size={16} />
                 Artist Dashboard
-              </a>
+              </Link>
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);

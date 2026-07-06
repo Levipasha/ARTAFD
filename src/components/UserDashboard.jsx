@@ -14,7 +14,7 @@ import { io } from 'socket.io-client';
 // Helper to resolve socket URL
 const resolveSocketUrl = () => {
   if (process.env.REACT_APP_API_URL) return process.env.REACT_APP_API_URL.replace(/\/api$/, '');
-  return 'https://sverx.nanoprofiles.com';
+  return 'https://sverxiioo.nanoprofiles.com';
 };
 
 const SOCKET_URL = resolveSocketUrl();

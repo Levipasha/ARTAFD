@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { signInWithGoogle, signInWithEmail, getCurrentUser, getIdToken } from '../firebase';
 
 const FirebaseAuth = () => {
@@ -10,6 +10,8 @@ const FirebaseAuth = () => {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
 
   // Check if user is already logged in
   useEffect(() => {
@@ -19,7 +21,7 @@ const FirebaseAuth = () => {
         if (currentUser) {
           const token = await getIdToken();
           await login(token);
-          navigate('/dashboard');
+          navigate(from, { replace: true });
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -40,7 +42,7 @@ const FirebaseAuth = () => {
       // Login with our backend
       await login(token);
       
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (error) {
       setError('Failed to sign in with Google. Please try again.');
       console.error('Google sign in error:', error);
@@ -63,7 +65,7 @@ const FirebaseAuth = () => {
       // Login with our backend
       await login(token);
       
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         setError('No user found with this email address.');

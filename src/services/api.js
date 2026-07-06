@@ -16,7 +16,7 @@ const resolveApiBaseUrl = () => {
   }
 
   // Priority 2: New Production URL
-  return normalizeApiBaseUrl('https://sverx.nanoprofiles.com/api');
+  return normalizeApiBaseUrl('https://sverxiioo.nanoprofiles.com/api');
 };
 
 const API_BASE_URL = resolveApiBaseUrl();

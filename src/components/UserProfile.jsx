@@ -1,21 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Calendar, Edit, ShoppingBag, Heart, Settings, LogOut, ArrowLeft } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { User, Mail, Calendar, Edit, ShoppingBag, Heart, Settings, LogOut, ArrowLeft, MapPin } from 'lucide-react';
+import { artistAuth } from './artist/services/api';
+import { usersAPI } from '../services/api';
 import { logoutFirebase, auth } from '../firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { AnimatedTicket } from './ui/ticket-confirmation-card';
 
 const UserProfile = () => {
   const { user, isAuthenticated, logout, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const location = useLocation();
+  
+  const [activeTab, setActiveTab] = useState(() => {
+    const urlParams = new URLSearchParams(location.search);
+    return urlParams.get('tab') || 'overview';
+  });
+  
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ displayName: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState('');
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [artistProfile, setArtistProfile] = useState(null);
+  const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [selectedTicketEvent, setSelectedTicketEvent] = useState(null);
 
   const isArtist = user?.role === 'artist' || user?.isArtist;
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['overview', 'orders', 'favorites', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      if (isAuthenticated && activeTab === 'orders') {
+        try {
+          setLoadingEvents(true);
+          const data = await usersAPI.getRegisteredEvents();
+          setRegisteredEvents(data.events || []);
+        } catch (err) {
+          console.error('Failed to fetch user registered events:', err);
+        } finally {
+          setLoadingEvents(false);
+        }
+      }
+    };
+    fetchTickets();
+  }, [isAuthenticated, activeTab]);
 
   useEffect(() => {
     document.title = 'My Profile - ARTARTIST';
@@ -29,6 +67,23 @@ const UserProfile = () => {
       setProfileForm({ displayName: user.displayName || user.name || '' });
     }
   }, [user]);
+
+  useEffect(() => {
+    const checkArtistStatus = async () => {
+      const userToken = localStorage.getItem('authToken');
+      if (userToken) {
+        try {
+          const response = await artistAuth.ssoLogin(userToken);
+          if (response.success) {
+            setArtistProfile(response.artist);
+          }
+        } catch (err) {
+          console.log('SSO status check: Not a registered artist profile');
+        }
+      }
+    };
+    checkArtistStatus();
+  }, []);
 
   const handleSaveProfile = async () => {
     try {
@@ -136,7 +191,14 @@ const UserProfile = () => {
                 )}
               </div>
               <div className="mt-4 sm:mt-0 sm:ml-4 text-center sm:text-left flex-1">
-                <h1 className="text-2xl font-bold text-gray-900">{user.displayName || 'User'}</h1>
+                <div className="flex flex-col sm:flex-row items-center sm:items-baseline gap-2">
+                  <h1 className="text-2xl font-bold text-gray-900">{user.displayName || 'User'}</h1>
+                  {artistProfile && (
+                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-red-50 text-red-600 border border-red-200 rounded-full uppercase tracking-wider">
+                      Artist Member
+                    </span>
+                  )}
+                </div>
                 <p className="text-gray-500 flex items-center justify-center sm:justify-start gap-2 mt-1">
                   <Mail size={16} />
                   {user.email}
@@ -232,10 +294,42 @@ const UserProfile = () => {
                     </div>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-sm text-gray-500 mb-1">Account Type</p>
-                      <p className="font-medium text-gray-900 capitalize">{user.role || 'User'}</p>
+                      <p className="font-medium text-gray-900 capitalize">
+                        {artistProfile ? (user.role === 'admin' ? 'Admin / Artist' : 'Artist') : (user.role || 'User')}
+                      </p>
                     </div>
                   </div>
                   
+                  {artistProfile && (
+                    <div className="mt-6 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-5 shadow-sm">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-red-600 text-white rounded-lg flex-shrink-0">
+                          <User size={24} />
+                        </div>
+                        <div className="text-left">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-gray-900 text-lg">You are a Registered Artist!</h3>
+                            <span className="inline-block px-2.5 py-0.5 text-[10px] font-extrabold bg-red-600 text-white rounded-full uppercase tracking-wider">
+                              SSO Enabled
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mt-1.5 leading-relaxed">
+                            We detected that your email <strong className="text-gray-900">{user.email}</strong> is registered under our Artist Profiles. 
+                            Since you are already logged in to your account, you have direct single sign-on access to manage your works, events, and inbox without needing to login again.
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <Link
+                              to="/artist/dashboard"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm"
+                            >
+                              Go to Artist Dashboard &rarr;
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-6">
                     <h3 className="font-semibold text-gray-900 mb-3">Recent Activity</h3>
                     <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -250,14 +344,56 @@ const UserProfile = () => {
 
               {activeTab === 'orders' && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">My Orders</h2>
-                  <div className="bg-gray-50 rounded-lg p-8 text-center">
-                    <ShoppingBag size={48} className="text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No orders yet.</p>
-                    <Link to="/art" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
-                      Start Shopping
-                    </Link>
-                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">My Tickets & Bookings</h2>
+                  {loadingEvents ? (
+                    <div className="flex justify-center p-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                    </div>
+                  ) : registeredEvents.length > 0 ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {registeredEvents.map((event) => {
+                        return (
+                          <div key={event._id} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="px-2.5 py-0.5 text-[10px] font-extrabold bg-red-50 text-red-600 border border-red-100 rounded-full uppercase tracking-wider">
+                                  {event.category}
+                                </span>
+                                <span className="text-xs text-gray-400 font-mono">
+                                  ID: {event._id.substring(12, 24)}
+                                </span>
+                              </div>
+                              <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{event.title}</h3>
+                              <p className="text-gray-500 text-xs flex items-center gap-1.5 mb-1.5">
+                                <Calendar size={14} />
+                                <span>{new Date(event.date?.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {new Date(event.date?.start).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                              </p>
+                              <p className="text-gray-500 text-xs flex items-center gap-1.5 mb-4">
+                                <MapPin size={14} />
+                                <span className="truncate">{event.location?.address || event.location?.city}</span>
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setSelectedTicketEvent(event)}
+                                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors"
+                              >
+                                View Ticket
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-8 text-center">
+                      <ShoppingBag size={48} className="text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500">No tickets or bookings found.</p>
+                      <Link to="/events" className="text-red-600 hover:text-red-700 font-medium mt-2 inline-block">
+                        Browse Upcoming Events
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -371,6 +507,21 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
+        {/* Animated Ticket Modal Overlay */}
+        {selectedTicketEvent && (
+          <AnimatedTicket
+            ticketId={selectedTicketEvent._id}
+            amount={Number(selectedTicketEvent.pricing?.amount || 0)}
+            date={new Date(selectedTicketEvent.date?.start)}
+            cardHolder={user.displayName || user.name || 'Attendee'}
+            last4Digits={(user.uid || user.id || '8237').substring(0, 4).toUpperCase()}
+            barcodeValue={`${selectedTicketEvent._id.substring(0, 10)}${(user.uid || user.id || '2893').substring(0, 4)}`}
+            eventTitle={selectedTicketEvent.title}
+            eventLocation={selectedTicketEvent.location?.address || selectedTicketEvent.location?.city || 'Virtual'}
+            eventImage={selectedTicketEvent.images?.[0]?.url}
+            onClose={() => setSelectedTicketEvent(null)}
+          />
+        )}
       </div>
     </div>
   );
