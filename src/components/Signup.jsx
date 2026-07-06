@@ -35,6 +35,7 @@ const Signup = () => {
       }
     };
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [login, navigate]);
 
   const handleChange = (e) => {

@@ -26,6 +26,7 @@ const ArtistChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, p
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
+  /* eslint-disable-next-line no-unused-vars */
   const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
@@ -125,6 +126,7 @@ const ArtistChatWindow = ({ currentUser, partnerId, partnerName, partnerImage, p
     fetchHistory();
 
     return () => newSocket.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id, partnerId]);
 
   useEffect(() => {

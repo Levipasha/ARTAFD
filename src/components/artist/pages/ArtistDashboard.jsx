@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   User, Mail, MapPin, Phone, Globe, Instagram, Facebook,
-  Twitter, Linkedin, Save, LogOut, Camera, Loader2, Home,
-  Briefcase, DollarSign, Image as ImageIcon, MessageSquare, Clock, Trash2, Send
+  Linkedin, Save, LogOut, Camera, Loader2, Home,
+  Briefcase, Image as ImageIcon, MessageSquare, Trash2
 } from 'lucide-react'
 import { artistAuth, messagesAPI, productsAPI } from '../services/api'
 import { useArtist } from '../context/ArtistContext'
 import ArtistChatWindow from '../components/ArtistChatWindow'
 import { io } from 'socket.io-client'
-import { Plus, Edit2, ExternalLink, Filter, X } from 'lucide-react'
+import { Plus, Edit2, ExternalLink, X } from 'lucide-react'
 
 // Robust Socket URL resolution (matches api.js logic)
 const resolveSocketUrl = () => {
@@ -52,6 +52,7 @@ const ArtistDashboard = () => {
       return
     }
     loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, navigate])
 
   useEffect(() => {
@@ -59,6 +60,7 @@ const ArtistDashboard = () => {
       loadMessages()
       loadArtworks()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, artist?._id])
 
   // ── Global Socket for Inbox Updates ──────────────────────────────────────
@@ -82,6 +84,7 @@ const ArtistDashboard = () => {
     });
 
     return () => socket.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, artist?._id]);
 
   const loadProfile = async () => {
@@ -160,9 +163,8 @@ const ArtistDashboard = () => {
     }
 
     try {
-      let response;
       if (editingArt) {
-        response = await productsAPI.updateProduct(editingArt._id, formDataToSubmit);
+        await productsAPI.updateProduct(editingArt._id, formDataToSubmit);
         setMessage({ type: 'success', text: 'Artwork updated successfully!' });
       } else {
         // Double check limit before posting
@@ -171,7 +173,7 @@ const ArtistDashboard = () => {
           setSaving(false);
           return;
         }
-        response = await productsAPI.createProduct(formDataToSubmit);
+        await productsAPI.createProduct(formDataToSubmit);
         setMessage({ type: 'success', text: 'Artwork posted successfully!' });
       }
 
@@ -300,6 +302,7 @@ const ArtistDashboard = () => {
     }
   }
 
+  /* eslint-disable-next-line no-unused-vars */
   const handleDeleteMessage = async (id) => {
     try {
       await messagesAPI.deleteMessage(id);
@@ -309,6 +312,7 @@ const ArtistDashboard = () => {
     }
   }
 
+  /* eslint-disable-next-line no-unused-vars */
   const handleMarkAsRead = async (id) => {
     try {
       await messagesAPI.markAsRead(id);
@@ -323,6 +327,7 @@ const ArtistDashboard = () => {
     navigate('/artist/login')
   }
 
+  /* eslint-disable-next-line no-unused-vars */
   const formatTime = (timestamp) => {
     const date = new Date(timestamp)
     return date.toLocaleString('en-IN', {
