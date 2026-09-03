@@ -234,7 +234,7 @@ const ArtistsPage = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search by artist name, art form, or city..."
+                placeholder="Hire an Artist by Name, Art Form, or City..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus

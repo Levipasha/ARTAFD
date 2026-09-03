@@ -250,7 +250,7 @@ const Hero = () => {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              placeholder="Search artists, art form, city..."
+              placeholder="Hire an Artist by Name, Art Form, or City..."
               className="w-full px-6 py-4 pr-24 text-gray-700 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:border-red-600 focus:bg-white transition-all"
             />
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-2">
